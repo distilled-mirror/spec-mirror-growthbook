@@ -1,0 +1,58 @@
+# GrowthBook Documentation
+
+- [Docs (180 pages)](https://docs.growthbook.io/_llms/docs.md): Documentation for Docs.
+
+## SDKs
+
+###  
+
+- [SDK Overview](https://docs.growthbook.io/lib.md): Choose a GrowthBook SDK for JavaScript, React, Python, Node.js, mobile, or the edge to evaluate flags and run experiments.
+- [SDK Quickstart](https://docs.growthbook.io/lib/quickstart.md): Get GrowthBook feature flags and experiments running in your app in a few lines of code, then pick a language-specific SDK.
+- [OpenFeature Providers](https://docs.growthbook.io/lib/openfeature.md): Use GrowthBook as an OpenFeature provider in JavaScript, Python, Go, .NET, and Java so you can evaluate flags through the OpenFeature API.
+- [Build Your Own SDK](https://docs.growthbook.io/lib/build-your-own.md): Spec for library authors building a GrowthBook SDK in an unsupported language, including required tests and hashing rules.
+
+#### Client
+
+- [HTML Script Tag](https://docs.growthbook.io/lib/script-tag.md): Add a GrowthBook HTML script tag to any website or low-code platform to run feature flags and Visual Editor experiments.
+- [JavaScript SDK](https://docs.growthbook.io/lib/js.md): Install the GrowthBook JavaScript SDK to evaluate feature flags and run A/B tests in the browser with vanilla JS or TypeScript.
+- [React SDK](https://docs.growthbook.io/lib/react.md): Use the GrowthBook React SDK to evaluate feature flags and run A/B tests in React, including client and server components.
+- [How to Use GrowthBook with Vue](https://docs.growthbook.io/lib/vue.md): Start A/B testing and feature flagging in Vue. This guide shows you how to implement GrowthBook's JavaScript SDK using Vue's Composition and Options API.
+- [Kotlin (Android)](https://docs.growthbook.io/lib/kotlin.md): Install the GrowthBook Kotlin SDK to evaluate feature flags and run A/B tests in Android apps using Android SDK 21 and above.
+- [Flutter SDK](https://docs.growthbook.io/lib/flutter.md): Install the GrowthBook Flutter SDK to evaluate feature flags and run A/B tests in Flutter mobile, web, and desktop apps.
+- [Swift (iOS)](https://docs.growthbook.io/lib/swift.md): Install the GrowthBook Swift SDK to evaluate feature flags and run A/B tests on iOS, macOS, tvOS, and other Apple platforms.
+- [React Native SDK](https://docs.growthbook.io/lib/react-native.md): Use the GrowthBook React Native SDK to evaluate feature flags and run A/B tests in iOS and Android apps, including targeting and tracking.
+- [Roku SDK](https://docs.growthbook.io/lib/roku.md): Install the GrowthBook Roku SDK to evaluate feature flags and run A/B tests in Roku channels with BrightScript or JavaScript.
+
+#### Server
+
+- [Node.js SDK](https://docs.growthbook.io/lib/node.md): Install the GrowthBook Node.js SDK to evaluate feature flags and run A/B tests in server-side JavaScript. Requires Node 18 or above.
+- [Next.js SDK (Vercel Flags)](https://docs.growthbook.io/lib/nextjs.md): Use the GrowthBook Next.js adapter for Vercel Flags to evaluate feature flags and experiments in App Router and hybrid backends.
+- [PHP SDK](https://docs.growthbook.io/lib/php.md): Install the GrowthBook PHP SDK to evaluate feature flags and run A/B tests in PHP applications, including targeting attributes and tracking callbacks.
+- [Ruby](https://docs.growthbook.io/lib/ruby.md): Install the GrowthBook Ruby SDK to evaluate feature flags and run A/B tests in Ruby and Rails apps, including targeting and tracking callbacks.
+- [Python SDK](https://docs.growthbook.io/lib/python.md): Install the GrowthBook Python SDK to evaluate feature flags and run A/B tests in backends, scripts, and data applications.
+- [Java SDK](https://docs.growthbook.io/lib/java.md): Install the GrowthBook Java SDK to evaluate feature flags and run A/B tests in JVM applications, including targeting attributes and tracking callbacks.
+- [Kotlin (JVM)](https://docs.growthbook.io/lib/kotlin-jvm.md): Install the GrowthBook Kotlin JVM SDK to evaluate feature flags and run A/B tests in Kotlin backend services and workers.
+- [C#](https://docs.growthbook.io/lib/csharp.md): Install the GrowthBook C# SDK to evaluate feature flags and run A/B tests in .NET applications, including targeting attributes and tracking callbacks.
+- [Go SDK](https://docs.growthbook.io/lib/go.md): Install the GrowthBook Go SDK to evaluate feature flags and run A/B tests in Go services, including targeting attributes and tracking callbacks.
+- [Rust SDK](https://docs.growthbook.io/lib/rust.md): Install the GrowthBook Rust SDK to evaluate feature flags and run A/B tests in Rust applications, including targeting attributes and tracking callbacks.
+- [Elixir](https://docs.growthbook.io/lib/elixir.md): Install the GrowthBook Elixir SDK to evaluate feature flags and run A/B tests in Elixir and Phoenix apps, including targeting and tracking callbacks.
+
+#### Edge
+
+- [Cloudflare Workers Edge App & SDK](https://docs.growthbook.io/lib/edge/cloudflare.md): Evaluate GrowthBook feature flags and Visual Editor experiments at the edge on Cloudflare Workers to cut flicker before HTML ships.
+- [Fastly Compute Edge App & SDK](https://docs.growthbook.io/lib/edge/fastly.md): Evaluate GrowthBook feature flags and Visual Editor experiments at the edge on Fastly Compute to cut flicker before HTML ships.
+- [Lambda@Edge Edge App & SDK](https://docs.growthbook.io/lib/edge/lambda.md): Evaluate GrowthBook feature flags and Visual Editor experiments at the edge with Lambda@Edge to cut flicker before HTML ships.
+- [GrowthBook Edge App for other providers](https://docs.growthbook.io/lib/edge/other.md): Use the GrowthBook Edge App pattern on other CDN or edge providers to evaluate flags and rewrite HTML before it reaches the browser.
+
+- [API (505 pages)](https://docs.growthbook.io/_llms/api.md): Documentation for API.
+
+## OpenAPI Specs
+
+- [openapi](/openapi.yaml)
+
+> The links below point to documentation indexes. Follow each `/_llms/` index recursively until you reach documentation pages.
+
+## Indexes
+
+- [Docs (180 pages)](https://docs.growthbook.io/_llms/docs.md): Documentation for Docs.
+- [API (505 pages)](https://docs.growthbook.io/_llms/api.md): Documentation for API.
