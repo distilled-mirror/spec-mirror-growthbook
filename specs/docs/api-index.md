@@ -200,6 +200,7 @@
 - [Upload a variation screenshot](https://docs.growthbook.io/api/experiments/operation/postVariationImageUpload.md)
 - [Delete a variation screenshot](https://docs.growthbook.io/api/experiments/operation/deleteVariationScreenshot.md)
 - [Get a list of experiments with names and ids](https://docs.growthbook.io/api/experiments/operation/getExperimentNames.md)
+- [Post a comment on an experiment](https://docs.growthbook.io/api/experiments/operation/postExperimentComment.md): Adds a new comment to an experiment's discussion thread.
 
 #### Namespaces
 
@@ -548,12 +549,21 @@
 - [Start the Holdout's Analysis Period](https://docs.growthbook.io/api/Holdouts/operation/startHoldoutAnalysis.md): Move the holdout into an analysis phase. New Feature Flags and Experiments can no longer be added, but existing traffic splits remain active for existing and new traffic. Results exclude data from before the analysis period so you can measure the cumulative impact after changes are frozen.
 - [Stop a Holdout](https://docs.growthbook.io/api/Holdouts/operation/stopHoldout.md)
 
+#### Auto Runs
+
+- [Get all autoRuns](https://docs.growthbook.io/api/AutoRuns/operation/listAutoRuns.md)
+- [Create a single autoRun](https://docs.growthbook.io/api/AutoRuns/operation/createAutoRun.md)
+- [Get a single autoRun](https://docs.growthbook.io/api/AutoRuns/operation/getAutoRun.md)
+- [Update a single autoRun](https://docs.growthbook.io/api/AutoRuns/operation/updateAutoRun.md)
+- [Record something an auto run created](https://docs.growthbook.io/api/AutoRuns/operation/appendAutoRunArtifact.md)
+
 ### Models
 
 - [Aggregated Fact Table](https://docs.growthbook.io/api/AggregatedFactTable_model.md)
 - [Analytics Exploration](https://docs.growthbook.io/api/AnalyticsExploration_model.md)
 - [Archetype](https://docs.growthbook.io/api/Archetype_model.md)
 - [Attribute](https://docs.growthbook.io/api/Attribute_model.md)
+- [Auto Run](https://docs.growthbook.io/api/AutoRun_model.md)
 - [Code Ref](https://docs.growthbook.io/api/CodeRef_model.md)
 - [Config](https://docs.growthbook.io/api/Config_model.md)
 - [Config Key Usage](https://docs.growthbook.io/api/ConfigKeyUsage_model.md)
