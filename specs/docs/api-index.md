@@ -141,6 +141,10 @@
 - [Get all data sources](https://docs.growthbook.io/api/data-sources/operation/listDataSources.md)
 - [Get a single data source](https://docs.growthbook.io/api/data-sources/operation/getDataSource.md)
 - [Get a Data Source's Information Schema](https://docs.growthbook.io/api/data-sources/operation/getInformationSchema.md): Returns cached database schema metadata for a data source, including databases, schemas, and tables. The information schema is automatically created when a SQL-based data source is added. Not all data source types support information schemas.
+- [Search warehouse tables](https://docs.growthbook.io/api/data-sources/operation/searchWarehouseTables.md)
+- [Get warehouse table schemas](https://docs.growthbook.io/api/data-sources/operation/getWarehouseTableSchema.md)
+- [Preview distinct column values](https://docs.growthbook.io/api/data-sources/operation/previewWarehouseColumnValues.md)
+- [Execute a read-only SQL query](https://docs.growthbook.io/api/data-sources/operation/runSqlQuery.md)
 - [Get a single Information Schema Table by id](https://docs.growthbook.io/api/data-sources/operation/getInformationSchemaTable.md): Returns cached metadata for a specific table in the Data Source, including columns and their data types. Not all data source types support information schemas.
 
 #### Fact Tables

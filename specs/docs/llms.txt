@@ -44,7 +44,7 @@
 - [Lambda@Edge Edge App & SDK](https://docs.growthbook.io/lib/edge/lambda.md): Evaluate GrowthBook feature flags and Visual Editor experiments at the edge with Lambda@Edge to cut flicker before HTML ships.
 - [GrowthBook Edge App for other providers](https://docs.growthbook.io/lib/edge/other.md): Use the GrowthBook Edge App pattern on other CDN or edge providers to evaluate flags and rewrite HTML before it reaches the browser.
 
-- [API (512 pages)](https://docs.growthbook.io/_llms/api.md): Documentation for API.
+- [API (516 pages)](https://docs.growthbook.io/_llms/api.md): Documentation for API.
 
 ## OpenAPI Specs
 
@@ -55,4 +55,4 @@
 ## Indexes
 
 - [Docs (180 pages)](https://docs.growthbook.io/_llms/docs.md): Documentation for Docs.
-- [API (512 pages)](https://docs.growthbook.io/_llms/api.md): Documentation for API.
+- [API (516 pages)](https://docs.growthbook.io/_llms/api.md): Documentation for API.
