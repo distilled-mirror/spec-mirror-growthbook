@@ -946,7 +946,7 @@
                     }
                   },
                   "environments": {
-                    "description": "A dictionary of environments that are enabled for this feature. Keys supply the names of environments. Environments belong to organization and are not specified will be disabled by default.",
+                    "description": "Settings for each environment, keyed by environment ID. Any environment you leave out is enabled or disabled per that environment's \"Default state for new features\" setting.",
                     "type": "object",
                     "propertyNames": {
                       "type": "string"
@@ -2672,6 +2672,7 @@
                     }
                   },
                   "environments": {
+                    "description": "Settings for each environment, keyed by environment ID. Any environment you leave out keeps its current settings.",
                     "type": "object",
                     "propertyNames": {
                       "type": "string"
@@ -9890,7 +9891,7 @@
                               "type": "boolean"
                             },
                             "environments": {
-                              "description": "Specific environment IDs this rule applies to. Required when allEnvironments is false.",
+                              "description": "Environment IDs the rule applies to. Ignored when allEnvironments is true; with allEnvironments false, an omitted or empty list scopes the rule to no environment.",
                               "type": "array",
                               "items": {
                                 "type": "string"
@@ -10092,7 +10093,7 @@
                               "type": "boolean"
                             },
                             "environments": {
-                              "description": "Specific environment IDs this rule applies to. Required when allEnvironments is false.",
+                              "description": "Environment IDs the rule applies to. Ignored when allEnvironments is true; with allEnvironments false, an omitted or empty list scopes the rule to no environment.",
                               "type": "array",
                               "items": {
                                 "type": "string"
@@ -10293,7 +10294,7 @@
                               "type": "boolean"
                             },
                             "environments": {
-                              "description": "Specific environment IDs this rule applies to. Required when allEnvironments is false.",
+                              "description": "Environment IDs the rule applies to. Ignored when allEnvironments is true; with allEnvironments false, an omitted or empty list scopes the rule to no environment.",
                               "type": "array",
                               "items": {
                                 "type": "string"
@@ -10484,7 +10485,7 @@
                               "type": "boolean"
                             },
                             "environments": {
-                              "description": "Specific environment IDs this rule applies to. Required when allEnvironments is false.",
+                              "description": "Environment IDs the rule applies to. Ignored when allEnvironments is true; with allEnvironments false, an omitted or empty list scopes the rule to no environment.",
                               "type": "array",
                               "items": {
                                 "type": "string"
@@ -10890,7 +10891,7 @@
                               "type": "boolean"
                             },
                             "environments": {
-                              "description": "Specific environment IDs this rule applies to. Required when allEnvironments is false.",
+                              "description": "Environment IDs the rule applies to. Ignored when allEnvironments is true; with allEnvironments false, an omitted or empty list scopes the rule to no environment.",
                               "type": "array",
                               "items": {
                                 "type": "string"
@@ -11092,7 +11093,7 @@
                               "type": "boolean"
                             },
                             "environments": {
-                              "description": "Specific environment IDs this rule applies to. Required when allEnvironments is false.",
+                              "description": "Environment IDs the rule applies to. Ignored when allEnvironments is true; with allEnvironments false, an omitted or empty list scopes the rule to no environment.",
                               "type": "array",
                               "items": {
                                 "type": "string"
@@ -11293,7 +11294,7 @@
                               "type": "boolean"
                             },
                             "environments": {
-                              "description": "Specific environment IDs this rule applies to. Required when allEnvironments is false.",
+                              "description": "Environment IDs the rule applies to. Ignored when allEnvironments is true; with allEnvironments false, an omitted or empty list scopes the rule to no environment.",
                               "type": "array",
                               "items": {
                                 "type": "string"
@@ -11484,7 +11485,7 @@
                               "type": "boolean"
                             },
                             "environments": {
-                              "description": "Specific environment IDs this rule applies to. Required when allEnvironments is false.",
+                              "description": "Environment IDs the rule applies to. Ignored when allEnvironments is true; with allEnvironments false, an omitted or empty list scopes the rule to no environment.",
                               "type": "array",
                               "items": {
                                 "type": "string"
@@ -14511,9 +14512,11 @@
                         "type": "string"
                       },
                       "allEnvironments": {
+                        "description": "Omit both scope fields to keep the current scope.",
                         "type": "boolean"
                       },
                       "environments": {
+                        "description": "Environment IDs the rule applies to. Ignored when allEnvironments is true.",
                         "type": "array",
                         "items": {
                           "type": "string"
@@ -40293,6 +40296,7 @@
       "post": {
         "operationId": "postRampSchedule",
         "summary": "Create a ramp schedule",
+        "description": "Creates a ramp schedule, optionally attached to a published feature rule by passing `featureId` and `ruleId` together (the target is then injected into every action). Attaching on creation skips the revision review flow, so when the organization requires review anywhere it is limited to credentials that may bypass approval. The reviewed way to attach a plan is `PUT /features/{id}/revisions/{version}/rules/{ruleId}/ramp-schedule` followed by a publish. Without a target the schedule is a free-standing skeleton in `pending` status. Requires a Pro plan or above.",
         "tags": [
           "ramp-schedules"
         ],
@@ -41429,7 +41433,7 @@
       "post": {
         "operationId": "addTargetRampSchedule",
         "summary": "Add a target rule to a ramp schedule",
-        "description": "Attaches an additional feature rule to this ramp schedule. The `ruleId`\nmust identify a rule that is already published and must not already be\ncontrolled by another schedule. `environment` is accepted for backward\ncompatibility with pre-v2 ramps but is deprecated and no longer required.\n",
+        "description": "Attaches an additional feature rule to this ramp schedule. The `ruleId`\nmust identify a rule that is already published and must not already be\ncontrolled by another schedule. `environment` is accepted for backward\ncompatibility with pre-v2 ramps but is deprecated and no longer required.\n\nThis skips the revision review flow, so when the organization requires review\nanywhere it is limited to credentials that may bypass approval. The reviewed way\nto attach a plan is `PUT /features/{id}/revisions/{version}/rules/{ruleId}/ramp-schedule`\nfollowed by a publish.\n",
         "tags": [
           "ramp-schedules"
         ],
@@ -43929,7 +43933,7 @@
       "put": {
         "operationId": "updateRampScheduleSteps",
         "summary": "Update ramp schedule steps",
-        "description": "Fully replaces the steps array for a ramp schedule. Only allowed when the schedule is in a non-running, non-terminal state (`ready`, `pending`, or `paused`). Pause a running schedule first; restart a terminal schedule first.\n\n**Step actions** (coverage/targeting patches) are not accepted here — they change the SDK payload and must go through a feature revision draft. Existing step actions are preserved for each position. Use `PUT /v2/features/:id/revisions/:version/rules/:ruleId/ramp-schedule` to modify coverage/targeting.\n",
+        "description": "Fully replaces the steps array for a ramp schedule. Only allowed when the schedule is in a non-running, non-terminal state (`ready`, `pending`, or `paused`). Pause a running schedule first; restart a terminal schedule first.\n\nOn a schedule attached to a rule this skips the revision review flow, so when the organization requires review anywhere it is limited to credentials that may bypass approval.\n\n**Step actions** (coverage/targeting patches) are not accepted here — they change the SDK payload and must go through a feature revision draft. Existing step actions are preserved for each position. Use `PUT /v2/features/:id/revisions/:version/rules/:ruleId/ramp-schedule` to modify coverage/targeting.\n",
         "tags": [
           "ramp-schedules"
         ],
@@ -43957,6 +43961,9 @@
                     "items": {
                       "type": "object",
                       "properties": {
+                        "actions": {
+                          "description": "Read-only; ignored on write. Accepted so a GET response can be posted back unchanged."
+                        },
                         "interval": {
                           "description": "Hold duration in seconds before this step's gates are evaluated. `null` means no time gate.",
                           "anyOf": [
@@ -45885,13 +45892,24 @@
                                 },
                                 "content": {
                                   "type": "string"
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "uid": {
+                                  "type": "string"
+                                },
+                                "organization": {
+                                  "type": "string"
                                 }
                               },
                               "required": [
                                 "type",
                                 "title",
                                 "description",
-                                "content"
+                                "content",
+                                "id"
                               ],
                               "additionalProperties": false
                             },
@@ -45961,6 +45979,16 @@
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "uid": {
+                                  "type": "string"
+                                },
+                                "organization": {
+                                  "type": "string"
                                 }
                               },
                               "required": [
@@ -45970,7 +45998,8 @@
                                 "experimentId",
                                 "showDescription",
                                 "showHypothesis",
-                                "showVariationImages"
+                                "showVariationImages",
+                                "id"
                               ],
                               "additionalProperties": false
                             },
@@ -46104,6 +46133,16 @@
                                       "type": "null"
                                     }
                                   ]
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "uid": {
+                                  "type": "string"
+                                },
+                                "organization": {
+                                  "type": "string"
                                 }
                               },
                               "required": [
@@ -46120,7 +46159,8 @@
                                 "sliceTagsFilter",
                                 "metricTagFilter",
                                 "sortBy",
-                                "sortDirection"
+                                "sortDirection",
+                                "id"
                               ],
                               "additionalProperties": false
                             },
@@ -46367,6 +46407,16 @@
                                     }
                                   },
                                   "additionalProperties": false
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "uid": {
+                                  "type": "string"
+                                },
+                                "organization": {
+                                  "type": "string"
                                 }
                               },
                               "required": [
@@ -46377,7 +46427,8 @@
                                 "projects",
                                 "experimentSearchString",
                                 "differenceType",
-                                "bandits"
+                                "bandits",
+                                "id"
                               ],
                               "additionalProperties": false
                             },
@@ -46616,6 +46667,16 @@
                                 },
                                 "metricId": {
                                   "type": "string"
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "uid": {
+                                  "type": "string"
+                                },
+                                "organization": {
+                                  "type": "string"
                                 }
                               },
                               "required": [
@@ -46624,7 +46685,8 @@
                                 "description",
                                 "dateRange",
                                 "projects",
-                                "metricId"
+                                "metricId",
+                                "id"
                               ],
                               "additionalProperties": false
                             },
@@ -46863,6 +46925,16 @@
                                 },
                                 "showProjectBreakdown": {
                                   "type": "boolean"
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "uid": {
+                                  "type": "string"
+                                },
+                                "organization": {
+                                  "type": "string"
                                 }
                               },
                               "required": [
@@ -46871,7 +46943,8 @@
                                 "description",
                                 "dateRange",
                                 "projects",
-                                "showProjectBreakdown"
+                                "showProjectBreakdown",
+                                "id"
                               ],
                               "additionalProperties": false
                             },
@@ -47118,6 +47191,16 @@
                                     "month",
                                     "year"
                                   ]
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "uid": {
+                                  "type": "string"
+                                },
+                                "organization": {
+                                  "type": "string"
                                 }
                               },
                               "required": [
@@ -47125,7 +47208,8 @@
                                 "title",
                                 "description",
                                 "dateRange",
-                                "projects"
+                                "projects",
+                                "id"
                               ],
                               "additionalProperties": false
                             },
@@ -47262,6 +47346,16 @@
                                       "type": "null"
                                     }
                                   ]
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "uid": {
+                                  "type": "string"
+                                },
+                                "organization": {
+                                  "type": "string"
                                 }
                               },
                               "required": [
@@ -47279,7 +47373,8 @@
                                 "columnsFilter",
                                 "metricTagFilter",
                                 "sortBy",
-                                "sortDirection"
+                                "sortDirection",
+                                "id"
                               ],
                               "additionalProperties": false
                             },
@@ -47399,6 +47494,16 @@
                                       "type": "null"
                                     }
                                   ]
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "uid": {
+                                  "type": "string"
+                                },
+                                "organization": {
+                                  "type": "string"
                                 }
                               },
                               "required": [
@@ -47413,7 +47518,8 @@
                                 "sliceTagsFilter",
                                 "metricTagFilter",
                                 "sortBy",
-                                "sortDirection"
+                                "sortDirection",
+                                "id"
                               ],
                               "additionalProperties": false
                             },
@@ -47474,6 +47580,16 @@
                                 },
                                 "showTimeseries": {
                                   "type": "boolean"
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "uid": {
+                                  "type": "string"
+                                },
+                                "organization": {
+                                  "type": "string"
                                 }
                               },
                               "required": [
@@ -47482,7 +47598,8 @@
                                 "description",
                                 "experimentId",
                                 "showTable",
-                                "showTimeseries"
+                                "showTimeseries",
+                                "id"
                               ],
                               "additionalProperties": false
                             },
@@ -47546,6 +47663,16 @@
                                   "items": {
                                     "type": "string"
                                   }
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "uid": {
+                                  "type": "string"
+                                },
+                                "organization": {
+                                  "type": "string"
                                 }
                               },
                               "required": [
@@ -47553,7 +47680,8 @@
                                 "title",
                                 "description",
                                 "savedQueryId",
-                                "blockConfig"
+                                "blockConfig",
+                                "id"
                               ],
                               "additionalProperties": false
                             },
@@ -47778,6 +47906,16 @@
                                     "endDate"
                                   ],
                                   "additionalProperties": false
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "uid": {
+                                  "type": "string"
+                                },
+                                "organization": {
+                                  "type": "string"
                                 }
                               },
                               "required": [
@@ -47788,7 +47926,8 @@
                                 "visualizationType",
                                 "valueType",
                                 "metricAnalysisId",
-                                "analysisSettings"
+                                "analysisSettings",
+                                "id"
                               ],
                               "additionalProperties": false
                             },
@@ -48350,13 +48489,24 @@
                                 "explorerAnalysisId": {
                                   "description": "The exploration run this block renders. Omit it to send `config` alone and have the query run when the dashboard is written.",
                                   "type": "string"
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "uid": {
+                                  "type": "string"
+                                },
+                                "organization": {
+                                  "type": "string"
                                 }
                               },
                               "required": [
                                 "type",
                                 "title",
                                 "description",
-                                "config"
+                                "config",
+                                "id"
                               ],
                               "additionalProperties": false
                             },
@@ -48934,13 +49084,24 @@
                                 "explorerAnalysisId": {
                                   "description": "The exploration run this block renders. Omit it to send `config` alone and have the query run when the dashboard is written.",
                                   "type": "string"
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "uid": {
+                                  "type": "string"
+                                },
+                                "organization": {
+                                  "type": "string"
                                 }
                               },
                               "required": [
                                 "type",
                                 "title",
                                 "description",
-                                "config"
+                                "config",
+                                "id"
                               ],
                               "additionalProperties": false
                             },
@@ -49536,13 +49697,24 @@
                                 "explorerAnalysisId": {
                                   "description": "The exploration run this block renders. Omit it to send `config` alone and have the query run when the dashboard is written.",
                                   "type": "string"
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "uid": {
+                                  "type": "string"
+                                },
+                                "organization": {
+                                  "type": "string"
                                 }
                               },
                               "required": [
                                 "type",
                                 "title",
                                 "description",
-                                "config"
+                                "config",
+                                "id"
                               ],
                               "additionalProperties": false
                             },
@@ -50144,13 +50316,24 @@
                                 "explorerAnalysisId": {
                                   "description": "The exploration run this block renders. Omit it to send `config` alone and have the query run when the dashboard is written.",
                                   "type": "string"
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "uid": {
+                                  "type": "string"
+                                },
+                                "organization": {
+                                  "type": "string"
                                 }
                               },
                               "required": [
                                 "type",
                                 "title",
                                 "description",
-                                "config"
+                                "config",
+                                "id"
                               ],
                               "additionalProperties": false
                             },
@@ -50755,13 +50938,24 @@
                                 "explorerAnalysisId": {
                                   "description": "The exploration run this block renders. Omit it to send `config` alone and have the query run when the dashboard is written.",
                                   "type": "string"
+                                },
+                                "id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "uid": {
+                                  "type": "string"
+                                },
+                                "organization": {
+                                  "type": "string"
                                 }
                               },
                               "required": [
                                 "type",
                                 "title",
                                 "description",
-                                "config"
+                                "config",
+                                "id"
                               ],
                               "additionalProperties": false
                             }
@@ -50772,262 +50966,6 @@
                             {
                               "type": "object",
                               "properties": {
-                                "organization": {
-                                  "type": "string"
-                                },
-                                "id": {
-                                  "type": "string"
-                                },
-                                "uid": {
-                                  "type": "string"
-                                },
-                                "type": {
-                                  "type": "string",
-                                  "const": "metric-explorer"
-                                },
-                                "title": {
-                                  "type": "string"
-                                },
-                                "description": {
-                                  "type": "string"
-                                },
-                                "snapshotId": {
-                                  "type": "string"
-                                },
-                                "layout": {
-                                  "type": "object",
-                                  "properties": {
-                                    "x": {
-                                      "type": "integer",
-                                      "minimum": 0,
-                                      "maximum": 23
-                                    },
-                                    "y": {
-                                      "type": "integer",
-                                      "minimum": 0
-                                    },
-                                    "w": {
-                                      "type": "integer",
-                                      "minimum": 1,
-                                      "maximum": 24
-                                    },
-                                    "h": {
-                                      "type": "integer",
-                                      "minimum": 1
-                                    },
-                                    "static": {
-                                      "type": "boolean"
-                                    }
-                                  },
-                                  "required": [
-                                    "x",
-                                    "y",
-                                    "w",
-                                    "h"
-                                  ],
-                                  "additionalProperties": false
-                                },
-                                "factMetricId": {
-                                  "type": "string"
-                                },
-                                "visualizationType": {
-                                  "type": "string",
-                                  "enum": [
-                                    "histogram",
-                                    "bigNumber",
-                                    "timeseries"
-                                  ]
-                                },
-                                "valueType": {
-                                  "type": "string",
-                                  "enum": [
-                                    "avg",
-                                    "sum"
-                                  ]
-                                },
-                                "metricAnalysisId": {
-                                  "type": "string"
-                                },
-                                "comparison": {
-                                  "type": "object",
-                                  "properties": {
-                                    "enabled": {
-                                      "type": "boolean"
-                                    },
-                                    "mode": {
-                                      "type": "string",
-                                      "enum": [
-                                        "previousPeriod",
-                                        "previousPeriodMatchDayOfWeek",
-                                        "previousYear",
-                                        "previousYearMatchDayOfWeek",
-                                        "custom"
-                                      ]
-                                    },
-                                    "previousTimeFrame": {
-                                      "type": "object",
-                                      "properties": {
-                                        "predefined": {
-                                          "type": "string",
-                                          "enum": [
-                                            "today",
-                                            "yesterday",
-                                            "last7Days",
-                                            "last30Days",
-                                            "last90Days",
-                                            "last12Months",
-                                            "lastCalendarYear",
-                                            "customLookback",
-                                            "customDateRange"
-                                          ]
-                                        },
-                                        "lookbackValue": {
-                                          "anyOf": [
-                                            {
-                                              "type": "number"
-                                            },
-                                            {
-                                              "type": "null"
-                                            }
-                                          ]
-                                        },
-                                        "lookbackUnit": {
-                                          "anyOf": [
-                                            {
-                                              "type": "string",
-                                              "enum": [
-                                                "hour",
-                                                "day",
-                                                "week",
-                                                "month"
-                                              ]
-                                            },
-                                            {
-                                              "type": "null"
-                                            }
-                                          ]
-                                        },
-                                        "startDate": {
-                                          "anyOf": [
-                                            {
-                                              "type": "string"
-                                            },
-                                            {
-                                              "type": "null"
-                                            }
-                                          ]
-                                        },
-                                        "endDate": {
-                                          "anyOf": [
-                                            {
-                                              "type": "string"
-                                            },
-                                            {
-                                              "type": "null"
-                                            }
-                                          ]
-                                        }
-                                      },
-                                      "required": [
-                                        "predefined"
-                                      ],
-                                      "additionalProperties": false
-                                    }
-                                  },
-                                  "required": [
-                                    "enabled"
-                                  ],
-                                  "additionalProperties": false
-                                },
-                                "comparisonMetricAnalysisId": {
-                                  "type": "string"
-                                },
-                                "analysisSettings": {
-                                  "type": "object",
-                                  "properties": {
-                                    "userIdType": {
-                                      "type": "string"
-                                    },
-                                    "lookbackDays": {
-                                      "type": "number"
-                                    },
-                                    "populationType": {
-                                      "type": "string",
-                                      "enum": [
-                                        "metric",
-                                        "factTable",
-                                        "exposureQuery",
-                                        "population",
-                                        "segment"
-                                      ]
-                                    },
-                                    "populationId": {
-                                      "anyOf": [
-                                        {
-                                          "type": "string"
-                                        },
-                                        {
-                                          "type": "null"
-                                        }
-                                      ]
-                                    },
-                                    "additionalNumeratorFilters": {
-                                      "type": "array",
-                                      "items": {
-                                        "type": "string"
-                                      }
-                                    },
-                                    "additionalDenominatorFilters": {
-                                      "type": "array",
-                                      "items": {
-                                        "type": "string"
-                                      }
-                                    },
-                                    "startDate": {
-                                      "type": "string"
-                                    },
-                                    "endDate": {
-                                      "type": "string"
-                                    }
-                                  },
-                                  "required": [
-                                    "userIdType",
-                                    "lookbackDays",
-                                    "populationType",
-                                    "populationId",
-                                    "startDate",
-                                    "endDate"
-                                  ],
-                                  "additionalProperties": false
-                                }
-                              },
-                              "required": [
-                                "organization",
-                                "id",
-                                "uid",
-                                "type",
-                                "title",
-                                "description",
-                                "factMetricId",
-                                "visualizationType",
-                                "valueType",
-                                "metricAnalysisId",
-                                "analysisSettings"
-                              ],
-                              "additionalProperties": false
-                            },
-                            {
-                              "type": "object",
-                              "properties": {
-                                "organization": {
-                                  "type": "string"
-                                },
-                                "id": {
-                                  "type": "string"
-                                },
-                                "uid": {
-                                  "type": "string"
-                                },
                                 "type": {
                                   "type": "string",
                                   "const": "markdown"
@@ -51079,9 +51017,6 @@
                                 }
                               },
                               "required": [
-                                "organization",
-                                "id",
-                                "uid",
                                 "type",
                                 "title",
                                 "description",
@@ -51092,15 +51027,6 @@
                             {
                               "type": "object",
                               "properties": {
-                                "organization": {
-                                  "type": "string"
-                                },
-                                "id": {
-                                  "type": "string"
-                                },
-                                "uid": {
-                                  "type": "string"
-                                },
                                 "type": {
                                   "type": "string",
                                   "const": "experiment-metadata"
@@ -51167,9 +51093,6 @@
                                 }
                               },
                               "required": [
-                                "organization",
-                                "id",
-                                "uid",
                                 "type",
                                 "title",
                                 "description",
@@ -51183,15 +51106,6 @@
                             {
                               "type": "object",
                               "properties": {
-                                "organization": {
-                                  "type": "string"
-                                },
-                                "id": {
-                                  "type": "string"
-                                },
-                                "uid": {
-                                  "type": "string"
-                                },
                                 "type": {
                                   "type": "string",
                                   "const": "experiment-metric"
@@ -51322,9 +51236,6 @@
                                 }
                               },
                               "required": [
-                                "organization",
-                                "id",
-                                "uid",
                                 "type",
                                 "title",
                                 "description",
@@ -51345,15 +51256,6 @@
                             {
                               "type": "object",
                               "properties": {
-                                "organization": {
-                                  "type": "string"
-                                },
-                                "id": {
-                                  "type": "string"
-                                },
-                                "uid": {
-                                  "type": "string"
-                                },
                                 "type": {
                                   "type": "string",
                                   "const": "metric-experiments"
@@ -51597,9 +51499,6 @@
                                 }
                               },
                               "required": [
-                                "organization",
-                                "id",
-                                "uid",
                                 "type",
                                 "title",
                                 "description",
@@ -51614,15 +51513,6 @@
                             {
                               "type": "object",
                               "properties": {
-                                "organization": {
-                                  "type": "string"
-                                },
-                                "id": {
-                                  "type": "string"
-                                },
-                                "uid": {
-                                  "type": "string"
-                                },
                                 "type": {
                                   "type": "string",
                                   "const": "experiments-scaled-impact"
@@ -51858,9 +51748,6 @@
                                 }
                               },
                               "required": [
-                                "organization",
-                                "id",
-                                "uid",
                                 "type",
                                 "title",
                                 "description",
@@ -51873,15 +51760,6 @@
                             {
                               "type": "object",
                               "properties": {
-                                "organization": {
-                                  "type": "string"
-                                },
-                                "id": {
-                                  "type": "string"
-                                },
-                                "uid": {
-                                  "type": "string"
-                                },
                                 "type": {
                                   "type": "string",
                                   "const": "experiments-win-rate"
@@ -52117,9 +51995,6 @@
                                 }
                               },
                               "required": [
-                                "organization",
-                                "id",
-                                "uid",
                                 "type",
                                 "title",
                                 "description",
@@ -52132,15 +52007,6 @@
                             {
                               "type": "object",
                               "properties": {
-                                "organization": {
-                                  "type": "string"
-                                },
-                                "id": {
-                                  "type": "string"
-                                },
-                                "uid": {
-                                  "type": "string"
-                                },
                                 "type": {
                                   "type": "string",
                                   "const": "experiments-status"
@@ -52384,9 +52250,6 @@
                                 }
                               },
                               "required": [
-                                "organization",
-                                "id",
-                                "uid",
                                 "type",
                                 "title",
                                 "description",
@@ -52398,15 +52261,6 @@
                             {
                               "type": "object",
                               "properties": {
-                                "organization": {
-                                  "type": "string"
-                                },
-                                "id": {
-                                  "type": "string"
-                                },
-                                "uid": {
-                                  "type": "string"
-                                },
                                 "type": {
                                   "type": "string",
                                   "const": "experiment-dimension"
@@ -52540,9 +52394,6 @@
                                 }
                               },
                               "required": [
-                                "organization",
-                                "id",
-                                "uid",
                                 "type",
                                 "title",
                                 "description",
@@ -52564,15 +52415,6 @@
                             {
                               "type": "object",
                               "properties": {
-                                "organization": {
-                                  "type": "string"
-                                },
-                                "id": {
-                                  "type": "string"
-                                },
-                                "uid": {
-                                  "type": "string"
-                                },
                                 "type": {
                                   "type": "string",
                                   "const": "experiment-time-series"
@@ -52689,9 +52531,6 @@
                                 }
                               },
                               "required": [
-                                "organization",
-                                "id",
-                                "uid",
                                 "type",
                                 "title",
                                 "description",
@@ -52710,15 +52549,6 @@
                             {
                               "type": "object",
                               "properties": {
-                                "organization": {
-                                  "type": "string"
-                                },
-                                "id": {
-                                  "type": "string"
-                                },
-                                "uid": {
-                                  "type": "string"
-                                },
                                 "type": {
                                   "type": "string",
                                   "const": "experiment-traffic"
@@ -52776,9 +52606,6 @@
                                 }
                               },
                               "required": [
-                                "organization",
-                                "id",
-                                "uid",
                                 "type",
                                 "title",
                                 "description",
@@ -52791,15 +52618,6 @@
                             {
                               "type": "object",
                               "properties": {
-                                "organization": {
-                                  "type": "string"
-                                },
-                                "id": {
-                                  "type": "string"
-                                },
-                                "uid": {
-                                  "type": "string"
-                                },
                                 "type": {
                                   "type": "string",
                                   "const": "sql-explorer"
@@ -52860,9 +52678,6 @@
                                 }
                               },
                               "required": [
-                                "organization",
-                                "id",
-                                "uid",
                                 "type",
                                 "title",
                                 "description",
@@ -52874,15 +52689,241 @@
                             {
                               "type": "object",
                               "properties": {
-                                "organization": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "metric-explorer"
+                                },
+                                "title": {
                                   "type": "string"
                                 },
-                                "id": {
+                                "description": {
                                   "type": "string"
                                 },
-                                "uid": {
+                                "snapshotId": {
                                   "type": "string"
                                 },
+                                "layout": {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 23
+                                    },
+                                    "y": {
+                                      "type": "integer",
+                                      "minimum": 0
+                                    },
+                                    "w": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 24
+                                    },
+                                    "h": {
+                                      "type": "integer",
+                                      "minimum": 1
+                                    },
+                                    "static": {
+                                      "type": "boolean"
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y",
+                                    "w",
+                                    "h"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "factMetricId": {
+                                  "type": "string"
+                                },
+                                "visualizationType": {
+                                  "type": "string",
+                                  "enum": [
+                                    "histogram",
+                                    "bigNumber",
+                                    "timeseries"
+                                  ]
+                                },
+                                "valueType": {
+                                  "type": "string",
+                                  "enum": [
+                                    "avg",
+                                    "sum"
+                                  ]
+                                },
+                                "metricAnalysisId": {
+                                  "type": "string"
+                                },
+                                "comparison": {
+                                  "type": "object",
+                                  "properties": {
+                                    "enabled": {
+                                      "type": "boolean"
+                                    },
+                                    "mode": {
+                                      "type": "string",
+                                      "enum": [
+                                        "previousPeriod",
+                                        "previousPeriodMatchDayOfWeek",
+                                        "previousYear",
+                                        "previousYearMatchDayOfWeek",
+                                        "custom"
+                                      ]
+                                    },
+                                    "previousTimeFrame": {
+                                      "type": "object",
+                                      "properties": {
+                                        "predefined": {
+                                          "type": "string",
+                                          "enum": [
+                                            "today",
+                                            "yesterday",
+                                            "last7Days",
+                                            "last30Days",
+                                            "last90Days",
+                                            "last12Months",
+                                            "lastCalendarYear",
+                                            "customLookback",
+                                            "customDateRange"
+                                          ]
+                                        },
+                                        "lookbackValue": {
+                                          "anyOf": [
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
+                                        },
+                                        "lookbackUnit": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string",
+                                              "enum": [
+                                                "hour",
+                                                "day",
+                                                "week",
+                                                "month"
+                                              ]
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
+                                        },
+                                        "startDate": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string"
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
+                                        },
+                                        "endDate": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string"
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "predefined"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "required": [
+                                    "enabled"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "comparisonMetricAnalysisId": {
+                                  "type": "string"
+                                },
+                                "analysisSettings": {
+                                  "type": "object",
+                                  "properties": {
+                                    "userIdType": {
+                                      "type": "string"
+                                    },
+                                    "lookbackDays": {
+                                      "type": "number"
+                                    },
+                                    "populationType": {
+                                      "type": "string",
+                                      "enum": [
+                                        "metric",
+                                        "factTable",
+                                        "exposureQuery",
+                                        "population",
+                                        "segment"
+                                      ]
+                                    },
+                                    "populationId": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string"
+                                        },
+                                        {
+                                          "type": "null"
+                                        }
+                                      ]
+                                    },
+                                    "additionalNumeratorFilters": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "additionalDenominatorFilters": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "startDate": {
+                                      "type": "string"
+                                    },
+                                    "endDate": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "userIdType",
+                                    "lookbackDays",
+                                    "populationType",
+                                    "populationId",
+                                    "startDate",
+                                    "endDate"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "title",
+                                "description",
+                                "factMetricId",
+                                "visualizationType",
+                                "valueType",
+                                "metricAnalysisId",
+                                "analysisSettings"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
                                 "type": {
                                   "type": "string",
                                   "const": "metric-exploration"
@@ -52928,9 +52969,6 @@
                                     "h"
                                   ],
                                   "additionalProperties": false
-                                },
-                                "explorerAnalysisId": {
-                                  "type": "string"
                                 },
                                 "comparison": {
                                   "type": "object",
@@ -53437,16 +53475,16 @@
                                     "dataset"
                                   ],
                                   "additionalProperties": false
+                                },
+                                "explorerAnalysisId": {
+                                  "description": "The exploration run this block renders. Omit it to send `config` alone and have the query run when the dashboard is written.",
+                                  "type": "string"
                                 }
                               },
                               "required": [
-                                "organization",
-                                "id",
-                                "uid",
                                 "type",
                                 "title",
                                 "description",
-                                "explorerAnalysisId",
                                 "config"
                               ],
                               "additionalProperties": false
@@ -53454,15 +53492,6 @@
                             {
                               "type": "object",
                               "properties": {
-                                "organization": {
-                                  "type": "string"
-                                },
-                                "id": {
-                                  "type": "string"
-                                },
-                                "uid": {
-                                  "type": "string"
-                                },
                                 "type": {
                                   "type": "string",
                                   "const": "fact-table-exploration"
@@ -53508,9 +53537,6 @@
                                     "h"
                                   ],
                                   "additionalProperties": false
-                                },
-                                "explorerAnalysisId": {
-                                  "type": "string"
                                 },
                                 "comparison": {
                                   "type": "object",
@@ -54033,16 +54059,16 @@
                                     "dataset"
                                   ],
                                   "additionalProperties": false
+                                },
+                                "explorerAnalysisId": {
+                                  "description": "The exploration run this block renders. Omit it to send `config` alone and have the query run when the dashboard is written.",
+                                  "type": "string"
                                 }
                               },
                               "required": [
-                                "organization",
-                                "id",
-                                "uid",
                                 "type",
                                 "title",
                                 "description",
-                                "explorerAnalysisId",
                                 "config"
                               ],
                               "additionalProperties": false
@@ -54050,15 +54076,6 @@
                             {
                               "type": "object",
                               "properties": {
-                                "organization": {
-                                  "type": "string"
-                                },
-                                "id": {
-                                  "type": "string"
-                                },
-                                "uid": {
-                                  "type": "string"
-                                },
                                 "type": {
                                   "type": "string",
                                   "const": "data-source-exploration"
@@ -54104,9 +54121,6 @@
                                     "h"
                                   ],
                                   "additionalProperties": false
-                                },
-                                "explorerAnalysisId": {
-                                  "type": "string"
                                 },
                                 "comparison": {
                                   "type": "object",
@@ -54647,16 +54661,16 @@
                                     "dataset"
                                   ],
                                   "additionalProperties": false
+                                },
+                                "explorerAnalysisId": {
+                                  "description": "The exploration run this block renders. Omit it to send `config` alone and have the query run when the dashboard is written.",
+                                  "type": "string"
                                 }
                               },
                               "required": [
-                                "organization",
-                                "id",
-                                "uid",
                                 "type",
                                 "title",
                                 "description",
-                                "explorerAnalysisId",
                                 "config"
                               ],
                               "additionalProperties": false
@@ -54664,15 +54678,614 @@
                             {
                               "type": "object",
                               "properties": {
-                                "organization": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "funnel-exploration"
+                                },
+                                "title": {
                                   "type": "string"
                                 },
-                                "id": {
+                                "description": {
                                   "type": "string"
                                 },
-                                "uid": {
+                                "snapshotId": {
                                   "type": "string"
                                 },
+                                "layout": {
+                                  "type": "object",
+                                  "properties": {
+                                    "x": {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "maximum": 23
+                                    },
+                                    "y": {
+                                      "type": "integer",
+                                      "minimum": 0
+                                    },
+                                    "w": {
+                                      "type": "integer",
+                                      "minimum": 1,
+                                      "maximum": 24
+                                    },
+                                    "h": {
+                                      "type": "integer",
+                                      "minimum": 1
+                                    },
+                                    "static": {
+                                      "type": "boolean"
+                                    }
+                                  },
+                                  "required": [
+                                    "x",
+                                    "y",
+                                    "w",
+                                    "h"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "comparison": {
+                                  "type": "object",
+                                  "properties": {
+                                    "enabled": {
+                                      "type": "boolean"
+                                    },
+                                    "mode": {
+                                      "type": "string",
+                                      "enum": [
+                                        "previousPeriod",
+                                        "previousPeriodMatchDayOfWeek",
+                                        "previousYear",
+                                        "previousYearMatchDayOfWeek",
+                                        "custom"
+                                      ]
+                                    },
+                                    "previousTimeFrame": {
+                                      "type": "object",
+                                      "properties": {
+                                        "predefined": {
+                                          "type": "string",
+                                          "enum": [
+                                            "today",
+                                            "yesterday",
+                                            "last7Days",
+                                            "last30Days",
+                                            "last90Days",
+                                            "last12Months",
+                                            "lastCalendarYear",
+                                            "customLookback",
+                                            "customDateRange"
+                                          ]
+                                        },
+                                        "lookbackValue": {
+                                          "anyOf": [
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
+                                        },
+                                        "lookbackUnit": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string",
+                                              "enum": [
+                                                "hour",
+                                                "day",
+                                                "week",
+                                                "month"
+                                              ]
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
+                                        },
+                                        "startDate": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string"
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
+                                        },
+                                        "endDate": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string"
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "predefined"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "required": [
+                                    "enabled"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "comparisonExplorerAnalysisId": {
+                                  "type": "string"
+                                },
+                                "globalControlSettings": {
+                                  "type": "object",
+                                  "properties": {
+                                    "dateRange": {
+                                      "type": "boolean"
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                "config": {
+                                  "type": "object",
+                                  "properties": {
+                                    "datasource": {
+                                      "description": "ID of the datasource to query",
+                                      "type": "string"
+                                    },
+                                    "dimensions": {
+                                      "type": "array",
+                                      "items": {
+                                        "anyOf": [
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "dimensionType": {
+                                                "type": "string",
+                                                "const": "date"
+                                              },
+                                              "column": {
+                                                "anyOf": [
+                                                  {
+                                                    "type": "string"
+                                                  },
+                                                  {
+                                                    "type": "null"
+                                                  }
+                                                ]
+                                              },
+                                              "dateGranularity": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "auto",
+                                                  "hour",
+                                                  "day",
+                                                  "week",
+                                                  "month",
+                                                  "year"
+                                                ]
+                                              }
+                                            },
+                                            "required": [
+                                              "dimensionType",
+                                              "column",
+                                              "dateGranularity"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "dimensionType": {
+                                                "type": "string",
+                                                "const": "dynamic"
+                                              },
+                                              "column": {
+                                                "anyOf": [
+                                                  {
+                                                    "type": "string"
+                                                  },
+                                                  {
+                                                    "type": "null"
+                                                  }
+                                                ]
+                                              },
+                                              "maxValues": {
+                                                "type": "number"
+                                              }
+                                            },
+                                            "required": [
+                                              "dimensionType",
+                                              "column",
+                                              "maxValues"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "dimensionType": {
+                                                "type": "string",
+                                                "const": "static"
+                                              },
+                                              "column": {
+                                                "type": "string"
+                                              },
+                                              "values": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "string"
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "dimensionType",
+                                              "column",
+                                              "values"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "dimensionType": {
+                                                "type": "string",
+                                                "const": "slice"
+                                              },
+                                              "slices": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "name": {
+                                                      "type": "string"
+                                                    },
+                                                    "filters": {
+                                                      "type": "array",
+                                                      "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                          "operator": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                              "=",
+                                                              "!=",
+                                                              "<",
+                                                              "<=",
+                                                              ">",
+                                                              ">=",
+                                                              "between",
+                                                              "not_between",
+                                                              "in",
+                                                              "not_in",
+                                                              "contains",
+                                                              "not_contains",
+                                                              "starts_with",
+                                                              "ends_with",
+                                                              "is_null",
+                                                              "not_null",
+                                                              "is_true",
+                                                              "is_false",
+                                                              "sql_expr",
+                                                              "saved_filter"
+                                                            ]
+                                                          },
+                                                          "column": {
+                                                            "type": "string"
+                                                          },
+                                                          "values": {
+                                                            "type": "array",
+                                                            "items": {
+                                                              "type": "string"
+                                                            }
+                                                          }
+                                                        },
+                                                        "required": [
+                                                          "operator"
+                                                        ],
+                                                        "additionalProperties": false
+                                                      }
+                                                    }
+                                                  },
+                                                  "required": [
+                                                    "name",
+                                                    "filters"
+                                                  ],
+                                                  "additionalProperties": false
+                                                }
+                                              }
+                                            },
+                                            "required": [
+                                              "dimensionType",
+                                              "slices"
+                                            ],
+                                            "additionalProperties": false
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "chartType": {
+                                      "type": "string",
+                                      "enum": [
+                                        "line",
+                                        "area",
+                                        "timeseries-table",
+                                        "table",
+                                        "bar",
+                                        "stackedBar",
+                                        "horizontalBar",
+                                        "stackedHorizontalBar",
+                                        "bigNumber",
+                                        "rawTable"
+                                      ]
+                                    },
+                                    "dateRange": {
+                                      "type": "object",
+                                      "properties": {
+                                        "predefined": {
+                                          "type": "string",
+                                          "enum": [
+                                            "today",
+                                            "yesterday",
+                                            "last7Days",
+                                            "last30Days",
+                                            "last90Days",
+                                            "last12Months",
+                                            "lastCalendarYear",
+                                            "customLookback",
+                                            "customDateRange"
+                                          ]
+                                        },
+                                        "lookbackValue": {
+                                          "anyOf": [
+                                            {
+                                              "type": "number"
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
+                                        },
+                                        "lookbackUnit": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string",
+                                              "enum": [
+                                                "hour",
+                                                "day",
+                                                "week",
+                                                "month"
+                                              ]
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
+                                        },
+                                        "startDate": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string"
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
+                                        },
+                                        "endDate": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string"
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "predefined"
+                                      ],
+                                      "additionalProperties": false
+                                    },
+                                    "showAs": {
+                                      "type": "string",
+                                      "enum": [
+                                        "total",
+                                        "per_unit"
+                                      ]
+                                    },
+                                    "chartSettings": {
+                                      "type": "object",
+                                      "properties": {
+                                        "categoryAxisLabel": {
+                                          "type": "string"
+                                        },
+                                        "valueAxisLabel": {
+                                          "type": "string"
+                                        }
+                                      },
+                                      "additionalProperties": false
+                                    },
+                                    "type": {
+                                      "type": "string",
+                                      "const": "funnel"
+                                    },
+                                    "dataset": {
+                                      "type": "object",
+                                      "properties": {
+                                        "type": {
+                                          "type": "string",
+                                          "const": "funnel"
+                                        },
+                                        "unit": {
+                                          "anyOf": [
+                                            {
+                                              "type": "string"
+                                            },
+                                            {
+                                              "type": "null"
+                                            }
+                                          ]
+                                        },
+                                        "steps": {
+                                          "maxItems": 20,
+                                          "type": "array",
+                                          "items": {
+                                            "type": "object",
+                                            "properties": {
+                                              "name": {
+                                                "type": "string"
+                                              },
+                                              "factTableId": {
+                                                "type": "string"
+                                              },
+                                              "rowFilters": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "operator": {
+                                                      "type": "string",
+                                                      "enum": [
+                                                        "=",
+                                                        "!=",
+                                                        "<",
+                                                        "<=",
+                                                        ">",
+                                                        ">=",
+                                                        "between",
+                                                        "not_between",
+                                                        "in",
+                                                        "not_in",
+                                                        "contains",
+                                                        "not_contains",
+                                                        "starts_with",
+                                                        "ends_with",
+                                                        "is_null",
+                                                        "not_null",
+                                                        "is_true",
+                                                        "is_false",
+                                                        "sql_expr",
+                                                        "saved_filter"
+                                                      ]
+                                                    },
+                                                    "column": {
+                                                      "type": "string"
+                                                    },
+                                                    "values": {
+                                                      "type": "array",
+                                                      "items": {
+                                                        "type": "string"
+                                                      }
+                                                    }
+                                                  },
+                                                  "required": [
+                                                    "operator"
+                                                  ],
+                                                  "additionalProperties": false
+                                                }
+                                              },
+                                              "optional": {
+                                                "type": "boolean"
+                                              },
+                                              "conversionWindow": {
+                                                "anyOf": [
+                                                  {
+                                                    "type": "object",
+                                                    "properties": {
+                                                      "unit": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                          "weeks",
+                                                          "days",
+                                                          "hours",
+                                                          "minutes"
+                                                        ]
+                                                      },
+                                                      "value": {
+                                                        "type": "number",
+                                                        "exclusiveMinimum": 0
+                                                      }
+                                                    },
+                                                    "required": [
+                                                      "unit",
+                                                      "value"
+                                                    ],
+                                                    "additionalProperties": false
+                                                  },
+                                                  {
+                                                    "type": "null"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            "required": [
+                                              "name",
+                                              "factTableId",
+                                              "rowFilters",
+                                              "optional"
+                                            ],
+                                            "additionalProperties": false
+                                          }
+                                        },
+                                        "concurrencyWindowSeconds": {
+                                          "type": "integer",
+                                          "minimum": 0
+                                        },
+                                        "yAxisScale": {
+                                          "type": "string",
+                                          "enum": [
+                                            "count",
+                                            "percent"
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "type",
+                                        "unit",
+                                        "steps"
+                                      ],
+                                      "additionalProperties": false
+                                    }
+                                  },
+                                  "required": [
+                                    "datasource",
+                                    "dimensions",
+                                    "chartType",
+                                    "dateRange",
+                                    "type",
+                                    "dataset"
+                                  ],
+                                  "additionalProperties": false
+                                },
+                                "linkedFunnelMetricId": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "explorerAnalysisId": {
+                                  "description": "The exploration run this block renders. Omit it to send `config` alone and have the query run when the dashboard is written.",
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "title",
+                                "description",
+                                "config"
+                              ],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
                                 "type": {
                                   "type": "string",
                                   "const": "sql-exploration"
@@ -54718,9 +55331,6 @@
                                     "h"
                                   ],
                                   "additionalProperties": false
-                                },
-                                "explorerAnalysisId": {
-                                  "type": "string"
                                 },
                                 "comparison": {
                                   "type": "object",
@@ -55270,636 +55880,16 @@
                                     "dataset"
                                   ],
                                   "additionalProperties": false
-                                }
-                              },
-                              "required": [
-                                "organization",
-                                "id",
-                                "uid",
-                                "type",
-                                "title",
-                                "description",
-                                "explorerAnalysisId",
-                                "config"
-                              ],
-                              "additionalProperties": false
-                            },
-                            {
-                              "type": "object",
-                              "properties": {
-                                "organization": {
-                                  "type": "string"
-                                },
-                                "id": {
-                                  "type": "string"
-                                },
-                                "uid": {
-                                  "type": "string"
-                                },
-                                "type": {
-                                  "type": "string",
-                                  "const": "funnel-exploration"
-                                },
-                                "title": {
-                                  "type": "string"
-                                },
-                                "description": {
-                                  "type": "string"
-                                },
-                                "snapshotId": {
-                                  "type": "string"
-                                },
-                                "layout": {
-                                  "type": "object",
-                                  "properties": {
-                                    "x": {
-                                      "type": "integer",
-                                      "minimum": 0,
-                                      "maximum": 23
-                                    },
-                                    "y": {
-                                      "type": "integer",
-                                      "minimum": 0
-                                    },
-                                    "w": {
-                                      "type": "integer",
-                                      "minimum": 1,
-                                      "maximum": 24
-                                    },
-                                    "h": {
-                                      "type": "integer",
-                                      "minimum": 1
-                                    },
-                                    "static": {
-                                      "type": "boolean"
-                                    }
-                                  },
-                                  "required": [
-                                    "x",
-                                    "y",
-                                    "w",
-                                    "h"
-                                  ],
-                                  "additionalProperties": false
                                 },
                                 "explorerAnalysisId": {
+                                  "description": "The exploration run this block renders. Omit it to send `config` alone and have the query run when the dashboard is written.",
                                   "type": "string"
-                                },
-                                "comparison": {
-                                  "type": "object",
-                                  "properties": {
-                                    "enabled": {
-                                      "type": "boolean"
-                                    },
-                                    "mode": {
-                                      "type": "string",
-                                      "enum": [
-                                        "previousPeriod",
-                                        "previousPeriodMatchDayOfWeek",
-                                        "previousYear",
-                                        "previousYearMatchDayOfWeek",
-                                        "custom"
-                                      ]
-                                    },
-                                    "previousTimeFrame": {
-                                      "type": "object",
-                                      "properties": {
-                                        "predefined": {
-                                          "type": "string",
-                                          "enum": [
-                                            "today",
-                                            "yesterday",
-                                            "last7Days",
-                                            "last30Days",
-                                            "last90Days",
-                                            "last12Months",
-                                            "lastCalendarYear",
-                                            "customLookback",
-                                            "customDateRange"
-                                          ]
-                                        },
-                                        "lookbackValue": {
-                                          "anyOf": [
-                                            {
-                                              "type": "number"
-                                            },
-                                            {
-                                              "type": "null"
-                                            }
-                                          ]
-                                        },
-                                        "lookbackUnit": {
-                                          "anyOf": [
-                                            {
-                                              "type": "string",
-                                              "enum": [
-                                                "hour",
-                                                "day",
-                                                "week",
-                                                "month"
-                                              ]
-                                            },
-                                            {
-                                              "type": "null"
-                                            }
-                                          ]
-                                        },
-                                        "startDate": {
-                                          "anyOf": [
-                                            {
-                                              "type": "string"
-                                            },
-                                            {
-                                              "type": "null"
-                                            }
-                                          ]
-                                        },
-                                        "endDate": {
-                                          "anyOf": [
-                                            {
-                                              "type": "string"
-                                            },
-                                            {
-                                              "type": "null"
-                                            }
-                                          ]
-                                        }
-                                      },
-                                      "required": [
-                                        "predefined"
-                                      ],
-                                      "additionalProperties": false
-                                    }
-                                  },
-                                  "required": [
-                                    "enabled"
-                                  ],
-                                  "additionalProperties": false
-                                },
-                                "comparisonExplorerAnalysisId": {
-                                  "type": "string"
-                                },
-                                "globalControlSettings": {
-                                  "type": "object",
-                                  "properties": {
-                                    "dateRange": {
-                                      "type": "boolean"
-                                    }
-                                  },
-                                  "additionalProperties": false
-                                },
-                                "config": {
-                                  "type": "object",
-                                  "properties": {
-                                    "datasource": {
-                                      "description": "ID of the datasource to query",
-                                      "type": "string"
-                                    },
-                                    "dimensions": {
-                                      "type": "array",
-                                      "items": {
-                                        "anyOf": [
-                                          {
-                                            "type": "object",
-                                            "properties": {
-                                              "dimensionType": {
-                                                "type": "string",
-                                                "const": "date"
-                                              },
-                                              "column": {
-                                                "anyOf": [
-                                                  {
-                                                    "type": "string"
-                                                  },
-                                                  {
-                                                    "type": "null"
-                                                  }
-                                                ]
-                                              },
-                                              "dateGranularity": {
-                                                "type": "string",
-                                                "enum": [
-                                                  "auto",
-                                                  "hour",
-                                                  "day",
-                                                  "week",
-                                                  "month",
-                                                  "year"
-                                                ]
-                                              }
-                                            },
-                                            "required": [
-                                              "dimensionType",
-                                              "column",
-                                              "dateGranularity"
-                                            ],
-                                            "additionalProperties": false
-                                          },
-                                          {
-                                            "type": "object",
-                                            "properties": {
-                                              "dimensionType": {
-                                                "type": "string",
-                                                "const": "dynamic"
-                                              },
-                                              "column": {
-                                                "anyOf": [
-                                                  {
-                                                    "type": "string"
-                                                  },
-                                                  {
-                                                    "type": "null"
-                                                  }
-                                                ]
-                                              },
-                                              "maxValues": {
-                                                "type": "number"
-                                              }
-                                            },
-                                            "required": [
-                                              "dimensionType",
-                                              "column",
-                                              "maxValues"
-                                            ],
-                                            "additionalProperties": false
-                                          },
-                                          {
-                                            "type": "object",
-                                            "properties": {
-                                              "dimensionType": {
-                                                "type": "string",
-                                                "const": "static"
-                                              },
-                                              "column": {
-                                                "type": "string"
-                                              },
-                                              "values": {
-                                                "type": "array",
-                                                "items": {
-                                                  "type": "string"
-                                                }
-                                              }
-                                            },
-                                            "required": [
-                                              "dimensionType",
-                                              "column",
-                                              "values"
-                                            ],
-                                            "additionalProperties": false
-                                          },
-                                          {
-                                            "type": "object",
-                                            "properties": {
-                                              "dimensionType": {
-                                                "type": "string",
-                                                "const": "slice"
-                                              },
-                                              "slices": {
-                                                "type": "array",
-                                                "items": {
-                                                  "type": "object",
-                                                  "properties": {
-                                                    "name": {
-                                                      "type": "string"
-                                                    },
-                                                    "filters": {
-                                                      "type": "array",
-                                                      "items": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                          "operator": {
-                                                            "type": "string",
-                                                            "enum": [
-                                                              "=",
-                                                              "!=",
-                                                              "<",
-                                                              "<=",
-                                                              ">",
-                                                              ">=",
-                                                              "between",
-                                                              "not_between",
-                                                              "in",
-                                                              "not_in",
-                                                              "contains",
-                                                              "not_contains",
-                                                              "starts_with",
-                                                              "ends_with",
-                                                              "is_null",
-                                                              "not_null",
-                                                              "is_true",
-                                                              "is_false",
-                                                              "sql_expr",
-                                                              "saved_filter"
-                                                            ]
-                                                          },
-                                                          "column": {
-                                                            "type": "string"
-                                                          },
-                                                          "values": {
-                                                            "type": "array",
-                                                            "items": {
-                                                              "type": "string"
-                                                            }
-                                                          }
-                                                        },
-                                                        "required": [
-                                                          "operator"
-                                                        ],
-                                                        "additionalProperties": false
-                                                      }
-                                                    }
-                                                  },
-                                                  "required": [
-                                                    "name",
-                                                    "filters"
-                                                  ],
-                                                  "additionalProperties": false
-                                                }
-                                              }
-                                            },
-                                            "required": [
-                                              "dimensionType",
-                                              "slices"
-                                            ],
-                                            "additionalProperties": false
-                                          }
-                                        ]
-                                      }
-                                    },
-                                    "chartType": {
-                                      "type": "string",
-                                      "enum": [
-                                        "line",
-                                        "area",
-                                        "timeseries-table",
-                                        "table",
-                                        "bar",
-                                        "stackedBar",
-                                        "horizontalBar",
-                                        "stackedHorizontalBar",
-                                        "bigNumber",
-                                        "rawTable"
-                                      ]
-                                    },
-                                    "dateRange": {
-                                      "type": "object",
-                                      "properties": {
-                                        "predefined": {
-                                          "type": "string",
-                                          "enum": [
-                                            "today",
-                                            "yesterday",
-                                            "last7Days",
-                                            "last30Days",
-                                            "last90Days",
-                                            "last12Months",
-                                            "lastCalendarYear",
-                                            "customLookback",
-                                            "customDateRange"
-                                          ]
-                                        },
-                                        "lookbackValue": {
-                                          "anyOf": [
-                                            {
-                                              "type": "number"
-                                            },
-                                            {
-                                              "type": "null"
-                                            }
-                                          ]
-                                        },
-                                        "lookbackUnit": {
-                                          "anyOf": [
-                                            {
-                                              "type": "string",
-                                              "enum": [
-                                                "hour",
-                                                "day",
-                                                "week",
-                                                "month"
-                                              ]
-                                            },
-                                            {
-                                              "type": "null"
-                                            }
-                                          ]
-                                        },
-                                        "startDate": {
-                                          "anyOf": [
-                                            {
-                                              "type": "string"
-                                            },
-                                            {
-                                              "type": "null"
-                                            }
-                                          ]
-                                        },
-                                        "endDate": {
-                                          "anyOf": [
-                                            {
-                                              "type": "string"
-                                            },
-                                            {
-                                              "type": "null"
-                                            }
-                                          ]
-                                        }
-                                      },
-                                      "required": [
-                                        "predefined"
-                                      ],
-                                      "additionalProperties": false
-                                    },
-                                    "showAs": {
-                                      "type": "string",
-                                      "enum": [
-                                        "total",
-                                        "per_unit"
-                                      ]
-                                    },
-                                    "chartSettings": {
-                                      "type": "object",
-                                      "properties": {
-                                        "categoryAxisLabel": {
-                                          "type": "string"
-                                        },
-                                        "valueAxisLabel": {
-                                          "type": "string"
-                                        }
-                                      },
-                                      "additionalProperties": false
-                                    },
-                                    "type": {
-                                      "type": "string",
-                                      "const": "funnel"
-                                    },
-                                    "dataset": {
-                                      "type": "object",
-                                      "properties": {
-                                        "type": {
-                                          "type": "string",
-                                          "const": "funnel"
-                                        },
-                                        "unit": {
-                                          "anyOf": [
-                                            {
-                                              "type": "string"
-                                            },
-                                            {
-                                              "type": "null"
-                                            }
-                                          ]
-                                        },
-                                        "steps": {
-                                          "maxItems": 20,
-                                          "type": "array",
-                                          "items": {
-                                            "type": "object",
-                                            "properties": {
-                                              "name": {
-                                                "type": "string"
-                                              },
-                                              "factTableId": {
-                                                "type": "string"
-                                              },
-                                              "rowFilters": {
-                                                "type": "array",
-                                                "items": {
-                                                  "type": "object",
-                                                  "properties": {
-                                                    "operator": {
-                                                      "type": "string",
-                                                      "enum": [
-                                                        "=",
-                                                        "!=",
-                                                        "<",
-                                                        "<=",
-                                                        ">",
-                                                        ">=",
-                                                        "between",
-                                                        "not_between",
-                                                        "in",
-                                                        "not_in",
-                                                        "contains",
-                                                        "not_contains",
-                                                        "starts_with",
-                                                        "ends_with",
-                                                        "is_null",
-                                                        "not_null",
-                                                        "is_true",
-                                                        "is_false",
-                                                        "sql_expr",
-                                                        "saved_filter"
-                                                      ]
-                                                    },
-                                                    "column": {
-                                                      "type": "string"
-                                                    },
-                                                    "values": {
-                                                      "type": "array",
-                                                      "items": {
-                                                        "type": "string"
-                                                      }
-                                                    }
-                                                  },
-                                                  "required": [
-                                                    "operator"
-                                                  ],
-                                                  "additionalProperties": false
-                                                }
-                                              },
-                                              "optional": {
-                                                "type": "boolean"
-                                              },
-                                              "conversionWindow": {
-                                                "anyOf": [
-                                                  {
-                                                    "type": "object",
-                                                    "properties": {
-                                                      "unit": {
-                                                        "type": "string",
-                                                        "enum": [
-                                                          "weeks",
-                                                          "days",
-                                                          "hours",
-                                                          "minutes"
-                                                        ]
-                                                      },
-                                                      "value": {
-                                                        "type": "number",
-                                                        "exclusiveMinimum": 0
-                                                      }
-                                                    },
-                                                    "required": [
-                                                      "unit",
-                                                      "value"
-                                                    ],
-                                                    "additionalProperties": false
-                                                  },
-                                                  {
-                                                    "type": "null"
-                                                  }
-                                                ]
-                                              }
-                                            },
-                                            "required": [
-                                              "name",
-                                              "factTableId",
-                                              "rowFilters",
-                                              "optional"
-                                            ],
-                                            "additionalProperties": false
-                                          }
-                                        },
-                                        "concurrencyWindowSeconds": {
-                                          "type": "integer",
-                                          "minimum": 0
-                                        },
-                                        "yAxisScale": {
-                                          "type": "string",
-                                          "enum": [
-                                            "count",
-                                            "percent"
-                                          ]
-                                        }
-                                      },
-                                      "required": [
-                                        "type",
-                                        "unit",
-                                        "steps"
-                                      ],
-                                      "additionalProperties": false
-                                    }
-                                  },
-                                  "required": [
-                                    "datasource",
-                                    "dimensions",
-                                    "chartType",
-                                    "dateRange",
-                                    "type",
-                                    "dataset"
-                                  ],
-                                  "additionalProperties": false
-                                },
-                                "linkedFunnelMetricId": {
-                                  "anyOf": [
-                                    {
-                                      "type": "string"
-                                    },
-                                    {
-                                      "type": "null"
-                                    }
-                                  ]
                                 }
                               },
                               "required": [
-                                "organization",
-                                "id",
-                                "uid",
                                 "type",
                                 "title",
                                 "description",
-                                "explorerAnalysisId",
                                 "config"
                               ],
                               "additionalProperties": false
@@ -70884,6 +70874,9 @@
                                         "type": "null"
                                       }
                                     ]
+                                  },
+                                  "force": {
+                                    "description": "Ignored: templates never carry force values. Accepted so a schedule's steps can be copied into a template."
                                   }
                                 },
                                 "required": [
@@ -71323,6 +71316,9 @@
                                         "type": "null"
                                       }
                                     ]
+                                  },
+                                  "force": {
+                                    "description": "Ignored: templates never carry force values. Accepted so a schedule's steps can be copied into a template."
                                   }
                                 },
                                 "required": [
@@ -71704,7 +71700,7 @@
       "put": {
         "operationId": "updateRampSchedule",
         "summary": "Update a single rampSchedule",
-        "description": "Updates the name, steps, endActions, startDate, or cutoffDate of a ramp schedule.\n\nOnly allowed when the schedule is in `pending`, `ready`, or `paused` status.\n\n**targetId shorthand**: When providing `steps` or `endActions`, you may omit `targetId`\n(or pass `\"t1\"`) in each action. If the schedule has exactly one active target, the server\nwill resolve it automatically. For schedules with multiple targets, provide the explicit\ntarget UUID from `targets[].id`.\n\n**Coverage on monitored steps**: See the create endpoint description for details\non how `coverage` is interpreted for monitored steps (total enrollment, not\nvariation-1 exposure).\n",
+        "description": "Updates the name, steps, endActions, startDate, or cutoffDate of a ramp schedule.\n\nOnly allowed when the schedule is in `pending`, `ready`, or `paused` status.\n\nChanging `steps`, `startActions`, `endActions`, `startDate`, or `cutoffDate` on a\nschedule that is attached to a rule skips the revision review flow, so when the\norganization requires review anywhere it is limited to credentials that may\nbypass approval. Otherwise stage a new plan on a draft revision and publish it.\n\n**targetId shorthand**: When providing `steps` or `endActions`, you may omit `targetId`\n(or pass `\"t1\"`) in each action. If the schedule has exactly one active target, the server\nwill resolve it automatically. For schedules with multiple targets, provide the explicit\ntarget UUID from `targets[].id`.\n\n**Coverage on monitored steps**: See the create endpoint description for details\non how `coverage` is interpreted for monitored steps (total enrollment, not\nvariation-1 exposure).\n",
         "tags": [
           "ramp-schedules"
         ],
@@ -80076,11 +80072,11 @@
             }
           },
           "allEnvironments": {
-            "description": "When true the rule applies to all environments. Defaults to false.",
+            "description": "When true the rule applies to all environments. Omit both scope fields to apply to all environments.",
             "type": "boolean"
           },
           "environments": {
-            "description": "Specific environment IDs this rule applies to. Used when allEnvironments is false.",
+            "description": "Environment IDs the rule applies to. Ignored when allEnvironments is true; with allEnvironments false, an omitted or empty list scopes the rule to no environment.",
             "type": "array",
             "items": {
               "type": "string"
@@ -80205,11 +80201,11 @@
             }
           },
           "allEnvironments": {
-            "description": "When true the rule applies to all environments. Defaults to false.",
+            "description": "When true the rule applies to all environments. Omit both scope fields to apply to all environments.",
             "type": "boolean"
           },
           "environments": {
-            "description": "Specific environment IDs this rule applies to. Used when allEnvironments is false.",
+            "description": "Environment IDs the rule applies to. Ignored when allEnvironments is true; with allEnvironments false, an omitted or empty list scopes the rule to no environment.",
             "type": "array",
             "items": {
               "type": "string"
@@ -80325,11 +80321,11 @@
             }
           },
           "allEnvironments": {
-            "description": "When true the rule applies to all environments. Defaults to false.",
+            "description": "When true the rule applies to all environments. Omit both scope fields to apply to all environments.",
             "type": "boolean"
           },
           "environments": {
-            "description": "Specific environment IDs this rule applies to. Used when allEnvironments is false.",
+            "description": "Environment IDs the rule applies to. Ignored when allEnvironments is true; with allEnvironments false, an omitted or empty list scopes the rule to no environment.",
             "type": "array",
             "items": {
               "type": "string"
@@ -98468,6 +98464,9 @@
                                 "type": "null"
                               }
                             ]
+                          },
+                          "force": {
+                            "description": "Ignored: templates never carry force values. Accepted so a schedule's steps can be copied into a template."
                           }
                         },
                         "required": [

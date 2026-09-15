@@ -113,7 +113,7 @@
 #### Ramp Schedules
 
 - [Get all rampSchedules](https://docs.growthbook.io/api/ramp-schedules/operation/listRampSchedules.md): Returns all ramp schedules for the organization, with optional filters.
-- [Create a ramp schedule](https://docs.growthbook.io/api/ramp-schedules/operation/postRampSchedule.md)
+- [Create a ramp schedule](https://docs.growthbook.io/api/ramp-schedules/operation/postRampSchedule.md): Creates a ramp schedule, optionally attached to a published feature rule by passing `featureId` and `ruleId` together (the target is then injected into every action). Attaching on creation skips the revision review flow, so when the organization requires review anywhere it is limited to credentials…
 - [Start a ramp schedule](https://docs.growthbook.io/api/ramp-schedules/operation/startRampSchedule.md): Transitions the schedule from `ready` to `running`. The schedule must have at least one target rule attached — a schedule created without targets starts in `pending` and moves to `ready` automatically when the first target is attached via `/actions/add-target`.
 - [Pause a ramp schedule](https://docs.growthbook.io/api/ramp-schedules/operation/pauseRampSchedule.md): Pauses a `running` schedule. Traffic percentages are frozen at their current values; no step advancement happens while paused. Records `pausedAt` so that interval timing can be correctly offset when the schedule resumes.
 - [Resume a paused ramp schedule](https://docs.growthbook.io/api/ramp-schedules/operation/resumeRampSchedule.md): Resumes a `paused` schedule without moving the current step. Timing anchors (`phaseStartedAt`, `startedAt`) are shifted forward by the pause duration so that interval-based steps continue from where they left off rather than restarting their clock.
