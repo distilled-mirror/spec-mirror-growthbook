@@ -424,7 +424,7 @@
 #### Settings
 
 - [Get organization settings](https://docs.growthbook.io/api/settings/operation/getSettings.md)
-- [Replace the approval requirements for feature flags, configs and constants, and for saved groups. Each family is replaced wholesale when supplied; omit one to leave it unchanged.](https://docs.growthbook.io/api/settings/operation/putApprovalSettings.md)
+- [Replace the approval requirements for feature flags, configs and constants, for saved groups, and the Targeting Projects review mode. Each family is replaced wholesale when supplied; omit one to leave it unchanged.](https://docs.growthbook.io/api/settings/operation/putApprovalSettings.md)
 
 #### Attributes
 
@@ -666,6 +666,7 @@
 - [Segment](https://docs.growthbook.io/api/Segment_model.md)
 - [Settings](https://docs.growthbook.io/api/Settings_model.md)
 - [Targeting Rule](https://docs.growthbook.io/api/Targeting Rule_model.md)
+- [Targeting Review Rule](https://docs.growthbook.io/api/TargetingReviewRule_model.md)
 - [Team](https://docs.growthbook.io/api/Team_model.md)
 - [Visual Change](https://docs.growthbook.io/api/VisualChange_model.md)
 - [Visual Changeset](https://docs.growthbook.io/api/VisualChangeset_model.md)

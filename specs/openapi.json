@@ -778,6 +778,11 @@
       "description": "<SchemaDefinition schemaRef=\"#/components/schemas/Targeting Rule\" />"
     },
     {
+      "name": "TargetingReviewRule_model",
+      "x-displayName": "Targeting Review Rule",
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/TargetingReviewRule\" />"
+    },
+    {
       "name": "Team_model",
       "x-displayName": "Team",
       "description": "<SchemaDefinition schemaRef=\"#/components/schemas/Team\" />"
@@ -903,11 +908,11 @@
                     "type": "string"
                   },
                   "targetingAllProjects": {
-                    "description": "Make this feature discoverable in — and served to — every project, beyond its primary `project`. Governance/approvals stay with `project`.",
+                    "description": "Make this feature discoverable in — and served to — every project, beyond its primary `project`. Requires the `targetFeatures` permission (FlagsTarget policy) unscoped to any project. Governance stays with `project`.",
                     "type": "boolean"
                   },
                   "targetingProjects": {
-                    "description": "Secondary project IDs this feature is targeted in and served to, beyond its primary `project`. Governance/approvals stay with `project`.",
+                    "description": "Secondary project IDs this feature is targeted in and served to, beyond its primary `project`. Adding a project requires the `targetFeatures` permission (FlagsTarget policy) in that project. Governance stays with `project`.",
                     "type": "array",
                     "items": {
                       "type": "string"
@@ -2636,11 +2641,11 @@
                     "type": "string"
                   },
                   "targetingAllProjects": {
-                    "description": "Make this feature discoverable in — and served to — every project, beyond its primary `project`. Governance/approvals stay with `project`.",
+                    "description": "Make this feature discoverable in — and served to — every project, beyond its primary `project`. Requires the `targetFeatures` permission (FlagsTarget policy) unscoped to any project. Governance stays with `project`.",
                     "type": "boolean"
                   },
                   "targetingProjects": {
-                    "description": "Secondary project IDs this feature is targeted in and served to, beyond its primary `project`. Governance/approvals stay with `project`.",
+                    "description": "Secondary project IDs this feature is targeted in and served to, beyond its primary `project`. Adding a project requires the `targetFeatures` permission (FlagsTarget policy) in that project. Governance stays with `project`.",
                     "type": "array",
                     "items": {
                       "type": "string"
@@ -5083,6 +5088,17 @@
                   },
                   "project": {
                     "type": "string"
+                  },
+                  "targetingAllProjects": {
+                    "description": "Stage delivering this feature to every project. Requires the `targetFeatures` permission unscoped to any project.",
+                    "type": "boolean"
+                  },
+                  "targetingProjects": {
+                    "description": "Stage the secondary project IDs this feature is delivered to. Adding a project requires the `targetFeatures` permission (FlagsTarget policy) in that project.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
                   },
                   "tags": {
                     "type": "array",
@@ -9677,11 +9693,11 @@
                     "type": "string"
                   },
                   "targetingAllProjects": {
-                    "description": "Make this feature discoverable in — and served to — every project, beyond its primary `project`. Governance/approvals stay with `project`.",
+                    "description": "Make this feature discoverable in — and served to — every project, beyond its primary `project`. Requires the `targetFeatures` permission (FlagsTarget policy) unscoped to any project. Governance stays with `project`.",
                     "type": "boolean"
                   },
                   "targetingProjects": {
-                    "description": "Secondary project IDs this feature is targeted in and served to, beyond its primary `project`. Governance/approvals stay with `project`.",
+                    "description": "Secondary project IDs this feature is targeted in and served to, beyond its primary `project`. Adding a project requires the `targetFeatures` permission (FlagsTarget policy) in that project. Governance stays with `project`.",
                     "type": "array",
                     "items": {
                       "type": "string"
@@ -9902,7 +9918,7 @@
                               "type": "boolean"
                             },
                             "projects": {
-                              "description": "Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project.",
+                              "description": "Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project. When the organization requires registered attributes with project scoping, the rule's attributes are validated against these projects rather than the whole feature's.",
                               "type": "array",
                               "items": {
                                 "type": "string"
@@ -10104,7 +10120,7 @@
                               "type": "boolean"
                             },
                             "projects": {
-                              "description": "Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project.",
+                              "description": "Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project. When the organization requires registered attributes with project scoping, the rule's attributes are validated against these projects rather than the whole feature's.",
                               "type": "array",
                               "items": {
                                 "type": "string"
@@ -10305,7 +10321,7 @@
                               "type": "boolean"
                             },
                             "projects": {
-                              "description": "Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project.",
+                              "description": "Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project. When the organization requires registered attributes with project scoping, the rule's attributes are validated against these projects rather than the whole feature's.",
                               "type": "array",
                               "items": {
                                 "type": "string"
@@ -10496,7 +10512,7 @@
                               "type": "boolean"
                             },
                             "projects": {
-                              "description": "Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project.",
+                              "description": "Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project. When the organization requires registered attributes with project scoping, the rule's attributes are validated against these projects rather than the whole feature's.",
                               "type": "array",
                               "items": {
                                 "type": "string"
@@ -10684,11 +10700,11 @@
                     "type": "string"
                   },
                   "targetingAllProjects": {
-                    "description": "Make this feature discoverable in — and served to — every project, beyond its primary `project`. Governance/approvals stay with `project`.",
+                    "description": "Make this feature discoverable in — and served to — every project, beyond its primary `project`. Requires the `targetFeatures` permission (FlagsTarget policy) unscoped to any project. Governance stays with `project`.",
                     "type": "boolean"
                   },
                   "targetingProjects": {
-                    "description": "Secondary project IDs this feature is targeted in and served to, beyond its primary `project`. Governance/approvals stay with `project`.",
+                    "description": "Secondary project IDs this feature is targeted in and served to, beyond its primary `project`. Adding a project requires the `targetFeatures` permission (FlagsTarget policy) in that project. Governance stays with `project`.",
                     "type": "array",
                     "items": {
                       "type": "string"
@@ -10902,7 +10918,7 @@
                               "type": "boolean"
                             },
                             "projects": {
-                              "description": "Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project.",
+                              "description": "Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project. When the organization requires registered attributes with project scoping, the rule's attributes are validated against these projects rather than the whole feature's.",
                               "type": "array",
                               "items": {
                                 "type": "string"
@@ -11104,7 +11120,7 @@
                               "type": "boolean"
                             },
                             "projects": {
-                              "description": "Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project.",
+                              "description": "Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project. When the organization requires registered attributes with project scoping, the rule's attributes are validated against these projects rather than the whole feature's.",
                               "type": "array",
                               "items": {
                                 "type": "string"
@@ -11305,7 +11321,7 @@
                               "type": "boolean"
                             },
                             "projects": {
-                              "description": "Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project.",
+                              "description": "Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project. When the organization requires registered attributes with project scoping, the rule's attributes are validated against these projects rather than the whole feature's.",
                               "type": "array",
                               "items": {
                                 "type": "string"
@@ -11496,7 +11512,7 @@
                               "type": "boolean"
                             },
                             "projects": {
-                              "description": "Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project.",
+                              "description": "Specific project IDs this rule applies to. Used when allProjects is false. An empty array scopes the rule to no project. When the organization requires registered attributes with project scoping, the rule's attributes are validated against these projects rather than the whole feature's.",
                               "type": "array",
                               "items": {
                                 "type": "string"
@@ -12788,6 +12804,17 @@
                   },
                   "project": {
                     "type": "string"
+                  },
+                  "targetingAllProjects": {
+                    "description": "Stage delivering this feature to every project. Requires the `targetFeatures` permission unscoped to any project.",
+                    "type": "boolean"
+                  },
+                  "targetingProjects": {
+                    "description": "Stage the secondary project IDs this feature is delivered to. Adding a project requires the `targetFeatures` permission (FlagsTarget policy) in that project.",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
                   },
                   "tags": {
                     "type": "array",
@@ -18372,6 +18399,7 @@
                       "type": "object",
                       "properties": {
                         "id": {
+                          "description": "Stable variation id. On update, an omitted id is filled from the stored variation with the same key, or the same position, when the number of variations is unchanged.",
                           "type": "string"
                         },
                         "variationId": {
@@ -18444,7 +18472,9 @@
                           "type": "string"
                         },
                         "coverage": {
-                          "type": "number"
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
                         },
                         "namespace": {
                           "type": "object",
@@ -18578,7 +18608,9 @@
                           "deprecated": true,
                           "type": "array",
                           "items": {
-                            "type": "number"
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
                           }
                         },
                         "trafficSplit": {
@@ -18591,7 +18623,9 @@
                                 "type": "string"
                               },
                               "weight": {
-                                "type": "number"
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
                               }
                             },
                             "required": [
@@ -19254,6 +19288,7 @@
                       "type": "object",
                       "properties": {
                         "id": {
+                          "description": "Stable variation id. On update, an omitted id is filled from the stored variation with the same key, or the same position, when the number of variations is unchanged.",
                           "type": "string"
                         },
                         "variationId": {
@@ -19326,7 +19361,9 @@
                           "type": "string"
                         },
                         "coverage": {
-                          "type": "number"
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
                         },
                         "namespace": {
                           "type": "object",
@@ -19447,7 +19484,9 @@
                           "deprecated": true,
                           "type": "array",
                           "items": {
-                            "type": "number"
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
                           }
                         },
                         "trafficSplit": {
@@ -19460,7 +19499,9 @@
                                 "type": "string"
                               },
                               "weight": {
-                                "type": "number"
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1
                               }
                             },
                             "required": [
@@ -24372,6 +24413,10 @@
                   "restrictAccess": {
                     "description": "When true, only members with an explicit role on this Project (directly or via a team) can access it. Members with the manageTeam permission retain access. Requires a Pro or Enterprise plan.",
                     "type": "boolean"
+                  },
+                  "allowTargeting": {
+                    "description": "Whether Feature Flags owned by other Projects may add this Project to their Targeting Projects. Defaults to true. Turning it off blocks new targeting (and All Projects); existing targeting is kept.",
+                    "type": "boolean"
                   }
                 },
                 "required": [
@@ -24503,6 +24548,10 @@
                   },
                   "restrictAccess": {
                     "description": "When true, only members with an explicit role on this Project (directly or via a team) can access it. Members with the manageTeam permission retain access. Requires a Pro or Enterprise plan.",
+                    "type": "boolean"
+                  },
+                  "allowTargeting": {
+                    "description": "Whether Feature Flags owned by other Projects may add this Project to their Targeting Projects. Defaults to true. Turning it off blocks new targeting (and All Projects); existing targeting is kept.",
                     "type": "boolean"
                   }
                 },
@@ -40035,7 +40084,7 @@
     "/v1/settings/approvals": {
       "put": {
         "operationId": "putApprovalSettings",
-        "summary": "Replace the approval requirements for feature flags, configs and constants, and for saved groups. Each family is replaced wholesale when supplied; omit one to leave it unchanged.",
+        "summary": "Replace the approval requirements for feature flags, configs and constants, for saved groups, and the Targeting Projects review mode. Each family is replaced wholesale when supplied; omit one to leave it unchanged.",
         "tags": [
           "settings"
         ],
@@ -40066,6 +40115,12 @@
                       "savedGroups"
                     ],
                     "additionalProperties": false
+                  },
+                  "targetingReviewMode": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/TargetingReviewRule"
+                    }
                   }
                 },
                 "additionalProperties": false
@@ -40089,11 +40144,18 @@
                     },
                     "approvalFlows": {
                       "$ref": "#/components/schemas/approvalFlows"
+                    },
+                    "targetingReviewMode": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TargetingReviewRule"
+                      }
                     }
                   },
                   "required": [
                     "requireReviews",
-                    "approvalFlows"
+                    "approvalFlows",
+                    "targetingReviewMode"
                   ],
                   "additionalProperties": false
                 }
@@ -63912,7 +63974,9 @@
                     "type": "object",
                     "properties": {
                       "coverage": {
-                        "type": "number"
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
                       },
                       "savedGroups": {
                         "type": "array",
@@ -64153,7 +64217,9 @@
                     "type": "object",
                     "properties": {
                       "coverage": {
-                        "type": "number"
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
                       },
                       "savedGroups": {
                         "type": "array",
@@ -64460,7 +64526,9 @@
                               "type": "object",
                               "properties": {
                                 "coverage": {
-                                  "type": "number"
+                                  "type": "number",
+                                  "minimum": 0,
+                                  "maximum": 1
                                 },
                                 "savedGroups": {
                                   "type": "array",
@@ -82836,6 +82904,10 @@
             "description": "When true, only members with an explicit role on this Project (directly or via a team) can access it. Members with the manageTeam permission retain access.",
             "type": "boolean"
           },
+          "allowTargeting": {
+            "description": "Whether Feature Flags owned by other Projects may add this Project to their Targeting Projects. Defaults to true. Turning it off blocks new targeting (and All Projects); existing targeting is kept.",
+            "type": "boolean"
+          },
           "settings": {
             "type": "object",
             "properties": {
@@ -87673,27 +87745,7 @@
           "targetingReviewMode": {
             "type": "array",
             "items": {
-              "type": "object",
-              "properties": {
-                "projects": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "mode": {
-                  "type": "string",
-                  "enum": [
-                    "strict",
-                    "loose"
-                  ]
-                }
-              },
-              "required": [
-                "projects",
-                "mode"
-              ],
-              "additionalProperties": false
+              "$ref": "#/components/schemas/TargetingReviewRule"
             }
           },
           "restApiBypassesReviews": {
@@ -87884,6 +87936,31 @@
         },
         "required": [
           "required"
+        ],
+        "additionalProperties": false
+      },
+      "TargetingReviewRule": {
+        "type": "object",
+        "properties": {
+          "projects": {
+            "description": "Targeting Project IDs this rule applies to. An empty list is the organization-wide default.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "mode": {
+            "description": "`strict`: a Feature Flag delivered into these Targeting Projects must also satisfy their approval requirements, and a Targeting Project with a rule of its own must be approved by one of its reviewers. `loose`: only the flag's primary project governs approvals.",
+            "type": "string",
+            "enum": [
+              "strict",
+              "loose"
+            ]
+          }
+        },
+        "required": [
+          "projects",
+          "mode"
         ],
         "additionalProperties": false
       },
@@ -95845,7 +95922,9 @@
             "type": "object",
             "properties": {
               "coverage": {
-                "type": "number"
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
               },
               "savedGroups": {
                 "type": "array",
@@ -103789,6 +103868,7 @@
         "Segment_model",
         "Settings_model",
         "Targeting Rule_model",
+        "TargetingReviewRule_model",
         "Team_model",
         "VisualChange_model",
         "VisualChangeset_model"
