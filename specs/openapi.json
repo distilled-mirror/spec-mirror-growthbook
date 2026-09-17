@@ -6462,7 +6462,7 @@
                                   ]
                                 },
                                 "force": {
-                                  "description": "Force value (any JSON type)"
+                                  "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                                 },
                                 "enabled": {
                                   "anyOf": [
@@ -6625,7 +6625,7 @@
                                         ]
                                       },
                                       "force": {
-                                        "description": "Force value (any JSON type)"
+                                        "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                                       },
                                       "enabled": {
                                         "anyOf": [
@@ -6805,7 +6805,7 @@
                                   ]
                                 },
                                 "force": {
-                                  "description": "Force value (any JSON type)"
+                                  "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                                 },
                                 "enabled": {
                                   "anyOf": [
@@ -7409,7 +7409,7 @@
                                   ]
                                 },
                                 "force": {
-                                  "description": "Force value (any JSON type)"
+                                  "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                                 },
                                 "enabled": {
                                   "anyOf": [
@@ -7572,7 +7572,7 @@
                                         ]
                                       },
                                       "force": {
-                                        "description": "Force value (any JSON type)"
+                                        "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                                       },
                                       "enabled": {
                                         "anyOf": [
@@ -7752,7 +7752,7 @@
                                   ]
                                 },
                                 "force": {
-                                  "description": "Force value (any JSON type)"
+                                  "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                                 },
                                 "enabled": {
                                   "anyOf": [
@@ -8373,7 +8373,7 @@
                               ]
                             },
                             "force": {
-                              "description": "Force value (any JSON type)"
+                              "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                             },
                             "enabled": {
                               "anyOf": [
@@ -8536,7 +8536,7 @@
                                     ]
                                   },
                                   "force": {
-                                    "description": "Force value (any JSON type)"
+                                    "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                                   },
                                   "enabled": {
                                     "anyOf": [
@@ -8716,7 +8716,7 @@
                               ]
                             },
                             "force": {
-                              "description": "Force value (any JSON type)"
+                              "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                             },
                             "enabled": {
                               "anyOf": [
@@ -13746,7 +13746,7 @@
                                   ]
                                 },
                                 "force": {
-                                  "description": "Force value (any JSON type)"
+                                  "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                                 },
                                 "enabled": {
                                   "anyOf": [
@@ -13909,7 +13909,7 @@
                                         ]
                                       },
                                       "force": {
-                                        "description": "Force value (any JSON type)"
+                                        "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                                       },
                                       "enabled": {
                                         "anyOf": [
@@ -14089,7 +14089,7 @@
                                   ]
                                 },
                                 "force": {
-                                  "description": "Force value (any JSON type)"
+                                  "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                                 },
                                 "enabled": {
                                   "anyOf": [
@@ -14687,7 +14687,7 @@
                                   ]
                                 },
                                 "force": {
-                                  "description": "Force value (any JSON type)"
+                                  "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                                 },
                                 "enabled": {
                                   "anyOf": [
@@ -14850,7 +14850,7 @@
                                         ]
                                       },
                                       "force": {
-                                        "description": "Force value (any JSON type)"
+                                        "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                                       },
                                       "enabled": {
                                         "anyOf": [
@@ -15030,7 +15030,7 @@
                                   ]
                                 },
                                 "force": {
-                                  "description": "Force value (any JSON type)"
+                                  "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                                 },
                                 "enabled": {
                                   "anyOf": [
@@ -15648,7 +15648,7 @@
                               ]
                             },
                             "force": {
-                              "description": "Force value (any JSON type)"
+                              "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                             },
                             "enabled": {
                               "anyOf": [
@@ -15811,7 +15811,7 @@
                                     ]
                                   },
                                   "force": {
-                                    "description": "Force value (any JSON type)"
+                                    "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                                   },
                                   "enabled": {
                                     "anyOf": [
@@ -15991,7 +15991,7 @@
                               ]
                             },
                             "force": {
-                              "description": "Force value (any JSON type)"
+                              "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                             },
                             "enabled": {
                               "anyOf": [
@@ -16265,7 +16265,7 @@
                         ]
                       },
                       "force": {
-                        "description": "Force value (any JSON type)"
+                        "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                       },
                       "enabled": {
                         "anyOf": [
@@ -40523,7 +40523,7 @@
                                     ]
                                   },
                                   "force": {
-                                    "description": "Force value (any JSON type)"
+                                    "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                                   },
                                   "enabled": {
                                     "anyOf": [
@@ -40704,7 +40704,7 @@
                               ]
                             },
                             "force": {
-                              "description": "Force value (any JSON type)"
+                              "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                             },
                             "enabled": {
                               "anyOf": [
@@ -40851,7 +40851,7 @@
                               ]
                             },
                             "force": {
-                              "description": "Force value (any JSON type)"
+                              "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                             },
                             "enabled": {
                               "anyOf": [
@@ -71935,7 +71935,7 @@
                                     ]
                                   },
                                   "force": {
-                                    "description": "Force value (any JSON type)"
+                                    "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                                   },
                                   "enabled": {
                                     "anyOf": [
@@ -72117,7 +72117,7 @@
                               ]
                             },
                             "force": {
-                              "description": "Force value (any JSON type)"
+                              "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                             },
                             "enabled": {
                               "anyOf": [
@@ -72264,7 +72264,7 @@
                               ]
                             },
                             "force": {
-                              "description": "Force value (any JSON type)"
+                              "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                             },
                             "enabled": {
                               "anyOf": [
@@ -76664,7 +76664,7 @@
                                 ]
                               },
                               "force": {
-                                "description": "Force value (any JSON type)"
+                                "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                               },
                               "enabled": {
                                 "anyOf": [
@@ -76827,7 +76827,7 @@
                                       ]
                                     },
                                     "force": {
-                                      "description": "Force value (any JSON type)"
+                                      "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                                     },
                                     "enabled": {
                                       "anyOf": [
@@ -77007,7 +77007,7 @@
                                 ]
                               },
                               "force": {
-                                "description": "Force value (any JSON type)"
+                                "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                               },
                               "enabled": {
                                 "anyOf": [
@@ -77320,7 +77320,7 @@
                                 ]
                               },
                               "force": {
-                                "description": "Force value (any JSON type)"
+                                "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                               },
                               "enabled": {
                                 "anyOf": [
@@ -77483,7 +77483,7 @@
                                       ]
                                     },
                                     "force": {
-                                      "description": "Force value (any JSON type)"
+                                      "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                                     },
                                     "enabled": {
                                       "anyOf": [
@@ -77663,7 +77663,7 @@
                                 ]
                               },
                               "force": {
-                                "description": "Force value (any JSON type)"
+                                "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                               },
                               "enabled": {
                                 "anyOf": [
@@ -78784,7 +78784,7 @@
                                 ]
                               },
                               "force": {
-                                "description": "Force value (any JSON type)"
+                                "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                               },
                               "enabled": {
                                 "anyOf": [
@@ -78947,7 +78947,7 @@
                                       ]
                                     },
                                     "force": {
-                                      "description": "Force value (any JSON type)"
+                                      "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                                     },
                                     "enabled": {
                                       "anyOf": [
@@ -79127,7 +79127,7 @@
                                 ]
                               },
                               "force": {
-                                "description": "Force value (any JSON type)"
+                                "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                               },
                               "enabled": {
                                 "anyOf": [
@@ -79440,7 +79440,7 @@
                                 ]
                               },
                               "force": {
-                                "description": "Force value (any JSON type)"
+                                "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                               },
                               "enabled": {
                                 "anyOf": [
@@ -79603,7 +79603,7 @@
                                       ]
                                     },
                                     "force": {
-                                      "description": "Force value (any JSON type)"
+                                      "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                                     },
                                     "enabled": {
                                       "anyOf": [
@@ -79783,7 +79783,7 @@
                                 ]
                               },
                               "force": {
-                                "description": "Force value (any JSON type)"
+                                "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                               },
                               "enabled": {
                                 "anyOf": [
@@ -88296,7 +88296,7 @@
                       ]
                     },
                     "force": {
-                      "description": "Force value (any JSON type)"
+                      "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                     },
                     "enabled": {
                       "anyOf": [
@@ -88493,7 +88493,7 @@
                             ]
                           },
                           "force": {
-                            "description": "Force value (any JSON type)"
+                            "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                           },
                           "enabled": {
                             "anyOf": [
@@ -88654,7 +88654,7 @@
                       ]
                     },
                     "force": {
-                      "description": "Force value (any JSON type)"
+                      "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                     },
                     "enabled": {
                       "anyOf": [
@@ -103209,7 +103209,7 @@
                 ]
               },
               "force": {
-                "description": "Force value (any JSON type)"
+                "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
               },
               "enabled": {
                 "anyOf": [
@@ -103402,7 +103402,7 @@
                       ]
                     },
                     "force": {
-                      "description": "Force value (any JSON type)"
+                      "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
                     },
                     "enabled": {
                       "anyOf": [
