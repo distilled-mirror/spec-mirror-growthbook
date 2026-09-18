@@ -460,6 +460,7 @@
 - [Start a Contextual Bandit](https://docs.growthbook.io/api/ContextualBandits/operation/startContextualBandit.md)
 - [Stop a Contextual Bandit](https://docs.growthbook.io/api/ContextualBandits/operation/stopContextualBandit.md)
 - [Trigger a Contextual Bandit snapshot refresh](https://docs.growthbook.io/api/ContextualBandits/operation/refreshContextualBandit.md)
+- [Add or remove Contextual Bandit variations](https://docs.growthbook.io/api/ContextualBandits/operation/updateContextualBanditVariations.md): Adds and/or removes variations on a Contextual Bandit. Send `addVariations` and `removeVariationIds` independently; both are optional. New arms must carry a `values` entry for each linked feature. Running CBs publish the linked-feature updates; draft CBs stage them until start. Under an approval flo…
 - [Cancel a running Contextual Bandit snapshot refresh](https://docs.growthbook.io/api/ContextualBandits/operation/cancelContextualBandit.md)
 
 #### Dashboards
@@ -521,6 +522,7 @@
 - [Create a Data Source based visualization](https://docs.growthbook.io/api/AnalyticsExplorations/operation/postDataSourceExploration.md)
 - [Create a SQL based visualization](https://docs.growthbook.io/api/AnalyticsExplorations/operation/postSqlExploration.md)
 - [Run a Funnel based visualization](https://docs.growthbook.io/api/AnalyticsExplorations/operation/postFunnelExploration.md)
+- [Run a User Journey based visualization](https://docs.growthbook.io/api/AnalyticsExplorations/operation/postJourneyExploration.md)
 - [Search Product Analytics resources](https://docs.growthbook.io/api/AnalyticsExplorations/operation/searchProductAnalyticsResources.md)
 - [List columns available to a Product Analytics exploration](https://docs.growthbook.io/api/AnalyticsExplorations/operation/getProductAnalyticsColumns.md)
 - [Fetch values for Product Analytics string columns](https://docs.growthbook.io/api/AnalyticsExplorations/operation/getProductAnalyticsColumnValues.md)
