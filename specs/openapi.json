@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "version": "5.0.1",
+    "version": "5.1.0",
     "title": "GrowthBook REST API",
     "description": "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization. These can be created by going to `Personal Access Tokens` under the your user menu.\n- **Secret Keys**: These are sensitive and provide the level of access for the role, which currently is either `admin` or `readonly`. Only Admins with the `manageApiKeys` permission can manage Secret Keys on behalf of an organization. These can be created by going to `Settings -> API Keys`\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **422** - Unprocessable Entity - The request is valid, but a warning, validation rule, approval requirement, or another publishing gate blocked it. Do not assume that `ignoreWarnings` clears every 422 response.\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n\n### Publishing gates\n\nPublish responses include a `gates` array that explains every blocker:\n\n- `type`, `severity`, and `messages` identify the problem.\n- `override` names the request-body field that can bypass it. This is `ignoreWarnings` for warnings, `skipSchemaValidation` for schema and invariant failures, or `skipHooks` for Custom Hook rejections. A value of `null` means there is no request-body override.\n- `requiresPermission` identifies any additional permission needed to use the override.\n- `resolution` provides an API action, method, and path when the blocker must be resolved another way.\n\nFor example, an approval gate is cleared by approving the revision or by using a caller with **Bypass draft approvals** access. A Config lock is cleared through the unlock route in `resolution`.\n\nWhen a successful publish bypasses a gate, the response includes `bypassedGates`. Each entry reports the gate `type` and how it was bypassed in `via`, which is one of `ignoreWarnings`, `skipSchemaValidation`, `skipHooks`, `bypassApprovalPermission`, `restApiBypassesReviews`, or `revertsBypassApproval` (reverts only). This field is omitted when no gates were bypassed.\n"
   },
@@ -6485,6 +6485,48 @@
                                       "type": "null"
                                     }
                                   ]
+                                },
+                                "hashAttribute": {
+                                  "description": "Attribute the rule buckets on. Required (here or on the rule) when a step sets partial coverage on a force rule, which becomes a rollout.",
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "seed": {
+                                  "description": "Hash seed for a promoted force rule. Defaults to the rule id.",
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "hashVersion": {
+                                  "description": "Hash algorithm version for a promoted force rule. Defaults to 2.",
+                                  "anyOf": [
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number",
+                                          "const": 1
+                                        },
+                                        {
+                                          "type": "number",
+                                          "const": 2
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
                                 }
                               },
                               "additionalProperties": false
@@ -7427,6 +7469,48 @@
                                   "anyOf": [
                                     {
                                       "type": "boolean"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "hashAttribute": {
+                                  "description": "Attribute the rule buckets on. Required (here or on the rule) when a step sets partial coverage on a force rule, which becomes a rollout.",
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "seed": {
+                                  "description": "Hash seed for a promoted force rule. Defaults to the rule id.",
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "hashVersion": {
+                                  "description": "Hash algorithm version for a promoted force rule. Defaults to 2.",
+                                  "anyOf": [
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number",
+                                          "const": 1
+                                        },
+                                        {
+                                          "type": "number",
+                                          "const": 2
+                                        }
+                                      ]
                                     },
                                     {
                                       "type": "null"
@@ -8396,6 +8480,48 @@
                                   "type": "null"
                                 }
                               ]
+                            },
+                            "hashAttribute": {
+                              "description": "Attribute the rule buckets on. Required (here or on the rule) when a step sets partial coverage on a force rule, which becomes a rollout.",
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "seed": {
+                              "description": "Hash seed for a promoted force rule. Defaults to the rule id.",
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "hashVersion": {
+                              "description": "Hash algorithm version for a promoted force rule. Defaults to 2.",
+                              "anyOf": [
+                                {
+                                  "anyOf": [
+                                    {
+                                      "type": "number",
+                                      "const": 1
+                                    },
+                                    {
+                                      "type": "number",
+                                      "const": 2
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             }
                           },
                           "additionalProperties": false
@@ -8917,6 +9043,13 @@
                   "properties": {
                     "revision": {
                       "$ref": "#/components/schemas/FeatureRevisionV1"
+                    },
+                    "warnings": {
+                      "description": "Non-fatal advisories about how the request was interpreted.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   },
                   "required": [
@@ -13781,6 +13914,48 @@
                                       "type": "null"
                                     }
                                   ]
+                                },
+                                "hashAttribute": {
+                                  "description": "Attribute the rule buckets on. Required (here or on the rule) when a step sets partial coverage on a force rule, which becomes a rollout.",
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "seed": {
+                                  "description": "Hash seed for a promoted force rule. Defaults to the rule id.",
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "hashVersion": {
+                                  "description": "Hash algorithm version for a promoted force rule. Defaults to 2.",
+                                  "anyOf": [
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number",
+                                          "const": 1
+                                        },
+                                        {
+                                          "type": "number",
+                                          "const": 2
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
                                 }
                               },
                               "additionalProperties": false
@@ -14717,6 +14892,48 @@
                                   "anyOf": [
                                     {
                                       "type": "boolean"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "hashAttribute": {
+                                  "description": "Attribute the rule buckets on. Required (here or on the rule) when a step sets partial coverage on a force rule, which becomes a rollout.",
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "seed": {
+                                  "description": "Hash seed for a promoted force rule. Defaults to the rule id.",
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
+                                "hashVersion": {
+                                  "description": "Hash algorithm version for a promoted force rule. Defaults to 2.",
+                                  "anyOf": [
+                                    {
+                                      "anyOf": [
+                                        {
+                                          "type": "number",
+                                          "const": 1
+                                        },
+                                        {
+                                          "type": "number",
+                                          "const": 2
+                                        }
+                                      ]
                                     },
                                     {
                                       "type": "null"
@@ -15683,6 +15900,48 @@
                                   "type": "null"
                                 }
                               ]
+                            },
+                            "hashAttribute": {
+                              "description": "Attribute the rule buckets on. Required (here or on the rule) when a step sets partial coverage on a force rule, which becomes a rollout.",
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "seed": {
+                              "description": "Hash seed for a promoted force rule. Defaults to the rule id.",
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "hashVersion": {
+                              "description": "Hash algorithm version for a promoted force rule. Defaults to 2.",
+                              "anyOf": [
+                                {
+                                  "anyOf": [
+                                    {
+                                      "type": "number",
+                                      "const": 1
+                                    },
+                                    {
+                                      "type": "number",
+                                      "const": 2
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             }
                           },
                           "additionalProperties": false
@@ -16179,7 +16438,7 @@
                     "type": "string"
                   },
                   "startState": {
-                    "description": "The rule state to roll back to (the rollback/jump-to-start anchor). Merged onto the rule's current state, so `{ \"coverage\": 0 }` keeps existing targeting but rolls back to 0%. This affects rollbacks only — it is NOT applied when the ramp starts. On create, omitting it infers the anchor from the rule's current coverage (and returns a warning if that isn't 0%); on update of a live schedule, omitting it leaves the existing anchor unchanged.",
+                    "description": "The rule state to roll back to (the rollback/jump-to-start anchor). Merged onto the rule's current state, so `{ \"coverage\": 0 }` keeps existing targeting but rolls back to 0%. Steps accumulate on it, and it is the only place a plan sets `hashAttribute` (plus optional `seed` and `hashVersion`), which a partial-coverage step on a force rule requires unless the rule has one. On create, omitting it infers the anchor from the rule's current coverage (and returns a warning if that isn't 0%); on update of a live schedule, omitting it leaves the existing anchor unchanged.",
                     "type": "object",
                     "properties": {
                       "coverage": {
@@ -16295,6 +16554,48 @@
                         "anyOf": [
                           {
                             "type": "boolean"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "hashAttribute": {
+                        "description": "Attribute the rule buckets on. Required (here or on the rule) when a step sets partial coverage on a force rule, which becomes a rollout.",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "seed": {
+                        "description": "Hash seed for a promoted force rule. Defaults to the rule id.",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "hashVersion": {
+                        "description": "Hash algorithm version for a promoted force rule. Defaults to 2.",
+                        "anyOf": [
+                          {
+                            "anyOf": [
+                              {
+                                "type": "number",
+                                "const": 1
+                              },
+                              {
+                                "type": "number",
+                                "const": 2
+                              }
+                            ]
                           },
                           {
                             "type": "null"
@@ -40757,6 +41058,48 @@
                                   "type": "null"
                                 }
                               ]
+                            },
+                            "hashAttribute": {
+                              "description": "Attribute the rule buckets on. Required (here or on the rule) when a step sets partial coverage on a force rule, which becomes a rollout.",
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "seed": {
+                              "description": "Hash seed for a promoted force rule. Defaults to the rule id.",
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "hashVersion": {
+                              "description": "Hash algorithm version for a promoted force rule. Defaults to 2.",
+                              "anyOf": [
+                                {
+                                  "anyOf": [
+                                    {
+                                      "type": "number",
+                                      "const": 1
+                                    },
+                                    {
+                                      "type": "number",
+                                      "const": 2
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             }
                           },
                           "additionalProperties": false
@@ -41955,7 +42298,7 @@
                       }
                     },
                     "startActions": {
-                      "description": "Actions that restore controlled rules to their pre-ramp state. Applied when rolling back or jumping to start.",
+                      "description": "Actions that restore controlled rules to their pre-ramp state. Applied when rolling back or jumping to start, and the base every step accumulates on; the only place a plan can set hashAttribute, seed or hashVersion.",
                       "type": "array",
                       "items": {
                         "$ref": "#/components/schemas/startActions"
@@ -41972,7 +42315,7 @@
                       "description": "Actions applied on top of all step patches when the ramp completes. Represents the final desired rule state.",
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/startActions"
+                        "$ref": "#/components/schemas/endActions"
                       }
                     },
                     "startDate": {
@@ -42475,7 +42818,7 @@
                       }
                     },
                     "startActions": {
-                      "description": "Actions that restore controlled rules to their pre-ramp state. Applied when rolling back or jumping to start.",
+                      "description": "Actions that restore controlled rules to their pre-ramp state. Applied when rolling back or jumping to start, and the base every step accumulates on; the only place a plan can set hashAttribute, seed or hashVersion.",
                       "type": "array",
                       "items": {
                         "$ref": "#/components/schemas/startActions"
@@ -42492,7 +42835,7 @@
                       "description": "Actions applied on top of all step patches when the ramp completes. Represents the final desired rule state.",
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/startActions"
+                        "$ref": "#/components/schemas/endActions"
                       }
                     },
                     "startDate": {
@@ -43070,7 +43413,7 @@
                       }
                     },
                     "startActions": {
-                      "description": "Actions that restore controlled rules to their pre-ramp state. Applied when rolling back or jumping to start.",
+                      "description": "Actions that restore controlled rules to their pre-ramp state. Applied when rolling back or jumping to start, and the base every step accumulates on; the only place a plan can set hashAttribute, seed or hashVersion.",
                       "type": "array",
                       "items": {
                         "$ref": "#/components/schemas/startActions"
@@ -43087,7 +43430,7 @@
                       "description": "Actions applied on top of all step patches when the ramp completes. Represents the final desired rule state.",
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/startActions"
+                        "$ref": "#/components/schemas/endActions"
                       }
                     },
                     "startDate": {
@@ -43593,7 +43936,7 @@
                       }
                     },
                     "startActions": {
-                      "description": "Actions that restore controlled rules to their pre-ramp state. Applied when rolling back or jumping to start.",
+                      "description": "Actions that restore controlled rules to their pre-ramp state. Applied when rolling back or jumping to start, and the base every step accumulates on; the only place a plan can set hashAttribute, seed or hashVersion.",
                       "type": "array",
                       "items": {
                         "$ref": "#/components/schemas/startActions"
@@ -43610,7 +43953,7 @@
                       "description": "Actions applied on top of all step patches when the ramp completes. Represents the final desired rule state.",
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/startActions"
+                        "$ref": "#/components/schemas/endActions"
                       }
                     },
                     "startDate": {
@@ -62170,7 +62513,7 @@
                     }
                   },
                   "updateVariations": {
-                    "description": "Metadata edits to existing active arms. Only `name` and `description` may be changed; key, values, weights, screenshots, and status are preserved.",
+                    "description": "Metadata edits to existing active arms. `name`, `description`, and `key` may be changed; values, weights, screenshots, and status are preserved.",
                     "type": "array",
                     "items": {
                       "type": "object",
@@ -62182,6 +62525,10 @@
                           "type": "string"
                         },
                         "description": {
+                          "type": "string"
+                        },
+                        "key": {
+                          "description": "New key for the arm. Must be unique across the contextual bandit's arms, including removed ones. The key is what SDKs report in exposure events, so renaming an arm on a running bandit orphans exposures already recorded under the old key.",
                           "type": "string"
                         }
                       },
@@ -73836,6 +74183,7 @@
                           "type": "string"
                         },
                         "patch": {
+                          "description": "The rule's pre-ramp state, and the only place a plan sets hashAttribute, seed or hashVersion.",
                           "type": "object",
                           "properties": {
                             "ruleId": {
@@ -73954,6 +74302,48 @@
                               "anyOf": [
                                 {
                                   "type": "boolean"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "hashAttribute": {
+                              "description": "Attribute the rule buckets on. Required (here or on the rule) when a step sets partial coverage on a force rule, which becomes a rollout.",
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "seed": {
+                              "description": "Hash seed for a promoted force rule. Defaults to the rule id.",
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "hashVersion": {
+                              "description": "Hash algorithm version for a promoted force rule. Defaults to 2.",
+                              "anyOf": [
+                                {
+                                  "anyOf": [
+                                    {
+                                      "type": "number",
+                                      "const": 1
+                                    },
+                                    {
+                                      "type": "number",
+                                      "const": 2
+                                    }
+                                  ]
                                 },
                                 {
                                   "type": "null"
@@ -78506,6 +78896,48 @@
                                     "type": "null"
                                   }
                                 ]
+                              },
+                              "hashAttribute": {
+                                "description": "Attribute the rule buckets on. Required (here or on the rule) when a step sets partial coverage on a force rule, which becomes a rollout.",
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "seed": {
+                                "description": "Hash seed for a promoted force rule. Defaults to the rule id.",
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "hashVersion": {
+                                "description": "Hash algorithm version for a promoted force rule. Defaults to 2.",
+                                "anyOf": [
+                                  {
+                                    "anyOf": [
+                                      {
+                                        "type": "number",
+                                        "const": 1
+                                      },
+                                      {
+                                        "type": "number",
+                                        "const": 2
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
                               }
                             },
                             "additionalProperties": false
@@ -79157,6 +79589,48 @@
                                 "anyOf": [
                                   {
                                     "type": "boolean"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "hashAttribute": {
+                                "description": "Attribute the rule buckets on. Required (here or on the rule) when a step sets partial coverage on a force rule, which becomes a rollout.",
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "seed": {
+                                "description": "Hash seed for a promoted force rule. Defaults to the rule id.",
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "hashVersion": {
+                                "description": "Hash algorithm version for a promoted force rule. Defaults to 2.",
+                                "anyOf": [
+                                  {
+                                    "anyOf": [
+                                      {
+                                        "type": "number",
+                                        "const": 1
+                                      },
+                                      {
+                                        "type": "number",
+                                        "const": 2
+                                      }
+                                    ]
                                   },
                                   {
                                     "type": "null"
@@ -80626,6 +81100,48 @@
                                     "type": "null"
                                   }
                                 ]
+                              },
+                              "hashAttribute": {
+                                "description": "Attribute the rule buckets on. Required (here or on the rule) when a step sets partial coverage on a force rule, which becomes a rollout.",
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "seed": {
+                                "description": "Hash seed for a promoted force rule. Defaults to the rule id.",
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "hashVersion": {
+                                "description": "Hash algorithm version for a promoted force rule. Defaults to 2.",
+                                "anyOf": [
+                                  {
+                                    "anyOf": [
+                                      {
+                                        "type": "number",
+                                        "const": 1
+                                      },
+                                      {
+                                        "type": "number",
+                                        "const": 2
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
                               }
                             },
                             "additionalProperties": false
@@ -81277,6 +81793,48 @@
                                 "anyOf": [
                                   {
                                     "type": "boolean"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "hashAttribute": {
+                                "description": "Attribute the rule buckets on. Required (here or on the rule) when a step sets partial coverage on a force rule, which becomes a rollout.",
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "seed": {
+                                "description": "Hash seed for a promoted force rule. Defaults to the rule id.",
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "hashVersion": {
+                                "description": "Hash algorithm version for a promoted force rule. Defaults to 2.",
+                                "anyOf": [
+                                  {
+                                    "anyOf": [
+                                      {
+                                        "type": "number",
+                                        "const": 1
+                                      },
+                                      {
+                                        "type": "number",
+                                        "const": 2
+                                      }
+                                    ]
                                   },
                                   {
                                     "type": "null"
@@ -87769,6 +88327,16 @@
             "description": "Whether this column should always be included as an inline filter in queries",
             "type": "boolean"
           },
+          "conditionalInlineFilters": {
+            "description": "Value -> additional column to prompt for when a metric filters this column to that value, e.g. {\"Page View\": \"path\", \"Modal Open\": \"properties.modalType\"}. Requires alwaysInlineFilter.",
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
           "deleted": {
             "default": false,
             "type": "boolean"
@@ -87902,6 +88470,16 @@
             "default": false,
             "description": "Whether this column should always be included as an inline filter in queries",
             "type": "boolean"
+          },
+          "conditionalInlineFilters": {
+            "description": "Value -> additional column to prompt for when a metric filters this column to that value, e.g. {\"Page View\": \"path\", \"Modal Open\": \"properties.modalType\"}. Requires alwaysInlineFilter.",
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
           },
           "deleted": {
             "default": false,
@@ -90008,7 +90586,7 @@
             }
           },
           "startActions": {
-            "description": "Actions that restore controlled rules to their pre-ramp state. Applied when rolling back or jumping to start.",
+            "description": "Actions that restore controlled rules to their pre-ramp state. Applied when rolling back or jumping to start, and the base every step accumulates on; the only place a plan can set hashAttribute, seed or hashVersion.",
             "type": "array",
             "items": {
               "type": "object",
@@ -90139,6 +90717,48 @@
                       "anyOf": [
                         {
                           "type": "boolean"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "hashAttribute": {
+                      "description": "Attribute the rule buckets on. Required (here or on the rule) when a step sets partial coverage on a force rule, which becomes a rollout.",
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "seed": {
+                      "description": "Hash seed for a promoted force rule. Defaults to the rule id.",
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "hashVersion": {
+                      "description": "Hash algorithm version for a promoted force rule. Defaults to 2.",
+                      "anyOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "const": 1
+                            },
+                            {
+                              "type": "number",
+                              "const": 2
+                            }
+                          ]
                         },
                         {
                           "type": "null"
@@ -105644,6 +106264,48 @@
                     "type": "null"
                   }
                 ]
+              },
+              "hashAttribute": {
+                "description": "Attribute the rule buckets on. Required (here or on the rule) when a step sets partial coverage on a force rule, which becomes a rollout.",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "seed": {
+                "description": "Hash seed for a promoted force rule. Defaults to the rule id.",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "hashVersion": {
+                "description": "Hash algorithm version for a promoted force rule. Defaults to 2.",
+                "anyOf": [
+                  {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "const": 1
+                      },
+                      {
+                        "type": "number",
+                        "const": 2
+                      }
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               }
             },
             "required": [
@@ -105857,6 +106519,155 @@
         "required": [
           "interval",
           "actions"
+        ],
+        "additionalProperties": false
+      },
+      "endActions": {
+        "type": "object",
+        "properties": {
+          "targetType": {
+            "type": "string",
+            "const": "feature-rule"
+          },
+          "targetId": {
+            "type": "string"
+          },
+          "patch": {
+            "type": "object",
+            "properties": {
+              "ruleId": {
+                "type": "string"
+              },
+              "coverage": {
+                "description": "Traffic fraction (0–1). For monitored steps the rollout rule is promoted to an experiment: treatment = [0, coverage), control = [0.5, 0.5+coverage). Both arms are equal-sized and non-adjacent, so a step-up only adds new users to each arm — no existing user changes group. The REST API enforces coverage ≤ 0.5 on monitored steps so control end never exceeds 1.0. The SDK uses explicit hash ranges on bucketingV2 clients to keep bucketing stable across monitored/unmonitored transitions.",
+                "anyOf": [
+                  {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "condition": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "savedGroups": {
+                "anyOf": [
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "match": {
+                          "type": "string",
+                          "enum": [
+                            "all",
+                            "none",
+                            "any"
+                          ]
+                        },
+                        "ids": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "required": [
+                        "match",
+                        "ids"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "prerequisites": {
+                "anyOf": [
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "condition": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "condition"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "allEnvironments": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "environments": {
+                "anyOf": [
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "force": {
+                "description": "Value to serve, in the string form rule values use (\"false\", \"10\", '{\"limit\": 5}'). A non-string JSON value is accepted and stored as its JSON text. Must be valid for the feature's value type."
+              },
+              "enabled": {
+                "anyOf": [
+                  {
+                    "type": "boolean"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "ruleId"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "targetType",
+          "targetId",
+          "patch"
         ],
         "additionalProperties": false
       },
