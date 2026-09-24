@@ -18641,10 +18641,12 @@
                     "type": "boolean"
                   },
                   "bucketVersion": {
-                    "type": "number"
+                    "type": "integer",
+                    "minimum": 0
                   },
                   "minBucketVersion": {
-                    "type": "number"
+                    "type": "integer",
+                    "minimum": 0
                   },
                   "releasedVariationId": {
                     "type": "string"
@@ -19510,10 +19512,12 @@
                     "type": "boolean"
                   },
                   "bucketVersion": {
-                    "type": "number"
+                    "type": "integer",
+                    "minimum": 0
                   },
                   "minBucketVersion": {
-                    "type": "number"
+                    "type": "integer",
+                    "minimum": 0
                   },
                   "results": {
                     "description": "The result status of the experiment. Maps to resultSummary.status in the GET response.",
@@ -26746,6 +26750,10 @@
                       "additionalProperties": {}
                     }
                   },
+                  "allowRunningExperiment": {
+                    "description": "Also accept the write when the experiment is running. Off by default so a stale editor can't change a live test. When set, the change reaches live traffic immediately and the caller needs the runExperiments permission on the affected environments; the write is audited.",
+                    "type": "boolean"
+                  },
                   "visualChanges": {
                     "type": "array",
                     "items": {
@@ -26883,6 +26891,10 @@
                   "variation": {
                     "type": "string"
                   },
+                  "allowRunningExperiment": {
+                    "description": "Also accept the write when the experiment is running. Off by default so a stale editor can't change a live test. When set, the change reaches live traffic immediately and the caller needs the runExperiments permission on the affected environments; the write is audited.",
+                    "type": "boolean"
+                  },
                   "domMutations": {
                     "type": "array",
                     "items": {
@@ -26995,6 +27007,10 @@
                   },
                   "variation": {
                     "type": "string"
+                  },
+                  "allowRunningExperiment": {
+                    "description": "Also accept the write when the experiment is running. Off by default so a stale editor can't change a live test. When set, the change reaches live traffic immediately and the caller needs the runExperiments permission on the affected environments; the write is audited.",
+                    "type": "boolean"
                   },
                   "domMutations": {
                     "type": "array",
