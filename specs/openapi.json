@@ -25302,6 +25302,16 @@
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "customFields": {
+                    "description": "Values for the organization's attribute custom fields, keyed by field id",
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {
+                      "type": "string"
+                    }
                   }
                 },
                 "required": [
@@ -25410,6 +25420,16 @@
                   "tags": {
                     "type": "array",
                     "items": {
+                      "type": "string"
+                    }
+                  },
+                  "customFields": {
+                    "description": "Values for the organization's attribute custom fields, keyed by field id",
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {
                       "type": "string"
                     }
                   }
@@ -63180,13 +63200,14 @@
                     }
                   },
                   "sections": {
-                    "description": "What types of objects this custom field is applicable to (feature, experiment)",
+                    "description": "What types of objects this custom field is applicable to (feature, experiment, attribute)",
                     "type": "array",
                     "items": {
                       "type": "string",
                       "enum": [
                         "feature",
-                        "experiment"
+                        "experiment",
+                        "attribute"
                       ]
                     }
                   }
@@ -63470,13 +63491,14 @@
                     }
                   },
                   "sections": {
-                    "description": "What types of objects this custom field is applicable to (feature, experiment)",
+                    "description": "What types of objects this custom field is applicable to (feature, experiment, attribute)",
                     "type": "array",
                     "items": {
                       "type": "string",
                       "enum": [
                         "feature",
-                        "experiment"
+                        "experiment",
+                        "attribute"
                       ]
                     }
                   },
@@ -85543,6 +85565,15 @@
             "items": {
               "type": "string"
             }
+          },
+          "customFields": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -98228,7 +98259,8 @@
               "type": "string",
               "enum": [
                 "feature",
-                "experiment"
+                "experiment",
+                "attribute"
               ]
             }
           },
@@ -103643,6 +103675,22 @@
         },
         "required": [
           "overallResultsAsOf"
+        ],
+        "additionalProperties": false
+      },
+      "ApiErrorInvalidTrackingKeyDetails": {
+        "type": "object",
+        "properties": {
+          "pattern": {
+            "type": "string"
+          },
+          "example": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pattern",
+          "example"
         ],
         "additionalProperties": false
       },
