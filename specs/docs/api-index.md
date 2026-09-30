@@ -400,7 +400,7 @@
 #### Members
 
 - [Get all organization members](https://docs.growthbook.io/api/members/operation/listMembers.md)
-- [Update a member's global role (including any enviroment restrictions, if applicable). Can also update a member's project roles if your plan supports it.](https://docs.growthbook.io/api/members/operation/updateMemberRole.md)
+- [Update a member's global role (including any environment restrictions, if applicable). Can also update a member's project roles if your plan supports it.](https://docs.growthbook.io/api/members/operation/updateMemberRole.md)
 - [Removes a single user from an organization](https://docs.growthbook.io/api/members/operation/deleteMember.md)
 
 #### Code References

@@ -35,7 +35,7 @@
     {
       "name": "features-v2",
       "x-displayName": "Feature Flags",
-      "description": "Control your feature flags programatically.\n\nRules are returned as a unified top-level array; each rule carries `allEnvironments` / `environments` scope fields instead of being bucketed by environment."
+      "description": "Control your feature flags programmatically.\n\nRules are returned as a unified top-level array; each rule carries `allEnvironments` / `environments` scope fields instead of being bucketed by environment."
     },
     {
       "name": "feature-revisions-v2",
@@ -45,7 +45,7 @@
     {
       "name": "features",
       "x-displayName": "Feature Flags (legacy)",
-      "description": "Control your feature flags programatically.\n\n**These are v1 endpoints.** New integrations should use the v2 Feature Flags endpoints, which expose a unified per-rule environment scope instead of per-environment rule arrays."
+      "description": "Control your feature flags programmatically.\n\n**These are v1 endpoints.** New integrations should use the v2 Feature Flags endpoints, which expose a unified per-rule environment scope instead of per-environment rule arrays."
     },
     {
       "name": "feature-revisions",
@@ -20294,7 +20294,7 @@
                 "type": "object",
                 "properties": {
                   "skipChecklist": {
-                    "description": "If true, skips validating the experiment satisifies all pre-launch checklist items",
+                    "description": "If true, skips validating the experiment satisfies all pre-launch checklist items",
                     "type": "boolean"
                   },
                   "ignoreWarnings": {
@@ -20875,7 +20875,7 @@
                 "type": "object",
                 "properties": {
                   "triggeredBy": {
-                    "description": "Set to \"schedule\" if you want this request to trigger notifications and other events as it if were a scheduled update. Defaults to manual.",
+                    "description": "Set to \"schedule\" if you want this request to trigger notifications and other events as if it were a scheduled update. Defaults to manual.",
                     "type": "string",
                     "enum": [
                       "manual",
@@ -27262,7 +27262,7 @@
         "x-codeSamples": [
           {
             "lang": "cURL",
-            "source": "curl -X POST 'https://api.growthbook.io/api/v1/saved-groups' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"name\":\"interal-users\",\"values\":[\"userId-123\",\"userId-345\",\"userId-678\"],\"attributeKey\":\"userId\",\"owner\":\"\"}'"
+            "source": "curl -X POST 'https://api.growthbook.io/api/v1/saved-groups' \\\n  -H 'Authorization: Bearer YOUR_API_KEY' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"name\":\"internal-users\",\"values\":[\"userId-123\",\"userId-345\",\"userId-678\"],\"attributeKey\":\"userId\",\"owner\":\"\"}'"
           }
         ]
       }
@@ -40312,7 +40312,7 @@
     "/v1/members/{id}/role": {
       "post": {
         "operationId": "updateMemberRole",
-        "summary": "Update a member's global role (including any enviroment restrictions, if applicable). Can also update a member's project roles if your plan supports it.",
+        "summary": "Update a member's global role (including any environment restrictions, if applicable). Can also update a member's project roles if your plan supports it.",
         "tags": [
           "members"
         ],
@@ -89729,7 +89729,7 @@
                 "type": "boolean"
               },
               "enabled": {
-                "description": "Controls whether or not regresion adjustment is applied to the metric",
+                "description": "Controls whether or not regression adjustment is applied to the metric",
                 "type": "boolean"
               },
               "days": {
