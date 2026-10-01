@@ -469,7 +469,8 @@
 - [Update a single dashboard](https://docs.growthbook.io/api/Dashboards/operation/updateDashboard.md)
 - [Delete a single dashboard](https://docs.growthbook.io/api/Dashboards/operation/deleteDashboard.md)
 - [Get all dashboards](https://docs.growthbook.io/api/Dashboards/operation/listDashboards.md)
-- [Create a single dashboard](https://docs.growthbook.io/api/Dashboards/operation/createDashboard.md)
+- [Create a single dashboard](https://docs.growthbook.io/api/Dashboards/operation/createDashboard.md): **Deprecated.** Use [POST /v2/dashboards](#operation/createDashboardV2) instead.
+- [Create a single dashboard](https://docs.growthbook.io/api/Dashboards/operation/createDashboardV2.md)
 - [Get all dashboards for an experiment](https://docs.growthbook.io/api/Dashboards/operation/getDashboardsForExperiment.md)
 
 #### Contextual Bandit Queries
