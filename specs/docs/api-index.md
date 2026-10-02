@@ -658,6 +658,7 @@
 - [Safe Rollout Rule](https://docs.growthbook.io/api/Safe Rollout Rule_model.md)
 - [Saved Group](https://docs.growthbook.io/api/SavedGroup_model.md)
 - [Saved Group Approval Rule](https://docs.growthbook.io/api/SavedGroupApprovalRule_model.md)
+- [Saved Group Reference Resource](https://docs.growthbook.io/api/SavedGroupReferenceResource_model.md)
 - [Saved Group References](https://docs.growthbook.io/api/SavedGroupReferences_model.md)
 - [Saved Group Revision](https://docs.growthbook.io/api/SavedGroupRevision_model.md)
 - [Saved Group Revision Activity Log Entry](https://docs.growthbook.io/api/SavedGroupRevisionActivityLogEntry_model.md)

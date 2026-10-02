@@ -723,6 +723,11 @@
       "description": "<SchemaDefinition schemaRef=\"#/components/schemas/SavedGroupApprovalRule\" />"
     },
     {
+      "name": "SavedGroupReferenceResource_model",
+      "x-displayName": "Saved Group Reference Resource",
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/SavedGroupReferenceResource\" />"
+    },
+    {
       "name": "SavedGroupReferences_model",
       "x-displayName": "Saved Group References",
       "description": "<SchemaDefinition schemaRef=\"#/components/schemas/SavedGroupReferences\" />"
@@ -6119,7 +6124,34 @@
                               "datasourceId": {
                                 "type": "string"
                               },
+                              "exposureQuery": {
+                                "description": "The assignment query, grouping its ID with the identifier type analyzed on. Mutually exclusive with the deprecated `exposureQueryId`.",
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "description": "The ID of one of the data source's assignment queries.",
+                                    "type": "string"
+                                  },
+                                  "identifierType": {
+                                    "description": "The identifier type to analyze on, which the query must declare. Required when selecting a different assignment query that declares several. Otherwise defaults to the current identifier type, or the query's only one. Null is treated as omitted, so a response's value can be sent back.",
+                                    "anyOf": [
+                                      {
+                                        "type": "string"
+                                      },
+                                      {
+                                        "type": "null"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "id"
+                                ],
+                                "additionalProperties": false
+                              },
                               "exposureQueryId": {
+                                "deprecated": true,
+                                "description": "Deprecated: use `exposureQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `exposureQuery.identifierType` instead.",
                                 "type": "string"
                               },
                               "guardrailMetricIds": {
@@ -6188,7 +6220,6 @@
                             },
                             "required": [
                               "datasourceId",
-                              "exposureQueryId",
                               "guardrailMetricIds",
                               "maxDuration"
                             ],
@@ -6911,9 +6942,6 @@
                           "datasourceId": {
                             "type": "string"
                           },
-                          "exposureQueryId": {
-                            "type": "string"
-                          },
                           "guardrailMetricIds": {
                             "minItems": 1,
                             "type": "array",
@@ -6983,11 +7011,40 @@
                               "hold",
                               "warn"
                             ]
+                          },
+                          "exposureQuery": {
+                            "description": "The assignment query, grouping its ID with the identifier type analyzed on. Mutually exclusive with the deprecated `exposureQueryId`.",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "description": "The ID of one of the data source's assignment queries.",
+                                "type": "string"
+                              },
+                              "identifierType": {
+                                "description": "The identifier type to analyze on, which the query must declare. Required when selecting a different assignment query that declares several. Otherwise defaults to the current identifier type, or the query's only one. Null is treated as omitted, so a response's value can be sent back.",
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "exposureQueryId": {
+                            "deprecated": true,
+                            "description": "Deprecated: use `exposureQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `exposureQuery.identifierType` instead.",
+                            "type": "string"
                           }
                         },
                         "required": [
                           "datasourceId",
-                          "exposureQueryId",
                           "guardrailMetricIds"
                         ],
                         "additionalProperties": false
@@ -7900,9 +7957,6 @@
                           "datasourceId": {
                             "type": "string"
                           },
-                          "exposureQueryId": {
-                            "type": "string"
-                          },
                           "guardrailMetricIds": {
                             "minItems": 1,
                             "type": "array",
@@ -7972,11 +8026,40 @@
                               "hold",
                               "warn"
                             ]
+                          },
+                          "exposureQuery": {
+                            "description": "The assignment query, grouping its ID with the identifier type analyzed on. Mutually exclusive with the deprecated `exposureQueryId`.",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "description": "The ID of one of the data source's assignment queries.",
+                                "type": "string"
+                              },
+                              "identifierType": {
+                                "description": "The identifier type to analyze on, which the query must declare. Required when selecting a different assignment query that declares several. Otherwise defaults to the current identifier type, or the query's only one. Null is treated as omitted, so a response's value can be sent back.",
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "exposureQueryId": {
+                            "deprecated": true,
+                            "description": "Deprecated: use `exposureQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `exposureQuery.identifierType` instead.",
+                            "type": "string"
                           }
                         },
                         "required": [
                           "datasourceId",
-                          "exposureQueryId",
                           "guardrailMetricIds"
                         ],
                         "additionalProperties": false
@@ -8906,9 +8989,6 @@
                       "datasourceId": {
                         "type": "string"
                       },
-                      "exposureQueryId": {
-                        "type": "string"
-                      },
                       "guardrailMetricIds": {
                         "minItems": 1,
                         "type": "array",
@@ -8978,11 +9058,40 @@
                           "hold",
                           "warn"
                         ]
+                      },
+                      "exposureQuery": {
+                        "description": "The assignment query, grouping its ID with the identifier type analyzed on. Mutually exclusive with the deprecated `exposureQueryId`.",
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "description": "The ID of one of the data source's assignment queries.",
+                            "type": "string"
+                          },
+                          "identifierType": {
+                            "description": "The identifier type to analyze on, which the query must declare. Required when selecting a different assignment query that declares several. Otherwise defaults to the current identifier type, or the query's only one. Null is treated as omitted, so a response's value can be sent back.",
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "exposureQueryId": {
+                        "deprecated": true,
+                        "description": "Deprecated: use `exposureQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `exposureQuery.identifierType` instead.",
+                        "type": "string"
                       }
                     },
                     "required": [
                       "datasourceId",
-                      "exposureQueryId",
                       "guardrailMetricIds"
                     ],
                     "additionalProperties": false
@@ -14340,9 +14449,6 @@
                           "datasourceId": {
                             "type": "string"
                           },
-                          "exposureQueryId": {
-                            "type": "string"
-                          },
                           "guardrailMetricIds": {
                             "minItems": 1,
                             "type": "array",
@@ -14412,11 +14518,40 @@
                               "hold",
                               "warn"
                             ]
+                          },
+                          "exposureQuery": {
+                            "description": "The assignment query, grouping its ID with the identifier type analyzed on. Mutually exclusive with the deprecated `exposureQueryId`.",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "description": "The ID of one of the data source's assignment queries.",
+                                "type": "string"
+                              },
+                              "identifierType": {
+                                "description": "The identifier type to analyze on, which the query must declare. Required when selecting a different assignment query that declares several. Otherwise defaults to the current identifier type, or the query's only one. Null is treated as omitted, so a response's value can be sent back.",
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "exposureQueryId": {
+                            "deprecated": true,
+                            "description": "Deprecated: use `exposureQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `exposureQuery.identifierType` instead.",
+                            "type": "string"
                           }
                         },
                         "required": [
                           "datasourceId",
-                          "exposureQueryId",
                           "guardrailMetricIds"
                         ],
                         "additionalProperties": false
@@ -15323,9 +15458,6 @@
                           "datasourceId": {
                             "type": "string"
                           },
-                          "exposureQueryId": {
-                            "type": "string"
-                          },
                           "guardrailMetricIds": {
                             "minItems": 1,
                             "type": "array",
@@ -15395,11 +15527,40 @@
                               "hold",
                               "warn"
                             ]
+                          },
+                          "exposureQuery": {
+                            "description": "The assignment query, grouping its ID with the identifier type analyzed on. Mutually exclusive with the deprecated `exposureQueryId`.",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "description": "The ID of one of the data source's assignment queries.",
+                                "type": "string"
+                              },
+                              "identifierType": {
+                                "description": "The identifier type to analyze on, which the query must declare. Required when selecting a different assignment query that declares several. Otherwise defaults to the current identifier type, or the query's only one. Null is treated as omitted, so a response's value can be sent back.",
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "exposureQueryId": {
+                            "deprecated": true,
+                            "description": "Deprecated: use `exposureQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `exposureQuery.identifierType` instead.",
+                            "type": "string"
                           }
                         },
                         "required": [
                           "datasourceId",
-                          "exposureQueryId",
                           "guardrailMetricIds"
                         ],
                         "additionalProperties": false
@@ -16326,9 +16487,6 @@
                       "datasourceId": {
                         "type": "string"
                       },
-                      "exposureQueryId": {
-                        "type": "string"
-                      },
                       "guardrailMetricIds": {
                         "minItems": 1,
                         "type": "array",
@@ -16398,11 +16556,40 @@
                           "hold",
                           "warn"
                         ]
+                      },
+                      "exposureQuery": {
+                        "description": "The assignment query, grouping its ID with the identifier type analyzed on. Mutually exclusive with the deprecated `exposureQueryId`.",
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "description": "The ID of one of the data source's assignment queries.",
+                            "type": "string"
+                          },
+                          "identifierType": {
+                            "description": "The identifier type to analyze on, which the query must declare. Required when selecting a different assignment query that declares several. Otherwise defaults to the current identifier type, or the query's only one. Null is treated as omitted, so a response's value can be sent back.",
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "exposureQueryId": {
+                        "deprecated": true,
+                        "description": "Deprecated: use `exposureQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `exposureQuery.identifierType` instead.",
+                        "type": "string"
                       }
                     },
                     "required": [
                       "datasourceId",
-                      "exposureQueryId",
                       "guardrailMetricIds"
                     ],
                     "additionalProperties": false
@@ -18521,8 +18708,34 @@
                     "description": "ID for the [DataSource](#tag/DataSource_model). Can only be set if a templateId is not provided.",
                     "type": "string"
                   },
+                  "assignmentQuery": {
+                    "description": "The assignment query, grouping its ID with the identifier type analyzed on. Mutually exclusive with the deprecated `assignmentQueryId`. Can only be set if a templateId is not provided.",
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "The ID of one of the data source's assignment queries.",
+                        "type": "string"
+                      },
+                      "identifierType": {
+                        "description": "The identifier type to analyze on, which the query must declare. Required when selecting a different assignment query that declares several. Otherwise defaults to the current identifier type, or the query's only one. Null is treated as omitted, so a response's value can be sent back.",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id"
+                    ],
+                    "additionalProperties": false
+                  },
                   "assignmentQueryId": {
-                    "description": "The ID property of one of the assignment query objects associated with the datasource. Can only be set if a templateId is not provided.",
+                    "deprecated": true,
+                    "description": "Deprecated: use `assignmentQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `assignmentQuery.identifierType` instead. Can only be set if a templateId is not provided.",
                     "type": "string"
                   },
                   "trackingKey": {
@@ -19398,7 +19611,34 @@
                     "description": "Can only be set if existing experiment does not have a datasource",
                     "type": "string"
                   },
+                  "assignmentQuery": {
+                    "description": "The assignment query, grouping its ID with the identifier type analyzed on. Mutually exclusive with the deprecated `assignmentQueryId`.",
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "The ID of one of the data source's assignment queries.",
+                        "type": "string"
+                      },
+                      "identifierType": {
+                        "description": "The identifier type to analyze on, which the query must declare. Required when selecting a different assignment query that declares several. Otherwise defaults to the current identifier type, or the query's only one. Null is treated as omitted, so a response's value can be sent back.",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id"
+                    ],
+                    "additionalProperties": false
+                  },
                   "assignmentQueryId": {
+                    "deprecated": true,
+                    "description": "Deprecated: use `assignmentQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `assignmentQuery.identifierType` instead.",
                     "type": "string"
                   },
                   "trackingKey": {
@@ -27727,22 +27967,7 @@
                     "features": {
                       "type": "array",
                       "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "string"
-                          },
-                          "name": {
-                            "type": "string"
-                          },
-                          "project": {
-                            "type": "string"
-                          }
-                        },
-                        "required": [
-                          "id"
-                        ],
-                        "additionalProperties": false
+                        "$ref": "#/components/schemas/SavedGroupReferenceResource"
                       }
                     },
                     "experiments": {
@@ -27772,6 +27997,12 @@
                         "additionalProperties": false
                       }
                     },
+                    "contextualBandits": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SavedGroupReferenceResource"
+                      }
+                    },
                     "savedGroups": {
                       "type": "array",
                       "items": {
@@ -27782,6 +28013,7 @@
                   "required": [
                     "features",
                     "experiments",
+                    "contextualBandits",
                     "savedGroups"
                   ],
                   "additionalProperties": false
@@ -41481,7 +41713,34 @@
                           "datasourceId": {
                             "type": "string"
                           },
+                          "exposureQuery": {
+                            "description": "The assignment query, grouping its ID with the identifier type analyzed on. Mutually exclusive with the deprecated `exposureQueryId`.",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "description": "The ID of one of the data source's assignment queries.",
+                                "type": "string"
+                              },
+                              "identifierType": {
+                                "description": "The identifier type to analyze on, which the query must declare. Required when selecting a different assignment query that declares several. Otherwise defaults to the current identifier type, or the query's only one. Null is treated as omitted, so a response's value can be sent back.",
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
                           "exposureQueryId": {
+                            "deprecated": true,
+                            "description": "Deprecated: use `exposureQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `exposureQuery.identifierType` instead.",
                             "type": "string"
                           },
                           "guardrailMetricIds": {
@@ -41548,7 +41807,6 @@
                         },
                         "required": [
                           "datasourceId",
-                          "exposureQueryId",
                           "guardrailMetricIds"
                         ],
                         "additionalProperties": false
@@ -42635,9 +42893,6 @@
                             "datasourceId": {
                               "type": "string"
                             },
-                            "exposureQueryId": {
-                              "type": "string"
-                            },
                             "guardrailMetricIds": {
                               "minItems": 1,
                               "type": "array",
@@ -42707,12 +42962,44 @@
                                 "hold",
                                 "warn"
                               ]
+                            },
+                            "exposureQuery": {
+                              "description": "The assignment query, grouping its ID with the identifier type analyzed on.",
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "description": "The ID of one of the data source's assignment queries.",
+                                  "type": "string"
+                                },
+                                "identifierType": {
+                                  "description": "The identifier type analyzed on. Null when none can be resolved: no assignment query is selected, or a record saved before identifier types were stored points at a query that no longer exists.",
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "identifierType"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "exposureQueryId": {
+                              "description": "Deprecated: use `exposureQuery`.",
+                              "deprecated": true,
+                              "type": "string"
                             }
                           },
                           "required": [
                             "datasourceId",
-                            "exposureQueryId",
-                            "guardrailMetricIds"
+                            "guardrailMetricIds",
+                            "exposureQuery",
+                            "exposureQueryId"
                           ],
                           "additionalProperties": false
                         },
@@ -43155,9 +43442,6 @@
                             "datasourceId": {
                               "type": "string"
                             },
-                            "exposureQueryId": {
-                              "type": "string"
-                            },
                             "guardrailMetricIds": {
                               "minItems": 1,
                               "type": "array",
@@ -43227,12 +43511,44 @@
                                 "hold",
                                 "warn"
                               ]
+                            },
+                            "exposureQuery": {
+                              "description": "The assignment query, grouping its ID with the identifier type analyzed on.",
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "description": "The ID of one of the data source's assignment queries.",
+                                  "type": "string"
+                                },
+                                "identifierType": {
+                                  "description": "The identifier type analyzed on. Null when none can be resolved: no assignment query is selected, or a record saved before identifier types were stored points at a query that no longer exists.",
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "identifierType"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "exposureQueryId": {
+                              "description": "Deprecated: use `exposureQuery`.",
+                              "deprecated": true,
+                              "type": "string"
                             }
                           },
                           "required": [
                             "datasourceId",
-                            "exposureQueryId",
-                            "guardrailMetricIds"
+                            "guardrailMetricIds",
+                            "exposureQuery",
+                            "exposureQueryId"
                           ],
                           "additionalProperties": false
                         },
@@ -43464,13 +43780,10 @@
           "content": {
             "application/json": {
               "schema": {
-                "description": "Full replacement of the monitoring configuration. `datasourceId` and `exposureQueryId` cannot be changed while a monitoring experiment is active — stop the schedule first.",
+                "description": "Full replacement of the monitoring configuration. `datasourceId` and `exposureQuery` cannot be changed while a monitoring experiment is active — stop the schedule first.",
                 "type": "object",
                 "properties": {
                   "datasourceId": {
-                    "type": "string"
-                  },
-                  "exposureQueryId": {
                     "type": "string"
                   },
                   "guardrailMetricIds": {
@@ -43542,11 +43855,40 @@
                       "hold",
                       "warn"
                     ]
+                  },
+                  "exposureQuery": {
+                    "description": "The assignment query, grouping its ID with the identifier type analyzed on. Mutually exclusive with the deprecated `exposureQueryId`.",
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "The ID of one of the data source's assignment queries.",
+                        "type": "string"
+                      },
+                      "identifierType": {
+                        "description": "The identifier type to analyze on, which the query must declare. Required when selecting a different assignment query that declares several. Otherwise defaults to the current identifier type, or the query's only one. Null is treated as omitted, so a response's value can be sent back.",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "exposureQueryId": {
+                    "deprecated": true,
+                    "description": "Deprecated: use `exposureQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `exposureQuery.identifierType` instead.",
+                    "type": "string"
                   }
                 },
                 "required": [
                   "datasourceId",
-                  "exposureQueryId",
                   "guardrailMetricIds"
                 ],
                 "additionalProperties": false
@@ -43750,9 +44092,6 @@
                             "datasourceId": {
                               "type": "string"
                             },
-                            "exposureQueryId": {
-                              "type": "string"
-                            },
                             "guardrailMetricIds": {
                               "minItems": 1,
                               "type": "array",
@@ -43822,12 +44161,44 @@
                                 "hold",
                                 "warn"
                               ]
+                            },
+                            "exposureQuery": {
+                              "description": "The assignment query, grouping its ID with the identifier type analyzed on.",
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "description": "The ID of one of the data source's assignment queries.",
+                                  "type": "string"
+                                },
+                                "identifierType": {
+                                  "description": "The identifier type analyzed on. Null when none can be resolved: no assignment query is selected, or a record saved before identifier types were stored points at a query that no longer exists.",
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "identifierType"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "exposureQueryId": {
+                              "description": "Deprecated: use `exposureQuery`.",
+                              "deprecated": true,
+                              "type": "string"
                             }
                           },
                           "required": [
                             "datasourceId",
-                            "exposureQueryId",
-                            "guardrailMetricIds"
+                            "guardrailMetricIds",
+                            "exposureQuery",
+                            "exposureQueryId"
                           ],
                           "additionalProperties": false
                         },
@@ -44273,9 +44644,6 @@
                             "datasourceId": {
                               "type": "string"
                             },
-                            "exposureQueryId": {
-                              "type": "string"
-                            },
                             "guardrailMetricIds": {
                               "minItems": 1,
                               "type": "array",
@@ -44345,12 +44713,44 @@
                                 "hold",
                                 "warn"
                               ]
+                            },
+                            "exposureQuery": {
+                              "description": "The assignment query, grouping its ID with the identifier type analyzed on.",
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "description": "The ID of one of the data source's assignment queries.",
+                                  "type": "string"
+                                },
+                                "identifierType": {
+                                  "description": "The identifier type analyzed on. Null when none can be resolved: no assignment query is selected, or a record saved before identifier types were stored points at a query that no longer exists.",
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "identifierType"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "exposureQueryId": {
+                              "description": "Deprecated: use `exposureQuery`.",
+                              "deprecated": true,
+                              "type": "string"
                             }
                           },
                           "required": [
                             "datasourceId",
-                            "exposureQueryId",
-                            "guardrailMetricIds"
+                            "guardrailMetricIds",
+                            "exposureQuery",
+                            "exposureQueryId"
                           ],
                           "additionalProperties": false
                         },
@@ -69929,7 +70329,34 @@
                   "datasource": {
                     "type": "string"
                   },
+                  "exposureQuery": {
+                    "description": "The assignment query, grouping its ID with the identifier type analyzed on. Mutually exclusive with the deprecated `exposureQueryId`.",
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "The ID of one of the data source's assignment queries.",
+                        "type": "string"
+                      },
+                      "identifierType": {
+                        "description": "The identifier type to analyze on, which the query must declare. Required when selecting a different assignment query that declares several. Otherwise defaults to the current identifier type, or the query's only one. Null is treated as omitted, so a response's value can be sent back.",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id"
+                    ],
+                    "additionalProperties": false
+                  },
                   "exposureQueryId": {
+                    "deprecated": true,
+                    "description": "Deprecated: use `exposureQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `exposureQuery.identifierType` instead.",
                     "type": "string"
                   },
                   "hashAttribute": {
@@ -70172,7 +70599,34 @@
                   "datasource": {
                     "type": "string"
                   },
+                  "exposureQuery": {
+                    "description": "The assignment query, grouping its ID with the identifier type analyzed on. Mutually exclusive with the deprecated `exposureQueryId`.",
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "The ID of one of the data source's assignment queries.",
+                        "type": "string"
+                      },
+                      "identifierType": {
+                        "description": "The identifier type to analyze on, which the query must declare. Required when selecting a different assignment query that declares several. Otherwise defaults to the current identifier type, or the query's only one. Null is treated as omitted, so a response's value can be sent back.",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id"
+                    ],
+                    "additionalProperties": false
+                  },
                   "exposureQueryId": {
+                    "deprecated": true,
+                    "description": "Deprecated: use `exposureQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `exposureQuery.identifierType` instead.",
                     "type": "string"
                   },
                   "hashAttribute": {
@@ -70321,7 +70775,6 @@
                   "templateMetadata",
                   "type",
                   "datasource",
-                  "exposureQueryId",
                   "statsEngine",
                   "targeting"
                 ],
@@ -70481,7 +70934,34 @@
                             "datasource": {
                               "type": "string"
                             },
+                            "exposureQuery": {
+                              "description": "The assignment query, grouping its ID with the identifier type analyzed on. Mutually exclusive with the deprecated `exposureQueryId`.",
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "description": "The ID of one of the data source's assignment queries.",
+                                  "type": "string"
+                                },
+                                "identifierType": {
+                                  "description": "The identifier type to analyze on, which the query must declare. Required when selecting a different assignment query that declares several. Otherwise defaults to the current identifier type, or the query's only one. Null is treated as omitted, so a response's value can be sent back.",
+                                  "anyOf": [
+                                    {
+                                      "type": "string"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id"
+                              ],
+                              "additionalProperties": false
+                            },
                             "exposureQueryId": {
+                              "deprecated": true,
+                              "description": "Deprecated: use `exposureQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `exposureQuery.identifierType` instead.",
                               "type": "string"
                             },
                             "hashAttribute": {
@@ -70630,7 +71110,6 @@
                             "templateMetadata",
                             "type",
                             "datasource",
-                            "exposureQueryId",
                             "statsEngine",
                             "targeting"
                           ],
@@ -78698,9 +79177,6 @@
                           "datasourceId": {
                             "type": "string"
                           },
-                          "exposureQueryId": {
-                            "type": "string"
-                          },
                           "guardrailMetricIds": {
                             "minItems": 1,
                             "type": "array",
@@ -78770,11 +79246,40 @@
                               "hold",
                               "warn"
                             ]
+                          },
+                          "exposureQuery": {
+                            "description": "The assignment query, grouping its ID with the identifier type analyzed on. Mutually exclusive with the deprecated `exposureQueryId`.",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "description": "The ID of one of the data source's assignment queries.",
+                                "type": "string"
+                              },
+                              "identifierType": {
+                                "description": "The identifier type to analyze on, which the query must declare. Required when selecting a different assignment query that declares several. Otherwise defaults to the current identifier type, or the query's only one. Null is treated as omitted, so a response's value can be sent back.",
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "exposureQueryId": {
+                            "deprecated": true,
+                            "description": "Deprecated: use `exposureQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `exposureQuery.identifierType` instead.",
+                            "type": "string"
                           }
                         },
                         "required": [
                           "datasourceId",
-                          "exposureQueryId",
                           "guardrailMetricIds"
                         ],
                         "additionalProperties": false
@@ -79140,9 +79645,6 @@
                           "datasourceId": {
                             "type": "string"
                           },
-                          "exposureQueryId": {
-                            "type": "string"
-                          },
                           "guardrailMetricIds": {
                             "minItems": 1,
                             "type": "array",
@@ -79212,11 +79714,40 @@
                               "hold",
                               "warn"
                             ]
+                          },
+                          "exposureQuery": {
+                            "description": "The assignment query, grouping its ID with the identifier type analyzed on. Mutually exclusive with the deprecated `exposureQueryId`.",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "description": "The ID of one of the data source's assignment queries.",
+                                "type": "string"
+                              },
+                              "identifierType": {
+                                "description": "The identifier type to analyze on, which the query must declare. Required when selecting a different assignment query that declares several. Otherwise defaults to the current identifier type, or the query's only one. Null is treated as omitted, so a response's value can be sent back.",
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "exposureQueryId": {
+                            "deprecated": true,
+                            "description": "Deprecated: use `exposureQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `exposureQuery.identifierType` instead.",
+                            "type": "string"
                           }
                         },
                         "required": [
                           "datasourceId",
-                          "exposureQueryId",
                           "guardrailMetricIds"
                         ],
                         "additionalProperties": false
@@ -80008,9 +80539,6 @@
                           "datasourceId": {
                             "type": "string"
                           },
-                          "exposureQueryId": {
-                            "type": "string"
-                          },
                           "guardrailMetricIds": {
                             "minItems": 1,
                             "type": "array",
@@ -80080,11 +80608,40 @@
                               "hold",
                               "warn"
                             ]
+                          },
+                          "exposureQuery": {
+                            "description": "The assignment query, grouping its ID with the identifier type analyzed on. Mutually exclusive with the deprecated `exposureQueryId`.",
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "description": "The ID of one of the data source's assignment queries.",
+                                "type": "string"
+                              },
+                              "identifierType": {
+                                "description": "The identifier type to analyze on, which the query must declare. Required when selecting a different assignment query that declares several. Otherwise defaults to the current identifier type, or the query's only one. Null is treated as omitted, so a response's value can be sent back.",
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "exposureQueryId": {
+                            "deprecated": true,
+                            "description": "Deprecated: use `exposureQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `exposureQuery.identifierType` instead.",
+                            "type": "string"
                           }
                         },
                         "required": [
                           "datasourceId",
-                          "exposureQueryId",
                           "guardrailMetricIds"
                         ],
                         "additionalProperties": false
@@ -80711,7 +81268,34 @@
                   "datasourceId": {
                     "type": "string"
                   },
+                  "assignmentQuery": {
+                    "description": "The assignment query, grouping its ID with the identifier type analyzed on. Mutually exclusive with the deprecated `assignmentQueryId`.",
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "The ID of one of the data source's assignment queries.",
+                        "type": "string"
+                      },
+                      "identifierType": {
+                        "description": "The identifier type to analyze on, which the query must declare. Required when selecting a different assignment query that declares several. Otherwise defaults to the current identifier type, or the query's only one. Null is treated as omitted, so a response's value can be sent back.",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id"
+                    ],
+                    "additionalProperties": false
+                  },
                   "assignmentQueryId": {
+                    "deprecated": true,
+                    "description": "Deprecated: use `assignmentQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `assignmentQuery.identifierType` instead.",
                     "type": "string"
                   },
                   "goalMetrics": {
@@ -80905,7 +81489,34 @@
                   "datasourceId": {
                     "type": "string"
                   },
+                  "assignmentQuery": {
+                    "description": "The assignment query, grouping its ID with the identifier type analyzed on. Mutually exclusive with the deprecated `assignmentQueryId`.",
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "The ID of one of the data source's assignment queries.",
+                        "type": "string"
+                      },
+                      "identifierType": {
+                        "description": "The identifier type to analyze on, which the query must declare. Required when selecting a different assignment query that declares several. Otherwise defaults to the current identifier type, or the query's only one. Null is treated as omitted, so a response's value can be sent back.",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id"
+                    ],
+                    "additionalProperties": false
+                  },
                   "assignmentQueryId": {
+                    "deprecated": true,
+                    "description": "Deprecated: use `assignmentQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `assignmentQuery.identifierType` instead.",
                     "type": "string"
                   },
                   "goalMetrics": {
@@ -84796,9 +85407,6 @@
                         "datasourceId": {
                           "type": "string"
                         },
-                        "exposureQueryId": {
-                          "type": "string"
-                        },
                         "guardrailMetricIds": {
                           "minItems": 1,
                           "type": "array",
@@ -84868,12 +85476,44 @@
                             "hold",
                             "warn"
                           ]
+                        },
+                        "exposureQuery": {
+                          "description": "The assignment query, grouping its ID with the identifier type analyzed on.",
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "description": "The ID of one of the data source's assignment queries.",
+                              "type": "string"
+                            },
+                            "identifierType": {
+                              "description": "The identifier type analyzed on. Null when none can be resolved: no assignment query is selected, or a record saved before identifier types were stored points at a query that no longer exists.",
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "identifierType"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "exposureQueryId": {
+                          "description": "Deprecated: use `exposureQuery`.",
+                          "deprecated": true,
+                          "type": "string"
                         }
                       },
                       "required": [
                         "datasourceId",
-                        "exposureQueryId",
-                        "guardrailMetricIds"
+                        "guardrailMetricIds",
+                        "exposureQuery",
+                        "exposureQueryId"
                       ],
                       "additionalProperties": false
                     },
@@ -85494,9 +86134,6 @@
                         "datasourceId": {
                           "type": "string"
                         },
-                        "exposureQueryId": {
-                          "type": "string"
-                        },
                         "guardrailMetricIds": {
                           "minItems": 1,
                           "type": "array",
@@ -85566,12 +86203,44 @@
                             "hold",
                             "warn"
                           ]
+                        },
+                        "exposureQuery": {
+                          "description": "The assignment query, grouping its ID with the identifier type analyzed on.",
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "description": "The ID of one of the data source's assignment queries.",
+                              "type": "string"
+                            },
+                            "identifierType": {
+                              "description": "The identifier type analyzed on. Null when none can be resolved: no assignment query is selected, or a record saved before identifier types were stored points at a query that no longer exists.",
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "identifierType"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "exposureQueryId": {
+                          "description": "Deprecated: use `exposureQuery`.",
+                          "deprecated": true,
+                          "type": "string"
                         }
                       },
                       "required": [
                         "datasourceId",
-                        "exposureQueryId",
-                        "guardrailMetricIds"
+                        "guardrailMetricIds",
+                        "exposureQuery",
+                        "exposureQueryId"
                       ],
                       "additionalProperties": false
                     },
@@ -87000,9 +87669,6 @@
                         "datasourceId": {
                           "type": "string"
                         },
-                        "exposureQueryId": {
-                          "type": "string"
-                        },
                         "guardrailMetricIds": {
                           "minItems": 1,
                           "type": "array",
@@ -87072,12 +87738,44 @@
                             "hold",
                             "warn"
                           ]
+                        },
+                        "exposureQuery": {
+                          "description": "The assignment query, grouping its ID with the identifier type analyzed on.",
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "description": "The ID of one of the data source's assignment queries.",
+                              "type": "string"
+                            },
+                            "identifierType": {
+                              "description": "The identifier type analyzed on. Null when none can be resolved: no assignment query is selected, or a record saved before identifier types were stored points at a query that no longer exists.",
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "identifierType"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "exposureQueryId": {
+                          "description": "Deprecated: use `exposureQuery`.",
+                          "deprecated": true,
+                          "type": "string"
                         }
                       },
                       "required": [
                         "datasourceId",
-                        "exposureQueryId",
-                        "guardrailMetricIds"
+                        "guardrailMetricIds",
+                        "exposureQuery",
+                        "exposureQueryId"
                       ],
                       "additionalProperties": false
                     },
@@ -87698,9 +88396,6 @@
                         "datasourceId": {
                           "type": "string"
                         },
-                        "exposureQueryId": {
-                          "type": "string"
-                        },
                         "guardrailMetricIds": {
                           "minItems": 1,
                           "type": "array",
@@ -87770,12 +88465,44 @@
                             "hold",
                             "warn"
                           ]
+                        },
+                        "exposureQuery": {
+                          "description": "The assignment query, grouping its ID with the identifier type analyzed on.",
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "description": "The ID of one of the data source's assignment queries.",
+                              "type": "string"
+                            },
+                            "identifierType": {
+                              "description": "The identifier type analyzed on. Null when none can be resolved: no assignment query is selected, or a record saved before identifier types were stored points at a query that no longer exists.",
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "identifierType"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "exposureQueryId": {
+                          "description": "Deprecated: use `exposureQuery`.",
+                          "deprecated": true,
+                          "type": "string"
                         }
                       },
                       "required": [
                         "datasourceId",
-                        "exposureQueryId",
-                        "guardrailMetricIds"
+                        "guardrailMetricIds",
+                        "exposureQuery",
+                        "exposureQueryId"
                       ],
                       "additionalProperties": false
                     },
@@ -88285,7 +89012,34 @@
               "datasourceId": {
                 "type": "string"
               },
+              "exposureQuery": {
+                "description": "The assignment query, grouping its ID with the identifier type analyzed on. Mutually exclusive with the deprecated `exposureQueryId`.",
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "description": "The ID of one of the data source's assignment queries.",
+                    "type": "string"
+                  },
+                  "identifierType": {
+                    "description": "The identifier type to analyze on, which the query must declare. Required when selecting a different assignment query that declares several. Otherwise defaults to the current identifier type, or the query's only one. Null is treated as omitted, so a response's value can be sent back.",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id"
+                ],
+                "additionalProperties": false
+              },
               "exposureQueryId": {
+                "deprecated": true,
+                "description": "Deprecated: use `exposureQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `exposureQuery.identifierType` instead.",
                 "type": "string"
               },
               "guardrailMetricIds": {
@@ -88354,7 +89108,6 @@
             },
             "required": [
               "datasourceId",
-              "exposureQueryId",
               "guardrailMetricIds",
               "maxDuration"
             ],
@@ -88948,7 +89701,35 @@
           "datasourceId": {
             "type": "string"
           },
+          "assignmentQuery": {
+            "description": "The assignment query, grouping its ID with the identifier type analyzed on.",
+            "type": "object",
+            "properties": {
+              "id": {
+                "description": "The ID of one of the data source's assignment queries.",
+                "type": "string"
+              },
+              "identifierType": {
+                "description": "The identifier type analyzed on. Null when none can be resolved: no assignment query is selected, or a record saved before identifier types were stored points at a query that no longer exists.",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "identifierType"
+            ],
+            "additionalProperties": false
+          },
           "assignmentQueryId": {
+            "description": "Deprecated: use `assignmentQuery`.",
+            "deprecated": true,
             "type": "string"
           },
           "experimentId": {
@@ -89043,6 +89824,7 @@
         },
         "required": [
           "datasourceId",
+          "assignmentQuery",
           "assignmentQueryId",
           "experimentId",
           "segmentId",
@@ -91104,7 +91886,14 @@
                   "type": "string",
                   "maxLength": 10000
                 },
+                "identifierTypes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
                 "identifierType": {
+                  "deprecated": true,
                   "type": "string"
                 },
                 "sql": {
@@ -91124,6 +91913,7 @@
                 "id",
                 "name",
                 "description",
+                "identifierTypes",
                 "identifierType",
                 "sql",
                 "includesNameColumns",
@@ -91909,6 +92699,24 @@
           "userId",
           "action",
           "dateCreated"
+        ],
+        "additionalProperties": false
+      },
+      "SavedGroupReferenceResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "project": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
         ],
         "additionalProperties": false
       },
@@ -96809,9 +97617,6 @@
                   "datasourceId": {
                     "type": "string"
                   },
-                  "exposureQueryId": {
-                    "type": "string"
-                  },
                   "guardrailMetricIds": {
                     "minItems": 1,
                     "type": "array",
@@ -96881,12 +97686,44 @@
                       "hold",
                       "warn"
                     ]
+                  },
+                  "exposureQuery": {
+                    "description": "The assignment query, grouping its ID with the identifier type analyzed on.",
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "The ID of one of the data source's assignment queries.",
+                        "type": "string"
+                      },
+                      "identifierType": {
+                        "description": "The identifier type analyzed on. Null when none can be resolved: no assignment query is selected, or a record saved before identifier types were stored points at a query that no longer exists.",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "identifierType"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "exposureQueryId": {
+                    "description": "Deprecated: use `exposureQuery`.",
+                    "deprecated": true,
+                    "type": "string"
                   }
                 },
                 "required": [
                   "datasourceId",
-                  "exposureQueryId",
-                  "guardrailMetricIds"
+                  "guardrailMetricIds",
+                  "exposureQuery",
+                  "exposureQueryId"
                 ],
                 "additionalProperties": false
               },
@@ -97372,8 +98209,35 @@
                 "description": "Tracking key used to identify experiment exposures",
                 "type": "string"
               },
+              "exposureQuery": {
+                "description": "The assignment query, grouping its ID with the identifier type analyzed on.",
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "description": "The ID of one of the data source's assignment queries.",
+                    "type": "string"
+                  },
+                  "identifierType": {
+                    "description": "The identifier type analyzed on. Null when none can be resolved: no assignment query is selected, or a record saved before identifier types were stored points at a query that no longer exists.",
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "identifierType"
+                ],
+                "additionalProperties": false
+              },
               "exposureQueryId": {
-                "description": "Datasource exposure query ID (Assignment Table)",
+                "deprecated": true,
+                "description": "Deprecated: use `exposureQuery`.",
                 "type": "string"
               },
               "segment": {
@@ -103889,7 +104753,35 @@
           "datasource": {
             "type": "string"
           },
+          "exposureQuery": {
+            "description": "The assignment query, grouping its ID with the identifier type analyzed on.",
+            "type": "object",
+            "properties": {
+              "id": {
+                "description": "The ID of one of the data source's assignment queries.",
+                "type": "string"
+              },
+              "identifierType": {
+                "description": "The identifier type analyzed on. Null when none can be resolved: no assignment query is selected, or a record saved before identifier types were stored points at a query that no longer exists.",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "identifierType"
+            ],
+            "additionalProperties": false
+          },
           "exposureQueryId": {
+            "description": "Deprecated: use `exposureQuery`.",
+            "deprecated": true,
             "type": "string"
           },
           "hashAttribute": {
@@ -104042,6 +104934,7 @@
           "templateMetadata",
           "type",
           "datasource",
+          "exposureQuery",
           "exposureQueryId",
           "statsEngine",
           "targeting"
@@ -107227,9 +108120,6 @@
                   "datasourceId": {
                     "type": "string"
                   },
-                  "exposureQueryId": {
-                    "type": "string"
-                  },
                   "guardrailMetricIds": {
                     "minItems": 1,
                     "type": "array",
@@ -107299,12 +108189,44 @@
                       "hold",
                       "warn"
                     ]
+                  },
+                  "exposureQuery": {
+                    "description": "The assignment query, grouping its ID with the identifier type analyzed on.",
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "The ID of one of the data source's assignment queries.",
+                        "type": "string"
+                      },
+                      "identifierType": {
+                        "description": "The identifier type analyzed on. Null when none can be resolved: no assignment query is selected, or a record saved before identifier types were stored points at a query that no longer exists.",
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "identifierType"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "exposureQueryId": {
+                    "description": "Deprecated: use `exposureQuery`.",
+                    "deprecated": true,
+                    "type": "string"
                   }
                 },
                 "required": [
                   "datasourceId",
-                  "exposureQueryId",
-                  "guardrailMetricIds"
+                  "guardrailMetricIds",
+                  "exposureQuery",
+                  "exposureQueryId"
                 ],
                 "additionalProperties": false
               },
@@ -107548,7 +108470,35 @@
           "datasourceId": {
             "type": "string"
           },
+          "assignmentQuery": {
+            "description": "The assignment query, grouping its ID with the identifier type analyzed on.",
+            "type": "object",
+            "properties": {
+              "id": {
+                "description": "The ID of one of the data source's assignment queries.",
+                "type": "string"
+              },
+              "identifierType": {
+                "description": "The identifier type analyzed on. Null when none can be resolved: no assignment query is selected, or a record saved before identifier types were stored points at a query that no longer exists.",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "identifierType"
+            ],
+            "additionalProperties": false
+          },
           "assignmentQueryId": {
+            "description": "Deprecated: use `assignmentQuery`.",
+            "deprecated": true,
             "type": "string"
           },
           "goalMetrics": {
@@ -107751,6 +108701,7 @@
           "hashAttribute",
           "targetingCondition",
           "datasourceId",
+          "assignmentQuery",
           "assignmentQueryId",
           "goalMetrics",
           "secondaryMetrics",
@@ -108667,22 +109618,7 @@
           "features": {
             "type": "array",
             "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "project": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "id"
-              ],
-              "additionalProperties": false
+              "$ref": "#/components/schemas/SavedGroupReferenceResource"
             }
           },
           "experiments": {
@@ -108710,6 +109646,12 @@
                 "id"
               ],
               "additionalProperties": false
+            }
+          },
+          "contextualBandits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SavedGroupReferenceResource"
             }
           },
           "savedGroups": {
@@ -108740,9 +109682,31 @@
         "required": [
           "features",
           "experiments",
+          "contextualBandits",
           "savedGroups"
         ],
-        "additionalProperties": false
+        "additionalProperties": false,
+        "$defs": {
+          "SavedGroupReferenceResource": {
+            "id": "SavedGroupReferenceResource",
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "project": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ],
+            "additionalProperties": false
+          }
+        }
       },
       "ConstantReferences": {
         "type": "object",
@@ -112661,6 +113625,7 @@
         "Safe Rollout Rule_model",
         "SavedGroup_model",
         "SavedGroupApprovalRule_model",
+        "SavedGroupReferenceResource_model",
         "SavedGroupReferences_model",
         "SavedGroupRevision_model",
         "SavedGroupRevisionActivityLogEntry_model",

@@ -13,7 +13,7 @@
 
 #### Client
 
-- [HTML Script Tag](https://docs.growthbook.io/lib/script-tag.md): Add a GrowthBook HTML script tag to any website or low-code platform to run feature flags and Visual Editor experiments.
+- [HTML Script Tag](https://docs.growthbook.io/lib/script-tag.md): Add a GrowthBook HTML script tag to any website or low-code platform to run feature flags and AI Visual Editor experiments.
 - [JavaScript SDK](https://docs.growthbook.io/lib/js.md): Install the GrowthBook JavaScript SDK to evaluate feature flags and run A/B tests in the browser with vanilla JS or TypeScript.
 - [React SDK](https://docs.growthbook.io/lib/react.md): Use the GrowthBook React SDK to evaluate feature flags and run A/B tests in React, including client and server components.
 - [How to Use GrowthBook with Vue](https://docs.growthbook.io/lib/vue.md): Start A/B testing and feature flagging in Vue. This guide shows you how to implement GrowthBook's JavaScript SDK using Vue's Composition and Options API.
@@ -39,12 +39,12 @@
 
 #### Edge
 
-- [Cloudflare Workers Edge App & SDK](https://docs.growthbook.io/lib/edge/cloudflare.md): Evaluate GrowthBook feature flags and Visual Editor experiments at the edge on Cloudflare Workers to cut flicker before HTML ships.
-- [Fastly Compute Edge App & SDK](https://docs.growthbook.io/lib/edge/fastly.md): Evaluate GrowthBook feature flags and Visual Editor experiments at the edge on Fastly Compute to cut flicker before HTML ships.
-- [Lambda@Edge Edge App & SDK](https://docs.growthbook.io/lib/edge/lambda.md): Evaluate GrowthBook feature flags and Visual Editor experiments at the edge with Lambda@Edge to cut flicker before HTML ships.
+- [Cloudflare Workers Edge App & SDK](https://docs.growthbook.io/lib/edge/cloudflare.md): Evaluate GrowthBook feature flags and AI Visual Editor experiments at the edge on Cloudflare Workers to cut flicker before HTML ships.
+- [Fastly Compute Edge App & SDK](https://docs.growthbook.io/lib/edge/fastly.md): Evaluate GrowthBook feature flags and AI Visual Editor experiments at the edge on Fastly Compute to cut flicker before HTML ships.
+- [Lambda@Edge Edge App & SDK](https://docs.growthbook.io/lib/edge/lambda.md): Evaluate GrowthBook feature flags and AI Visual Editor experiments at the edge with Lambda@Edge to cut flicker before HTML ships.
 - [GrowthBook Edge App for other providers](https://docs.growthbook.io/lib/edge/other.md): Use the GrowthBook Edge App pattern on other CDN or edge providers to evaluate flags and rewrite HTML before it reaches the browser.
 
-- [API (520 pages)](https://docs.growthbook.io/_llms/api.md): Documentation for API.
+- [API (521 pages)](https://docs.growthbook.io/_llms/api.md): Documentation for API.
 
 ## OpenAPI Specs
 
@@ -55,4 +55,4 @@
 ## Indexes
 
 - [Docs (192 pages)](https://docs.growthbook.io/_llms/docs.md): Documentation for Docs.
-- [API (520 pages)](https://docs.growthbook.io/_llms/api.md): Documentation for API.
+- [API (521 pages)](https://docs.growthbook.io/_llms/api.md): Documentation for API.
