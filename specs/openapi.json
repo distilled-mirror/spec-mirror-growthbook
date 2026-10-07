@@ -5134,6 +5134,7 @@
                     "additionalProperties": {}
                   },
                   "jsonSchema": {
+                    "description": "Validation schema to stage on the draft. The server sets `date`, so don't send it.",
                     "type": "object",
                     "properties": {
                       "schemaType": {
@@ -5254,7 +5255,6 @@
                         ],
                         "additionalProperties": false
                       },
-                      "date": {},
                       "enabled": {
                         "type": "boolean"
                       }
@@ -5263,7 +5263,6 @@
                       "schemaType",
                       "schema",
                       "simple",
-                      "date",
                       "enabled"
                     ],
                     "additionalProperties": false
@@ -13099,6 +13098,7 @@
                     "additionalProperties": {}
                   },
                   "jsonSchema": {
+                    "description": "Validation schema to stage on the draft. The server sets `date`, so don't send it.",
                     "type": "object",
                     "properties": {
                       "schemaType": {
@@ -13219,7 +13219,6 @@
                         ],
                         "additionalProperties": false
                       },
-                      "date": {},
                       "enabled": {
                         "type": "boolean"
                       }
@@ -13228,7 +13227,6 @@
                       "schemaType",
                       "schema",
                       "simple",
-                      "date",
                       "enabled"
                     ],
                     "additionalProperties": false
