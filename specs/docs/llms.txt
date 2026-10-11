@@ -1,6 +1,6 @@
 # GrowthBook Documentation
 
-- [Docs (191 pages)](https://docs.growthbook.io/_llms/docs.md): Documentation for Docs.
+- [Docs (191 pages)](https://docs.growthbook.io/_llms/docs.txt): Documentation for Docs.
 
 ## SDKs
 
@@ -44,7 +44,7 @@
 - [Lambda@Edge Edge App & SDK](https://docs.growthbook.io/lib/edge/lambda.md): Evaluate GrowthBook feature flags and AI Visual Editor experiments at the edge with Lambda@Edge to cut flicker before HTML ships.
 - [GrowthBook Edge App for other providers](https://docs.growthbook.io/lib/edge/other.md): Use the GrowthBook Edge App pattern on other CDN or edge providers to evaluate flags and rewrite HTML before it reaches the browser.
 
-- [API (521 pages)](https://docs.growthbook.io/_llms/api.md): Documentation for API.
+- [API (521 pages)](https://docs.growthbook.io/_llms/api.txt): Documentation for API.
 
 ## OpenAPI Specs
 
@@ -54,5 +54,5 @@
 
 ## Indexes
 
-- [Docs (191 pages)](https://docs.growthbook.io/_llms/docs.md): Documentation for Docs.
-- [API (521 pages)](https://docs.growthbook.io/_llms/api.md): Documentation for API.
+- [Docs (191 pages)](https://docs.growthbook.io/_llms/docs.txt): Documentation for Docs.
+- [API (521 pages)](https://docs.growthbook.io/_llms/api.txt): Documentation for API.
