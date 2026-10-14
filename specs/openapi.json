@@ -3,7 +3,7 @@
   "info": {
     "version": "5.1.0",
     "title": "GrowthBook REST API",
-    "description": "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization. These can be created by going to `Personal Access Tokens` under the your user menu.\n- **Secret Keys**: These are sensitive and provide the level of access for the role, which currently is either `admin` or `readonly`. Only Admins with the `manageApiKeys` permission can manage Secret Keys on behalf of an organization. These can be created by going to `Settings -> API Keys`\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **422** - Unprocessable Entity - The request is valid, but a warning, validation rule, approval requirement, or another publishing gate blocked it. Do not assume that `ignoreWarnings` clears every 422 response.\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n\n### Publishing gates\n\nPublish responses include a `gates` array that explains every blocker:\n\n- `type`, `severity`, and `messages` identify the problem.\n- `override` names the request-body field that can bypass it. This is `ignoreWarnings` for warnings, `skipSchemaValidation` for schema and invariant failures, or `skipHooks` for Custom Hook rejections. A value of `null` means there is no request-body override.\n- `requiresPermission` identifies any additional permission needed to use the override.\n- `resolution` provides an API action, method, and path when the blocker must be resolved another way.\n\nFor example, an approval gate is cleared by approving the revision or by using a caller with **Bypass draft approvals** access. A Config lock is cleared through the unlock route in `resolution`.\n\nWhen a successful publish bypasses a gate, the response includes `bypassedGates`. Each entry reports the gate `type` and how it was bypassed in `via`, which is one of `ignoreWarnings`, `skipSchemaValidation`, `skipHooks`, `bypassApprovalPermission`, `restApiBypassesReviews`, or `revertsBypassApproval` (reverts only). This field is omitted when no gates were bypassed.\n"
+    "description": "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available. Feature-flag and metric v1 routes are deprecated: they are tagged **LEGACY** in the sidebar and collapsed by default. Use the matching v2 group when both exist.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization, or less if the token's permissions are limited. These can be created by going to `Personal Access Tokens` under your user menu. Admins with the `manageApiKeys` permission can disable a member's token under `Settings -> Manage PATs`, and require new tokens to expire within a maximum lifetime.\n- **Secret Keys**: These are sensitive and provide the level of access of the role they are given, which can be any built-in or custom role, with optional per-project role overrides and environment limits. Only Admins with the `manageApiKeys` permission can manage Secret Keys on behalf of an organization. These can be created by going to `Settings -> API Keys`, where Admins can also require new Secret Keys to expire within a maximum lifetime.\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\nIf a key has an expiration date, every response includes it in the `X-GrowthBook-Key-Expires-At` header (ISO 8601), so scripts can warn before the key stops working. Requests made with an expired key fail with a `401` that says where to create a replacement.\n\n## Naming who asked\n\nRequests made with a Secret Key may add an `X-GrowthBook-Requested-By` header naming the organization member who asked for the change, as a user id or an email address. History, revision logs and webhooks show that member next to the key.\n\nEach key's settings under `Settings -> API Keys`:\n\n- **Header**: **Optional** (the default) uses the header when it's sent, **Required** rejects requests without it, and **Rejected** rejects requests that send it, each with a 400.\n- **Permissions**, when a member is named:\n  - **Assume member's role** (the default): the request acts as that member, with only what both the key and the member can do, so the header can narrow a key but never widen it. Drafts, owners, `mine` filters and reviews are the member's. The member's rights over their own drafts, comments and verdicts apply only where the key's own role allows the same action.\n  - **Use key's role**: the key acts as itself, with its own permissions, and the name is only recorded in history. Drafts, verdicts and ownership are the key's, as when no member is named.\n\nA key that names no one, or uses its own role, acts as itself: it can draft and review with its own permissions, and its verdicts are judged on its role. A key belongs to no team, so its approval never satisfies a rule that requires approval from a team. No one can rule on a draft they created, and a key acting as itself can't rule on a draft it created or edited in either mode. An approval a key gives while assuming a member counts only where both the key and the member could approve, and stops counting if the key is disabled, expires or is deleted. Because the header isn't verified, whoever holds the key can act as any member. A value that does not match a member of the organization is rejected with a 400. A create request that omits `owner` defaults it to the member whose role the key assumes. Scheduled and auto-publishes run later with the permissions of the request that armed them, and don't run if that member has left the organization, the key has expired, or the key no longer assumes members' roles. Personal Access Tokens and OAuth tokens already act as their user and reject the header.\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\" \\\n-H \"X-GrowthBook-Requested-By: alice@example.com\"\n```\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **422** - Unprocessable Entity - The request is valid, but a warning, validation rule, approval requirement, or another publishing gate blocked it. Do not assume that `ignoreWarnings` clears every 422 response.\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n\n### Publishing gates\n\nPublish responses include a `gates` array that explains every blocker:\n\n- `type`, `severity`, and `messages` identify the problem.\n- `override` names the request-body field that can bypass it. This is `ignoreWarnings` for warnings, `skipSchemaValidation` for schema and invariant failures, or `skipHooks` for Custom Hook rejections. A value of `null` means there is no request-body override.\n- `requiresPermission` identifies any additional permission needed to use the override.\n- `resolution` provides an API action, method, and path when the blocker must be resolved another way.\n\nFor example, an approval gate is cleared by approving the revision or by using a caller with **Bypass draft approvals** access. A Config lock is cleared through the unlock route in `resolution`.\n\nWhen a successful publish bypasses a gate, the response includes `bypassedGates`. Each entry reports the gate `type` and how it was bypassed in `via`, which is one of `ignoreWarnings`, `skipSchemaValidation`, `skipHooks`, `bypassApprovalPermission`, `restApiBypassesReviews`, or `revertsBypassApproval` (reverts only). This field is omitted when no gates were bypassed.\n"
   },
   "servers": [
     {
@@ -261,6 +261,11 @@
       "name": "AutoRuns",
       "x-displayName": "Auto Runs",
       "description": ""
+    },
+    {
+      "name": "Populations",
+      "x-displayName": "Populations",
+      "description": "**Beta** — these endpoints are new and may change in backwards-incompatible ways.\n\nPopulations define a set of units by the steps they must complete, such as appearing in a fact table. Populations are not yet used in analysis."
     },
     {
       "name": "AggregatedFactTable_model",
@@ -668,6 +673,11 @@
       "description": "<SchemaDefinition schemaRef=\"#/components/schemas/PaginationFields\" />"
     },
     {
+      "name": "Population_model",
+      "x-displayName": "Population",
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/Population\" />"
+    },
+    {
       "name": "Project_model",
       "x-displayName": "Project",
       "description": "<SchemaDefinition schemaRef=\"#/components/schemas/Project\" />"
@@ -905,7 +915,7 @@
                     "maxLength": 10000
                   },
                   "owner": {
-                    "description": "The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. Optional when authenticating with a Personal Access Token (PAT): when omitted, the owner defaults to the PAT's user. Required when authenticating with an organization secret API key (which has no associated user): omitting it fails with a 400.",
+                    "description": "The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. When omitted, it defaults to the requesting member: a personal access token's owner, or the member an organization API key assumes. An organization API key acting as itself must send it, or the request fails with a 400.",
                     "type": "string"
                   },
                   "project": {
@@ -4920,7 +4930,7 @@
       "get": {
         "operationId": "getFeatureRevisionLatest",
         "summary": "Get the most recent active draft revision",
-        "description": "**Deprecated.** Use [GET /v2/features/:id/revisions/latest](#operation/getFeatureRevisionLatestV2) instead.\n\nReturns the most recently updated draft revision for the feature. Returns 404 if there is no active draft. Pass `mine=true` to return the most recent draft authored by or contributed to by the calling user (requires a user-scoped API key).",
+        "description": "**Deprecated.** Use [GET /v2/features/:id/revisions/latest](#operation/getFeatureRevisionLatestV2) instead.\n\nReturns the most recently updated draft revision for the feature. Returns 404 if there is no active draft. Pass `mine=true` to return the most recent draft authored by or contributed to by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role.",
         "deprecated": true,
         "tags": [
           "feature-revisions"
@@ -4938,9 +4948,9 @@
           {
             "name": "mine",
             "in": "query",
-            "description": "If true, return only the most recent active draft authored by or contributed to by the calling user. Requires a user-scoped API key.",
+            "description": "If true, return only the most recent active draft authored by or contributed to by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role.",
             "schema": {
-              "description": "If true, return only the most recent active draft authored by or contributed to by the calling user. Requires a user-scoped API key.",
+              "description": "If true, return only the most recent active draft authored by or contributed to by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role.",
               "anyOf": [
                 {
                   "type": "string",
@@ -9346,7 +9356,7 @@
       "post": {
         "operationId": "postFeatureRevisionSubmitReview",
         "summary": "Submit a review on a draft revision",
-        "description": "**Deprecated.** Use [POST /v2/features/:id/revisions/:version/submit-review](#operation/postFeatureRevisionSubmitReviewV2) instead.\n\nSubmits an `approve`, `request-changes`, or `comment` review on the draft. Contributors cannot approve their own drafts, but may submit comments or request changes.\n\nWhen `action` is `approve` and the revision has `autoPublishOnApproval` enabled, the revision is automatically published after approval. Pass `skipAutoPublish: true` to approve without triggering auto-publish.",
+        "description": "**Deprecated.** Use [POST /v2/features/:id/revisions/:version/submit-review](#operation/postFeatureRevisionSubmitReviewV2) instead.\n\nSubmits an `approve`, `request-changes`, or `comment` review on the draft. The verdict belongs to whoever the request acts as; see [Naming who asked](/api/introduction#naming-who-asked). No one can rule on a draft they created. Contributors cannot approve their own drafts, but may submit comments or request changes.\n\nWhen `action` is `approve` and the revision has `autoPublishOnApproval` enabled, the revision is automatically published after approval. Pass `skipAutoPublish: true` to approve without triggering auto-publish.",
         "deprecated": true,
         "tags": [
           "feature-revisions"
@@ -9938,7 +9948,7 @@
                     "maxLength": 10000
                   },
                   "owner": {
-                    "description": "The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. Optional when authenticating with a Personal Access Token (PAT): when omitted, the owner defaults to the PAT's user. Required when authenticating with an organization secret API key (which has no associated user): omitting it fails with a 400.",
+                    "description": "The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. When omitted, it defaults to the requesting member: a personal access token's owner, or the member an organization API key assumes. An organization API key acting as itself must send it, or the request fails with a 400.",
                     "type": "string"
                   },
                   "project": {
@@ -17126,7 +17136,7 @@
       "post": {
         "operationId": "postFeatureRevisionSubmitReviewV2",
         "summary": "Submit a review on a draft revision",
-        "description": "Submits an `approve`, `request-changes`, or `comment` review on the draft. Contributors cannot approve their own drafts when `blockSelfApproval` is enabled.\n\nWhen `action` is `approve` and the revision has `autoPublishOnApproval` enabled, the revision is automatically published after approval. The response includes `autoPublished: true` when this happens. Pass `skipAutoPublish: true` to approve without triggering auto-publish.",
+        "description": "Submits an `approve`, `request-changes`, or `comment` review on the draft. The verdict belongs to whoever the request acts as; see [Naming who asked](/api/introduction#naming-who-asked). No one can rule on a draft they created. Contributors cannot approve their own drafts when `blockSelfApproval` is enabled.\n\nWhen `action` is `approve` and the revision has `autoPublishOnApproval` enabled, the revision is automatically published after approval. The response includes `autoPublished: true` when this happens. Pass `skipAutoPublish: true` to approve without triggering auto-publish.",
         "tags": [
           "feature-revisions-v2"
         ],
@@ -17270,7 +17280,7 @@
       "post": {
         "operationId": "postFeatureRevisionUndoReviewV2",
         "summary": "Undo a reviewer's own review verdict",
-        "description": "Reviewer retracts their own verdict. The revision status rewinds to the state implied by the remaining active verdicts from other reviewers: any outstanding `Requested Changes` → `changes-requested`, else any outstanding `Approved` → `approved`, else `pending-review`. Existing review comments are preserved. If the retraction resolves the revision to `approved` and auto-publish-on-approval is armed, the revision is published.",
+        "description": "Reviewer retracts their own verdict. The verdict belongs to whoever the request acts as; see [Naming who asked](/api/introduction#naming-who-asked). No one can rule on a draft they created. The revision status rewinds to the state implied by the remaining active verdicts from other reviewers: any outstanding `Requested Changes` → `changes-requested`, else any outstanding `Approved` → `approved`, else `pending-review`. Existing review comments are preserved. If the retraction resolves the revision to `approved` and auto-publish-on-approval is armed, the revision is published.",
         "tags": [
           "feature-revisions-v2"
         ],
@@ -18808,7 +18818,7 @@
                     "type": "string"
                   },
                   "owner": {
-                    "description": "The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. When omitted, it defaults to the user associated with the request's Personal Access Token (PAT), if one is being used.",
+                    "description": "The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. When omitted, it defaults to the requesting member: a personal access token's owner, or the member an organization API key assumes. An organization API key acting as itself leaves it empty.",
                     "type": "string"
                   },
                   "archived": {
@@ -21417,7 +21427,7 @@
       "post": {
         "operationId": "postExperimentComment",
         "summary": "Post a comment on an experiment",
-        "description": "Adds a new comment to an experiment's discussion thread.",
+        "description": "Adds a new comment to an experiment's discussion thread, credited to the person behind the request. Needs a personal access token, or an organization API key that assumes a named member's role.",
         "tags": [
           "experiments"
         ],
@@ -24977,7 +24987,7 @@
                     "type": "string"
                   },
                   "owner": {
-                    "description": "The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. When omitted, it defaults to the user associated with the request's Personal Access Token (PAT), if one is being used.",
+                    "description": "The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. When omitted, it defaults to the requesting member: a personal access token's owner, or the member an organization API key assumes. An organization API key acting as itself leaves it empty.",
                     "type": "string"
                   },
                   "description": {
@@ -27488,7 +27498,7 @@
                     }
                   },
                   "owner": {
-                    "description": "The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. When omitted, it defaults to the user associated with the request's Personal Access Token (PAT), if one is being used.",
+                    "description": "The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. When omitted, it defaults to the requesting member: a personal access token's owner, or the member an organization API key assumes. An organization API key acting as itself leaves it empty.",
                     "type": "string"
                   },
                   "projects": {
@@ -27575,9 +27585,9 @@
           {
             "name": "mine",
             "in": "query",
-            "description": "If true, return only revisions authored by the calling user. Requires a user-scoped API key. Mutually exclusive with `author`.",
+            "description": "If true, return only revisions authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role. Mutually exclusive with `author`.",
             "schema": {
-              "description": "If true, return only revisions authored by the calling user. Requires a user-scoped API key. Mutually exclusive with `author`.",
+              "description": "If true, return only revisions authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role. Mutually exclusive with `author`.",
               "anyOf": [
                 {
                   "type": "string",
@@ -28078,9 +28088,9 @@
           {
             "name": "mine",
             "in": "query",
-            "description": "If true, return only revisions authored by the calling user. Requires a user-scoped API key. Mutually exclusive with `author`.",
+            "description": "If true, return only revisions authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role. Mutually exclusive with `author`.",
             "schema": {
-              "description": "If true, return only revisions authored by the calling user. Requires a user-scoped API key. Mutually exclusive with `author`.",
+              "description": "If true, return only revisions authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role. Mutually exclusive with `author`.",
               "anyOf": [
                 {
                   "type": "string",
@@ -28237,7 +28247,7 @@
       "get": {
         "operationId": "getSavedGroupRevisionLatest",
         "summary": "Get the most recent active draft revision",
-        "description": "Returns the most recently updated open (non-merged, non-discarded) revision for the saved group. Returns 404 if there is no active draft. Pass `mine=true` to restrict to drafts authored by the calling user (requires a user-scoped API key).",
+        "description": "Returns the most recently updated open (non-merged, non-discarded) revision for the saved group. Returns 404 if there is no active draft. Pass `mine=true` to restrict to drafts authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role.",
         "tags": [
           "saved-group-revisions"
         ],
@@ -28254,9 +28264,9 @@
           {
             "name": "mine",
             "in": "query",
-            "description": "If true, return only the most recent active draft authored by the calling user. Requires a user-scoped API key.",
+            "description": "If true, return only the most recent active draft authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role.",
             "schema": {
-              "description": "If true, return only the most recent active draft authored by the calling user. Requires a user-scoped API key.",
+              "description": "If true, return only the most recent active draft authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role.",
               "anyOf": [
                 {
                   "type": "string",
@@ -29000,7 +29010,7 @@
       "post": {
         "operationId": "postSavedGroupRevisionSubmitReview",
         "summary": "Submit a review on a draft revision",
-        "description": "Submits an `approve`, `request-changes`, or `comment` review on the revision. Submitting `approve` or `request-changes` needs Review access. A `comment` is participation rather than a verdict, so it is also open to the Comments permission or draft authority on the entity. Authors and contributors cannot submit `approve` reviews on their own drafts when the org has `blockSelfApproval` enabled.\n\nWhen `decision` is `approve` and the revision has `autoPublishOnApproval` enabled, the revision is automatically published after approval. The response includes `autoPublished: true` when this happens. Pass `skipAutoPublish: true` to approve without triggering auto-publish.",
+        "description": "Submits an `approve`, `request-changes`, or `comment` review on the revision. The verdict belongs to whoever the request acts as; see [Naming who asked](/api/introduction#naming-who-asked). No one can rule on a draft they created. Submitting `approve` or `request-changes` needs Review access. A `comment` is participation rather than a verdict, so it is also open to the Comments permission or draft authority on the entity. Authors and contributors cannot submit `approve` reviews on their own drafts when the org has `blockSelfApproval` enabled.\n\nWhen `decision` is `approve` and the revision has `autoPublishOnApproval` enabled, the revision is automatically published after approval. The response includes `autoPublished: true` when this happens. Pass `skipAutoPublish: true` to approve without triggering auto-publish.",
         "tags": [
           "saved-group-revisions"
         ],
@@ -29302,7 +29312,7 @@
       "post": {
         "operationId": "postSavedGroupRevisionUndoReview",
         "summary": "Retract your own review verdict",
-        "description": "Retracts the calling user's own active `approve` or `request-changes` verdict, returning the revision to `pending-review`. Review comments stay in the log. Retracting a `request-changes` can leave the revision approved by someone else, in which case an armed auto-publish fires.",
+        "description": "Retracts the calling user's own active `approve` or `request-changes` verdict, returning the revision to `pending-review`. Review comments stay in the log. Retracting a `request-changes` can leave the revision approved by someone else, in which case an armed auto-publish fires. The verdict belongs to whoever the request acts as; see [Naming who asked](/api/introduction#naming-who-asked). No one can rule on a draft they created.",
         "tags": [
           "saved-group-revisions"
         ],
@@ -29869,7 +29879,7 @@
                     "type": "string"
                   },
                   "owner": {
-                    "description": "The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. When omitted, it defaults to the user associated with the request's Personal Access Token (PAT), if one is being used.",
+                    "description": "The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. When omitted, it defaults to the requesting member: a personal access token's owner, or the member an organization API key assumes. An organization API key acting as itself leaves it empty.",
                     "type": "string"
                   }
                 },
@@ -29954,9 +29964,9 @@
           {
             "name": "mine",
             "in": "query",
-            "description": "If true, return only revisions authored by the calling user. Requires a user-scoped API key. Mutually exclusive with `author`.",
+            "description": "If true, return only revisions authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role. Mutually exclusive with `author`.",
             "schema": {
-              "description": "If true, return only revisions authored by the calling user. Requires a user-scoped API key. Mutually exclusive with `author`.",
+              "description": "If true, return only revisions authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role. Mutually exclusive with `author`.",
               "anyOf": [
                 {
                   "type": "string",
@@ -30524,9 +30534,9 @@
           {
             "name": "mine",
             "in": "query",
-            "description": "If true, return only revisions authored by the calling user. Requires a user-scoped API key. Mutually exclusive with `author`.",
+            "description": "If true, return only revisions authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role. Mutually exclusive with `author`.",
             "schema": {
-              "description": "If true, return only revisions authored by the calling user. Requires a user-scoped API key. Mutually exclusive with `author`.",
+              "description": "If true, return only revisions authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role. Mutually exclusive with `author`.",
               "anyOf": [
                 {
                   "type": "string",
@@ -30683,7 +30693,7 @@
       "get": {
         "operationId": "getConstantRevisionLatest",
         "summary": "Get the most recent active draft revision",
-        "description": "Returns the most recently updated open (non-merged, non-discarded) revision for the constant. Returns 404 if there is no active draft. Pass `mine=true` to restrict to drafts authored by the calling user (requires a user-scoped API key).",
+        "description": "Returns the most recently updated open (non-merged, non-discarded) revision for the constant. Returns 404 if there is no active draft. Pass `mine=true` to restrict to drafts authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role.",
         "tags": [
           "constant-revisions"
         ],
@@ -30700,9 +30710,9 @@
           {
             "name": "mine",
             "in": "query",
-            "description": "If true, return only the most recent active draft authored by the calling user. Requires a user-scoped API key.",
+            "description": "If true, return only the most recent active draft authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role.",
             "schema": {
-              "description": "If true, return only the most recent active draft authored by the calling user. Requires a user-scoped API key.",
+              "description": "If true, return only the most recent active draft authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role.",
               "anyOf": [
                 {
                   "type": "string",
@@ -31187,7 +31197,7 @@
       "post": {
         "operationId": "postConstantRevisionSubmitReview",
         "summary": "Submit a review on a draft revision",
-        "description": "Submits an `approve`, `request-changes`, or `comment` review on the revision. Submitting `approve` or `request-changes` needs Review access. A `comment` is participation rather than a verdict, so it is also open to the Comments permission or draft authority on the entity. Authors and contributors cannot submit `approve` reviews on their own drafts when the org has `blockSelfApproval` enabled.\n\nWhen `decision` is `approve` and the revision has `autoPublishOnApproval` enabled, the revision is automatically published after approval. The response includes `autoPublished: true` when this happens. Pass `skipAutoPublish: true` to approve without triggering auto-publish.",
+        "description": "Submits an `approve`, `request-changes`, or `comment` review on the revision. The verdict belongs to whoever the request acts as; see [Naming who asked](/api/introduction#naming-who-asked). No one can rule on a draft they created. Submitting `approve` or `request-changes` needs Review access. A `comment` is participation rather than a verdict, so it is also open to the Comments permission or draft authority on the entity. Authors and contributors cannot submit `approve` reviews on their own drafts when the org has `blockSelfApproval` enabled.\n\nWhen `decision` is `approve` and the revision has `autoPublishOnApproval` enabled, the revision is automatically published after approval. The response includes `autoPublished: true` when this happens. Pass `skipAutoPublish: true` to approve without triggering auto-publish.",
         "tags": [
           "constant-revisions"
         ],
@@ -31497,7 +31507,7 @@
       "post": {
         "operationId": "postConstantRevisionUndoReview",
         "summary": "Retract your own review verdict",
-        "description": "Retracts the calling user's own active `approve` or `request-changes` verdict, returning the revision to `pending-review`. Review comments stay in the log. Retracting a `request-changes` can leave the revision approved by someone else, in which case an armed auto-publish fires.",
+        "description": "Retracts the calling user's own active `approve` or `request-changes` verdict, returning the revision to `pending-review`. Review comments stay in the log. Retracting a `request-changes` can leave the revision approved by someone else, in which case an armed auto-publish fires. The verdict belongs to whoever the request acts as; see [Naming who asked](/api/introduction#naming-who-asked). No one can rule on a draft they created.",
         "tags": [
           "constant-revisions"
         ],
@@ -32106,7 +32116,7 @@
                     "type": "string"
                   },
                   "owner": {
-                    "description": "The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. When omitted, it defaults to the user associated with the request's Personal Access Token (PAT), if one is being used.",
+                    "description": "The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. When omitted, it defaults to the requesting member: a personal access token's owner, or the member an organization API key assumes. An organization API key acting as itself leaves it empty.",
                     "type": "string"
                   },
                   "schema": {
@@ -32261,9 +32271,9 @@
           {
             "name": "mine",
             "in": "query",
-            "description": "If true, return only revisions authored by the calling user. Requires a user-scoped API key. Mutually exclusive with `author`.",
+            "description": "If true, return only revisions authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role. Mutually exclusive with `author`.",
             "schema": {
-              "description": "If true, return only revisions authored by the calling user. Requires a user-scoped API key. Mutually exclusive with `author`.",
+              "description": "If true, return only revisions authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role. Mutually exclusive with `author`.",
               "anyOf": [
                 {
                   "type": "string",
@@ -33394,9 +33404,9 @@
           {
             "name": "mine",
             "in": "query",
-            "description": "If true, return only revisions authored by the calling user. Requires a user-scoped API key. Mutually exclusive with `author`.",
+            "description": "If true, return only revisions authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role. Mutually exclusive with `author`.",
             "schema": {
-              "description": "If true, return only revisions authored by the calling user. Requires a user-scoped API key. Mutually exclusive with `author`.",
+              "description": "If true, return only revisions authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role. Mutually exclusive with `author`.",
               "anyOf": [
                 {
                   "type": "string",
@@ -33553,7 +33563,7 @@
       "get": {
         "operationId": "getConfigRevisionLatest",
         "summary": "Get the most recent active draft revision",
-        "description": "Returns the most recently updated open (non-merged, non-discarded) revision for the config. Returns 404 if there is no active draft. Pass `mine=true` to restrict to drafts authored by the calling user (requires a user-scoped API key).",
+        "description": "Returns the most recently updated open (non-merged, non-discarded) revision for the config. Returns 404 if there is no active draft. Pass `mine=true` to restrict to drafts authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role.",
         "tags": [
           "config-revisions"
         ],
@@ -33570,9 +33580,9 @@
           {
             "name": "mine",
             "in": "query",
-            "description": "If true, return only the most recent active draft authored by the calling user. Requires a user-scoped API key.",
+            "description": "If true, return only the most recent active draft authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role.",
             "schema": {
-              "description": "If true, return only the most recent active draft authored by the calling user. Requires a user-scoped API key.",
+              "description": "If true, return only the most recent active draft authored by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role.",
               "anyOf": [
                 {
                   "type": "string",
@@ -34631,7 +34641,7 @@
       "post": {
         "operationId": "postConfigRevisionSubmitReview",
         "summary": "Submit a review on a draft revision",
-        "description": "Submits an `approve`, `request-changes`, or `comment` review on the revision. Submitting `approve` or `request-changes` needs Review access. A `comment` is participation rather than a verdict, so it is also open to the Comments permission or draft authority on the entity. Authors and contributors cannot submit `approve` reviews on their own drafts when the org has `blockSelfApproval` enabled.\n\nWhen `decision` is `approve` and the revision has `autoPublishOnApproval` enabled, the revision is automatically published after approval. The response includes `autoPublished: true` when this happens. Pass `skipAutoPublish: true` to approve without triggering auto-publish.",
+        "description": "Submits an `approve`, `request-changes`, or `comment` review on the revision. The verdict belongs to whoever the request acts as; see [Naming who asked](/api/introduction#naming-who-asked). No one can rule on a draft they created. Submitting `approve` or `request-changes` needs Review access. A `comment` is participation rather than a verdict, so it is also open to the Comments permission or draft authority on the entity. Authors and contributors cannot submit `approve` reviews on their own drafts when the org has `blockSelfApproval` enabled.\n\nWhen `decision` is `approve` and the revision has `autoPublishOnApproval` enabled, the revision is automatically published after approval. The response includes `autoPublished: true` when this happens. Pass `skipAutoPublish: true` to approve without triggering auto-publish.",
         "tags": [
           "config-revisions"
         ],
@@ -34715,7 +34725,7 @@
       "post": {
         "operationId": "postConfigRevisionUndoReview",
         "summary": "Retract your own review verdict",
-        "description": "Retracts the calling user's own active `approve` or `request-changes` verdict, returning the revision to `pending-review`. Review comments stay in the log. Retracting a `request-changes` can leave the revision approved by someone else, in which case an armed auto-publish fires.",
+        "description": "Retracts the calling user's own active `approve` or `request-changes` verdict, returning the revision to `pending-review`. Review comments stay in the log. Retracting a `request-changes` can leave the revision approved by someone else, in which case an armed auto-publish fires. The verdict belongs to whoever the request acts as; see [Naming who asked](/api/introduction#naming-who-asked). No one can rule on a draft they created.",
         "tags": [
           "config-revisions"
         ],
@@ -43049,8 +43059,12 @@
                               "format": "date-time"
                             },
                             "approvedBy": {
-                              "description": "User ID of the approver.",
+                              "description": "Who approved: the approver's user ID, or the API key's ID when a key approved as itself.",
                               "type": "string"
+                            },
+                            "approvedByUser": {
+                              "description": "The approver, with an API key's name.",
+                              "$ref": "#/components/schemas/EventUser"
                             },
                             "context": {
                               "description": "Surface through which the approval was granted.",
@@ -43598,8 +43612,12 @@
                               "format": "date-time"
                             },
                             "approvedBy": {
-                              "description": "User ID of the approver.",
+                              "description": "Who approved: the approver's user ID, or the API key's ID when a key approved as itself.",
                               "type": "string"
+                            },
+                            "approvedByUser": {
+                              "description": "The approver, with an API key's name.",
+                              "$ref": "#/components/schemas/EventUser"
                             },
                             "context": {
                               "description": "Surface through which the approval was granted.",
@@ -44248,8 +44266,12 @@
                               "format": "date-time"
                             },
                             "approvedBy": {
-                              "description": "User ID of the approver.",
+                              "description": "Who approved: the approver's user ID, or the API key's ID when a key approved as itself.",
                               "type": "string"
+                            },
+                            "approvedByUser": {
+                              "description": "The approver, with an API key's name.",
+                              "$ref": "#/components/schemas/EventUser"
                             },
                             "context": {
                               "description": "Surface through which the approval was granted.",
@@ -44800,8 +44822,12 @@
                               "format": "date-time"
                             },
                             "approvedBy": {
-                              "description": "User ID of the approver.",
+                              "description": "Who approved: the approver's user ID, or the API key's ID when a key approved as itself.",
                               "type": "string"
+                            },
+                            "approvedByUser": {
+                              "description": "The approver, with an API key's name.",
+                              "$ref": "#/components/schemas/EventUser"
                             },
                             "context": {
                               "description": "Surface through which the approval was granted.",
@@ -45221,7 +45247,7 @@
                     "type": "string"
                   },
                   "owner": {
-                    "description": "The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. When omitted, it defaults to the user associated with the request's Personal Access Token (PAT), if one is being used.",
+                    "description": "The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. When omitted, it defaults to the requesting member: a personal access token's owner, or the member an organization API key assumes. An organization API key acting as itself leaves it empty.",
                     "type": "string"
                   },
                   "statsEngine": {
@@ -67777,6 +67803,10 @@
                     "exclusiveMinimum": 0,
                     "maximum": 12
                   },
+                  "priorSampleSize": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
                   "scheduleValue": {
                     "type": "number"
                   },
@@ -68008,6 +68038,10 @@
                     "type": "integer",
                     "exclusiveMinimum": 0,
                     "maximum": 12
+                  },
+                  "priorSampleSize": {
+                    "type": "integer",
+                    "minimum": 0
                   },
                   "scheduleValue": {
                     "type": "number"
@@ -68689,7 +68723,7 @@
                 "type": "object",
                 "properties": {
                   "owner": {
-                    "description": "The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. When omitted, it defaults to the user associated with the request's Personal Access Token (PAT), if one is being used.",
+                    "description": "The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. When omitted, it defaults to the requesting member: a personal access token's owner, or the member an organization API key assumes. An organization API key acting as itself leaves it empty.",
                     "type": "string"
                   },
                   "datasourceId": {
@@ -82444,6 +82478,619 @@
           }
         ]
       }
+    },
+    "/v1/populations": {
+      "get": {
+        "operationId": "listPopulations",
+        "summary": "Get all populations",
+        "tags": [
+          "Populations"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "offset": {
+                      "type": "integer"
+                    },
+                    "count": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "hasMore": {
+                      "type": "boolean"
+                    },
+                    "nextOffset": {
+                      "anyOf": [
+                        {
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "populations": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Population"
+                      }
+                    }
+                  },
+                  "required": [
+                    "limit",
+                    "offset",
+                    "count",
+                    "total",
+                    "hasMore",
+                    "nextOffset",
+                    "populations"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X GET 'https://api.growthbook.io/api/v1/populations' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+          }
+        ]
+      },
+      "post": {
+        "operationId": "createPopulation",
+        "summary": "Create a single population",
+        "tags": [
+          "Populations"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Create a population",
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "owner": {
+                    "description": "The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. When omitted, it defaults to the requesting member: a personal access token's owner, or the member an organization API key assumes. An organization API key acting as itself must send it, or the request fails with a 400.",
+                    "type": "string"
+                  },
+                  "projects": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "datasource": {
+                    "description": "Id of the Data Source",
+                    "type": "string"
+                  },
+                  "userIdTypes": {
+                    "description": "Identifier types the population can be joined on. Every step's fact table must support all of them",
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "steps": {
+                    "description": "Steps a unit must complete, in order, to be included. The steps can read from at most 5 distinct fact tables",
+                    "minItems": 1,
+                    "maxItems": 20,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "source": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "factTable"
+                                },
+                                "factTableId": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "factTableId"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "rowFilters": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "operator": {
+                                "type": "string",
+                                "enum": [
+                                  "=",
+                                  "!=",
+                                  "<",
+                                  "<=",
+                                  ">",
+                                  ">=",
+                                  "between",
+                                  "not_between",
+                                  "in",
+                                  "not_in",
+                                  "contains",
+                                  "not_contains",
+                                  "matches_pattern",
+                                  "not_matches_pattern",
+                                  "starts_with",
+                                  "ends_with",
+                                  "is_null",
+                                  "not_null",
+                                  "is_true",
+                                  "is_false",
+                                  "sql_expr",
+                                  "saved_filter"
+                                ]
+                              },
+                              "column": {
+                                "type": "string"
+                              },
+                              "values": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "operator"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "aggregateFilter": {
+                          "description": "Conditions on each unit's total within the window, such as \">=3\" or \">=3,<10\". Requires aggregateFilterColumn",
+                          "type": "string"
+                        },
+                        "aggregateFilterColumn": {
+                          "description": "Numeric column to total, or \"$$count\" to count rows. Requires aggregateFilter",
+                          "type": "string"
+                        },
+                        "windowSettings": {
+                          "description": "Defaults to no window. Conversion windows are only allowed on steps after the first",
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "conversion",
+                                "lookback",
+                                ""
+                              ]
+                            },
+                            "delayValue": {
+                              "type": "number"
+                            },
+                            "delayUnit": {
+                              "type": "string",
+                              "enum": [
+                                "weeks",
+                                "days",
+                                "hours",
+                                "minutes"
+                              ]
+                            },
+                            "windowValue": {
+                              "type": "number"
+                            },
+                            "windowUnit": {
+                              "type": "string",
+                              "enum": [
+                                "weeks",
+                                "days",
+                                "hours",
+                                "minutes"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "delayValue",
+                            "delayUnit",
+                            "windowValue",
+                            "windowUnit"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "source"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "name",
+                  "datasource",
+                  "userIdTypes",
+                  "steps"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Resource created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "population": {
+                      "$ref": "#/components/schemas/Population"
+                    }
+                  },
+                  "required": [
+                    "population"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X POST 'https://api.growthbook.io/api/v1/populations' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+          }
+        ]
+      }
+    },
+    "/v1/populations/{id}": {
+      "get": {
+        "operationId": "getPopulation",
+        "summary": "Get a single population",
+        "tags": [
+          "Populations"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "population": {
+                      "$ref": "#/components/schemas/Population"
+                    }
+                  },
+                  "required": [
+                    "population"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X GET 'https://api.growthbook.io/api/v1/populations/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+          }
+        ]
+      },
+      "put": {
+        "operationId": "updatePopulation",
+        "summary": "Update a single population",
+        "tags": [
+          "Populations"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "description": "Update a population",
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "projects": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "userIdTypes": {
+                    "description": "Identifier types the population can be joined on. Every step's fact table must support all of them",
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "steps": {
+                    "description": "Steps a unit must complete, in order, to be included. The steps can read from at most 5 distinct fact tables",
+                    "minItems": 1,
+                    "maxItems": 20,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "source": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "const": "factTable"
+                                },
+                                "factTableId": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "factTableId"
+                              ],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "rowFilters": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "operator": {
+                                "type": "string",
+                                "enum": [
+                                  "=",
+                                  "!=",
+                                  "<",
+                                  "<=",
+                                  ">",
+                                  ">=",
+                                  "between",
+                                  "not_between",
+                                  "in",
+                                  "not_in",
+                                  "contains",
+                                  "not_contains",
+                                  "matches_pattern",
+                                  "not_matches_pattern",
+                                  "starts_with",
+                                  "ends_with",
+                                  "is_null",
+                                  "not_null",
+                                  "is_true",
+                                  "is_false",
+                                  "sql_expr",
+                                  "saved_filter"
+                                ]
+                              },
+                              "column": {
+                                "type": "string"
+                              },
+                              "values": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "operator"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "aggregateFilter": {
+                          "description": "Conditions on each unit's total within the window, such as \">=3\" or \">=3,<10\". Requires aggregateFilterColumn",
+                          "type": "string"
+                        },
+                        "aggregateFilterColumn": {
+                          "description": "Numeric column to total, or \"$$count\" to count rows. Requires aggregateFilter",
+                          "type": "string"
+                        },
+                        "windowSettings": {
+                          "description": "Defaults to no window. Conversion windows are only allowed on steps after the first",
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "conversion",
+                                "lookback",
+                                ""
+                              ]
+                            },
+                            "delayValue": {
+                              "type": "number"
+                            },
+                            "delayUnit": {
+                              "type": "string",
+                              "enum": [
+                                "weeks",
+                                "days",
+                                "hours",
+                                "minutes"
+                              ]
+                            },
+                            "windowValue": {
+                              "type": "number"
+                            },
+                            "windowUnit": {
+                              "type": "string",
+                              "enum": [
+                                "weeks",
+                                "days",
+                                "hours",
+                                "minutes"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "delayValue",
+                            "delayUnit",
+                            "windowValue",
+                            "windowUnit"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "source"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "owner": {
+                    "description": "The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.",
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Resource updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "population": {
+                      "$ref": "#/components/schemas/Population"
+                    }
+                  },
+                  "required": [
+                    "population"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X PUT 'https://api.growthbook.io/api/v1/populations/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "deletePopulation",
+        "summary": "Delete a single population",
+        "tags": [
+          "Populations"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resource deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "deletedId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "deletedId"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X DELETE 'https://api.growthbook.io/api/v1/populations/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -82594,9 +83241,9 @@
       "mine": {
         "name": "mine",
         "in": "query",
-        "description": "If true, return only revisions authored by or contributed to by the calling user. Requires a user-scoped API key. Mutually exclusive with `author`.",
+        "description": "If true, return only revisions authored by or contributed to by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role. Mutually exclusive with `author`.",
         "schema": {
-          "description": "If true, return only revisions authored by or contributed to by the calling user. Requires a user-scoped API key. Mutually exclusive with `author`.",
+          "description": "If true, return only revisions authored by or contributed to by the calling user. Needs a personal access token, or an organization API key that assumes a named member's role. Mutually exclusive with `author`.",
           "anyOf": [
             {
               "type": "string",
@@ -86845,10 +87492,11 @@
         "additionalProperties": false
       },
       "EventUser": {
-        "description": "The user (or automated actor) responsible for an action",
+        "description": "Who performed an action",
         "type": "object",
         "properties": {
           "type": {
+            "description": "`dashboard` (signed-in member), `api_key` (API key or personal access token) or `system`",
             "type": "string",
             "enum": [
               "dashboard",
@@ -86857,13 +87505,45 @@
             ]
           },
           "id": {
+            "description": "The member's user ID. Absent for an organization API key",
+            "type": "string"
+          },
+          "apiKey": {
+            "description": "The API key's ID, when the action came through one",
             "type": "string"
           },
           "name": {
+            "description": "The member's name, or the organization API key's name",
             "type": "string"
           },
           "email": {
+            "description": "The member's email. Absent for an organization API key",
             "type": "string"
+          },
+          "requestedBy": {
+            "description": "The member named with `X-GrowthBook-Requested-By`",
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "email"
+            ],
+            "additionalProperties": false
+          },
+          "assumedRole": {
+            "description": "Whether the key assumed the named member's role",
+            "type": "boolean"
           }
         },
         "required": [
@@ -88613,8 +89293,12 @@
             "type": "string"
           },
           "autoPublishEnabledBy": {
-            "description": "User the deferred publish will run as. Its authority is re-checked when the publish fires.",
+            "description": "User or API key the deferred publish runs as, re-checked when it fires. A key that assumed a member's role is recorded as `<keyId>:<memberId>`.",
             "type": "string"
+          },
+          "autoPublishEnabledByUser": {
+            "description": "Who armed the deferred publish, with an API key's name",
+            "$ref": "#/components/schemas/EventUser"
           },
           "scheduledPublishAttempts": {
             "description": "How many times the poller has tried to publish this revision. Read with `scheduledPublishGaveUpAt` to tell a schedule that is still retrying from one that has been parked.",
@@ -88632,7 +89316,7 @@
               "type": "object",
               "properties": {
                 "userId": {
-                  "description": "Stable reviewer identifier: the user ID for dashboard users, or the API key ID for service accounts",
+                  "description": "Who reviewed: a member's user ID, or an API key's ID when it reviewed as itself",
                   "type": "string"
                 },
                 "user": {
@@ -92246,7 +92930,12 @@
             ]
           },
           "authorId": {
+            "description": "Who acted: a member's user ID, or an API key's ID when it acted as itself",
             "type": "string"
+          },
+          "author": {
+            "description": "Who created the revision, with an API key's name",
+            "$ref": "#/components/schemas/EventUser"
           },
           "authorEmail": {
             "type": "string"
@@ -92277,8 +92966,12 @@
             "type": "boolean"
           },
           "autoPublishEnabledBy": {
-            "description": "User the deferred publish will run as. Its authority is re-checked when the publish fires.",
+            "description": "User or API key the deferred publish runs as, re-checked when it fires. A key that assumed a member's role is recorded as `<keyId>:<memberId>`.",
             "type": "string"
+          },
+          "autoPublishEnabledByUser": {
+            "description": "Who armed the deferred publish, with an API key's name",
+            "$ref": "#/components/schemas/EventUser"
           },
           "scheduledPublishAt": {
             "description": "When the deferred publish fires. Absent when the revision publishes on approval instead, or is not armed at all.",
@@ -92321,7 +93014,11 @@
                 ]
               },
               "userId": {
+                "description": "Who acted: a member's user ID, or an API key's ID when it acted as itself",
                 "type": "string"
+              },
+              "user": {
+                "$ref": "#/components/schemas/EventUser"
               },
               "dateCreated": {
                 "format": "date-time",
@@ -92502,6 +93199,7 @@
             "type": "string"
           },
           "userId": {
+            "description": "Who acted: a member's user ID, or an API key's ID when it acted as itself",
             "type": "string"
           },
           "decision": {
@@ -92522,6 +93220,9 @@
           "dateCreated": {
             "format": "date-time",
             "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/EventUser"
           }
         },
         "required": [
@@ -92539,6 +93240,7 @@
             "type": "string"
           },
           "userId": {
+            "description": "Who acted: a member's user ID, or an API key's ID when it acted as itself",
             "type": "string"
           },
           "action": {
@@ -92707,6 +93409,9 @@
           "dateCreated": {
             "format": "date-time",
             "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/EventUser"
           }
         },
         "required": [
@@ -92831,7 +93536,12 @@
             ]
           },
           "authorId": {
+            "description": "Who acted: a member's user ID, or an API key's ID when it acted as itself",
             "type": "string"
+          },
+          "author": {
+            "description": "Who created the revision, with an API key's name",
+            "$ref": "#/components/schemas/EventUser"
           },
           "authorEmail": {
             "type": "string"
@@ -92862,8 +93572,12 @@
             "type": "boolean"
           },
           "autoPublishEnabledBy": {
-            "description": "User the deferred publish will run as. Its authority is re-checked when the publish fires.",
+            "description": "User or API key the deferred publish runs as, re-checked when it fires. A key that assumed a member's role is recorded as `<keyId>:<memberId>`.",
             "type": "string"
+          },
+          "autoPublishEnabledByUser": {
+            "description": "Who armed the deferred publish, with an API key's name",
+            "$ref": "#/components/schemas/EventUser"
           },
           "scheduledPublishAt": {
             "description": "When the deferred publish fires. Absent when the revision publishes on approval instead, or is not armed at all.",
@@ -92906,7 +93620,11 @@
                 ]
               },
               "userId": {
+                "description": "Who acted: a member's user ID, or an API key's ID when it acted as itself",
                 "type": "string"
+              },
+              "user": {
+                "$ref": "#/components/schemas/EventUser"
               },
               "dateCreated": {
                 "format": "date-time",
@@ -93087,6 +93805,7 @@
             "type": "string"
           },
           "userId": {
+            "description": "Who acted: a member's user ID, or an API key's ID when it acted as itself",
             "type": "string"
           },
           "decision": {
@@ -93107,6 +93826,9 @@
           "dateCreated": {
             "format": "date-time",
             "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/EventUser"
           }
         },
         "required": [
@@ -93124,6 +93846,7 @@
             "type": "string"
           },
           "userId": {
+            "description": "Who acted: a member's user ID, or an API key's ID when it acted as itself",
             "type": "string"
           },
           "action": {
@@ -93292,6 +94015,9 @@
           "dateCreated": {
             "format": "date-time",
             "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/EventUser"
           }
         },
         "required": [
@@ -93498,7 +94224,7 @@
             "additionalProperties": false
           },
           "lockedBy": {
-            "description": "Id of the user who locked the config (when `locked`).",
+            "description": "Who locked the config: a member's user ID, or an API key's ID when it acted as itself",
             "type": "string"
           },
           "dateLocked": {
@@ -93691,7 +94417,12 @@
             ]
           },
           "authorId": {
+            "description": "Who acted: a member's user ID, or an API key's ID when it acted as itself",
             "type": "string"
+          },
+          "author": {
+            "description": "Who created the revision, with an API key's name",
+            "$ref": "#/components/schemas/EventUser"
           },
           "authorEmail": {
             "type": "string"
@@ -93722,8 +94453,12 @@
             "type": "boolean"
           },
           "autoPublishEnabledBy": {
-            "description": "User the deferred publish will run as. Its authority is re-checked when the publish fires.",
+            "description": "User or API key the deferred publish runs as, re-checked when it fires. A key that assumed a member's role is recorded as `<keyId>:<memberId>`.",
             "type": "string"
+          },
+          "autoPublishEnabledByUser": {
+            "description": "Who armed the deferred publish, with an API key's name",
+            "$ref": "#/components/schemas/EventUser"
           },
           "scheduledPublishAt": {
             "description": "When the deferred publish fires. Absent when the revision publishes on approval instead, or is not armed at all.",
@@ -93766,7 +94501,11 @@
                 ]
               },
               "userId": {
+                "description": "Who acted: a member's user ID, or an API key's ID when it acted as itself",
                 "type": "string"
+              },
+              "user": {
+                "$ref": "#/components/schemas/EventUser"
               },
               "dateCreated": {
                 "format": "date-time",
@@ -93947,6 +94686,7 @@
             "type": "string"
           },
           "userId": {
+            "description": "Who acted: a member's user ID, or an API key's ID when it acted as itself",
             "type": "string"
           },
           "decision": {
@@ -93967,6 +94707,9 @@
           "dateCreated": {
             "format": "date-time",
             "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/EventUser"
           }
         },
         "required": [
@@ -93984,6 +94727,7 @@
             "type": "string"
           },
           "userId": {
+            "description": "Who acted: a member's user ID, or an API key's ID when it acted as itself",
             "type": "string"
           },
           "action": {
@@ -94152,6 +94896,9 @@
           "dateCreated": {
             "format": "date-time",
             "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/EventUser"
           }
         },
         "required": [
@@ -97782,8 +98529,12 @@
                     "format": "date-time"
                   },
                   "approvedBy": {
-                    "description": "User ID of the approver.",
+                    "description": "Who approved: the approver's user ID, or the API key's ID when a key approved as itself.",
                     "type": "string"
+                  },
+                  "approvedByUser": {
+                    "description": "The approver, with an API key's name.",
+                    "$ref": "#/components/schemas/EventUser"
                   },
                   "context": {
                     "description": "Surface through which the approval was granted.",
@@ -104188,6 +104939,10 @@
             "type": "integer",
             "exclusiveMinimum": 0
           },
+          "priorSampleSize": {
+            "type": "integer",
+            "minimum": 0
+          },
           "holdoutPercent": {
             "type": "number",
             "minimum": 0,
@@ -104281,6 +105036,7 @@
           "contextualAttributes",
           "minUsersPerLeaf",
           "maxLeaves",
+          "priorSampleSize",
           "holdoutPercent",
           "banditModelVersion"
         ],
@@ -108931,6 +109687,200 @@
         ],
         "additionalProperties": false
       },
+      "Population": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "dateCreated": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dateUpdated": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "projects": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "owner": {
+            "description": "The userId of the owner (or raw owner name/email for legacy records)",
+            "type": "string"
+          },
+          "ownerEmail": {
+            "description": "The email address of the owner, when the owner can be resolved to a known user.",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "datasource": {
+            "type": "string"
+          },
+          "userIdTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "source": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "factTable"
+                        },
+                        "factTableId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "factTableId"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "rowFilters": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "operator": {
+                        "type": "string",
+                        "enum": [
+                          "=",
+                          "!=",
+                          "<",
+                          "<=",
+                          ">",
+                          ">=",
+                          "between",
+                          "not_between",
+                          "in",
+                          "not_in",
+                          "contains",
+                          "not_contains",
+                          "matches_pattern",
+                          "not_matches_pattern",
+                          "starts_with",
+                          "ends_with",
+                          "is_null",
+                          "not_null",
+                          "is_true",
+                          "is_false",
+                          "sql_expr",
+                          "saved_filter"
+                        ]
+                      },
+                      "column": {
+                        "type": "string"
+                      },
+                      "values": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "operator"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "aggregateFilter": {
+                  "description": "Conditions on each unit's total within the window, such as \">=3\" or \">=3,<10\". Requires aggregateFilterColumn",
+                  "type": "string"
+                },
+                "aggregateFilterColumn": {
+                  "description": "Numeric column to total, or \"$$count\" to count rows. Requires aggregateFilter",
+                  "type": "string"
+                },
+                "windowSettings": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "conversion",
+                        "lookback",
+                        ""
+                      ]
+                    },
+                    "delayValue": {
+                      "type": "number"
+                    },
+                    "delayUnit": {
+                      "type": "string",
+                      "enum": [
+                        "weeks",
+                        "days",
+                        "hours",
+                        "minutes"
+                      ]
+                    },
+                    "windowValue": {
+                      "type": "number"
+                    },
+                    "windowUnit": {
+                      "type": "string",
+                      "enum": [
+                        "weeks",
+                        "days",
+                        "hours",
+                        "minutes"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "delayValue",
+                    "delayUnit",
+                    "windowValue",
+                    "windowUnit"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "source",
+                "rowFilters",
+                "windowSettings"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "id",
+          "dateCreated",
+          "dateUpdated",
+          "projects",
+          "owner",
+          "name",
+          "description",
+          "datasource",
+          "userIdTypes",
+          "steps"
+        ],
+        "additionalProperties": false
+      },
       "ExperimentSnapshot": {
         "type": "object",
         "properties": {
@@ -111450,30 +112400,8 @@
           "user": {
             "anyOf": [
               {
-                "type": "object",
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "dashboard",
-                      "api_key",
-                      "system"
-                    ]
-                  },
-                  "id": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "type": "string"
-                  },
-                  "email": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "type"
-                ],
-                "additionalProperties": false
+                "title": "Event User",
+                "$ref": "#/components/schemas/EventUser"
               },
               {
                 "type": "null"
@@ -113580,7 +114508,8 @@
         "RampScheduleTemplates",
         "Learnings",
         "Holdouts",
-        "AutoRuns"
+        "AutoRuns",
+        "Populations"
       ]
     },
     {
@@ -113667,6 +114596,7 @@
         "NamespaceExperimentMember_model",
         "Organization_model",
         "PaginationFields_model",
+        "Population_model",
         "Project_model",
         "Query_model",
         "RampSchedule_model",
