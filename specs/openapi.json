@@ -81998,7 +81998,8 @@
                     "type": "string",
                     "enum": [
                       "cli-wizard",
-                      "skill"
+                      "skill",
+                      "eppo-import"
                     ]
                   },
                   "agent": {
@@ -82302,7 +82303,10 @@
                       "experiment",
                       "attribute",
                       "metric",
-                      "fact-table"
+                      "fact-table",
+                      "saved-group",
+                      "environment",
+                      "tag"
                     ]
                   },
                   "id": {
@@ -82331,6 +82335,27 @@
                       {
                         "type": "null"
                       }
+                    ]
+                  },
+                  "externalId": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 200
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "created",
+                      "updated",
+                      "existing",
+                      "deleted",
+                      "failed"
                     ]
                   }
                 },
@@ -82370,7 +82395,8 @@
                       "type": "string",
                       "enum": [
                         "cli-wizard",
-                        "skill"
+                        "skill",
+                        "eppo-import"
                       ]
                     },
                     "agent": {
@@ -92606,6 +92632,12 @@
                   "items": {
                     "type": "string"
                   }
+                },
+                "projects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 }
               },
               "required": [
@@ -92616,7 +92648,8 @@
                 "identifierType",
                 "sql",
                 "includesNameColumns",
-                "dimensionColumns"
+                "dimensionColumns",
+                "projects"
               ],
               "additionalProperties": false
             }
@@ -109501,7 +109534,8 @@
             "type": "string",
             "enum": [
               "cli-wizard",
-              "skill"
+              "skill",
+              "eppo-import"
             ]
           },
           "agent": {
@@ -109563,7 +109597,10 @@
                     "experiment",
                     "attribute",
                     "metric",
-                    "fact-table"
+                    "fact-table",
+                    "saved-group",
+                    "environment",
+                    "tag"
                   ]
                 },
                 "id": {
@@ -109587,6 +109624,28 @@
                     {
                       "type": "null"
                     }
+                  ]
+                },
+                "externalId": {
+                  "description": "Id in the system this was imported from, when it was imported",
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "action": {
+                  "description": "What the run did to this object",
+                  "type": "string",
+                  "enum": [
+                    "created",
+                    "updated",
+                    "existing",
+                    "deleted",
+                    "failed"
                   ]
                 },
                 "dateCreated": {
@@ -114381,7 +114440,10 @@
               "experiment",
               "attribute",
               "metric",
-              "fact-table"
+              "fact-table",
+              "saved-group",
+              "environment",
+              "tag"
             ]
           },
           "id": {
@@ -114405,6 +114467,28 @@
               {
                 "type": "null"
               }
+            ]
+          },
+          "externalId": {
+            "description": "Id in the system this was imported from, when it was imported",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "action": {
+            "description": "What the run did to this object",
+            "type": "string",
+            "enum": [
+              "created",
+              "updated",
+              "existing",
+              "deleted",
+              "failed"
             ]
           },
           "dateCreated": {
