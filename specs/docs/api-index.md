@@ -400,7 +400,7 @@
 #### Members
 
 - [Get all organization members](https://docs.growthbook.io/api/members/operation/listMembers.md)
-- [Update a member's global role (including any environment restrictions, if applicable). Can also update a member's project roles if your plan supports it.](https://docs.growthbook.io/api/members/operation/updateMemberRole.md)
+- [Update a member's role](https://docs.growthbook.io/api/members/operation/updateMemberRole.md): Update a member's global role (including any environment restrictions, if applicable). Can also update a member's project roles if your plan supports it.
 - [Removes a single user from an organization](https://docs.growthbook.io/api/members/operation/deleteMember.md)
 
 #### Code References
@@ -424,7 +424,7 @@
 #### Settings
 
 - [Get organization settings](https://docs.growthbook.io/api/settings/operation/getSettings.md)
-- [Replace the approval requirements for feature flags, configs and constants, for saved groups, and the Targeting Projects review mode. Each family is replaced wholesale when supplied; omit one to leave it unchanged.](https://docs.growthbook.io/api/settings/operation/putApprovalSettings.md)
+- [Update approval settings](https://docs.growthbook.io/api/settings/operation/putApprovalSettings.md): Replace the approval requirements for feature flags, configs and constants, for saved groups, and the Targeting Projects review mode. Each family is replaced wholesale when supplied; omit one to leave it unchanged.
 
 #### Attributes
 
@@ -440,6 +440,7 @@
 #### Meta
 
 - [Get the GrowthBook server version and build info](https://docs.growthbook.io/api/meta/operation/getVersion.md)
+- [Get a confirmation](https://docs.growthbook.io/api/meta/operation/getConfirmation.md): Poll a held request until a person confirms or rejects it in GrowthBook. Pass `wait` (seconds, max 30) to hold the request open until the status changes.
 
 #### Contextual Bandits
 
@@ -592,6 +593,8 @@
 - [Config Schema Source](https://docs.growthbook.io/api/ConfigSchemaSource_model.md)
 - [Config Schema Verify](https://docs.growthbook.io/api/ConfigSchemaVerify_model.md)
 - [Config Schema Warning](https://docs.growthbook.io/api/ConfigSchemaWarning_model.md)
+- [Confirmation](https://docs.growthbook.io/api/Confirmation_model.md)
+- [Confirmation Held](https://docs.growthbook.io/api/ConfirmationHeld_model.md)
 - [Constant](https://docs.growthbook.io/api/Constant_model.md)
 - [Constant References](https://docs.growthbook.io/api/ConstantReferences_model.md)
 - [Constant Revision](https://docs.growthbook.io/api/ConstantRevision_model.md)

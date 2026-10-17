@@ -3,7 +3,7 @@
   "info": {
     "version": "5.1.0",
     "title": "GrowthBook REST API",
-    "description": "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available. Feature-flag and metric v1 routes are deprecated: they are tagged **LEGACY** in the sidebar and collapsed by default. Use the matching v2 group when both exist.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization, or less if the token's permissions are limited. These can be created by going to `Personal Access Tokens` under your user menu. Admins with the `manageApiKeys` permission can disable a member's token under `Settings -> Manage PATs`, and require new tokens to expire within a maximum lifetime.\n- **Secret Keys**: These are sensitive and provide the level of access of the role they are given, which can be any built-in or custom role, with optional per-project role overrides and environment limits. Only Admins with the `manageApiKeys` permission can manage Secret Keys on behalf of an organization. These can be created by going to `Settings -> API Keys`, where Admins can also require new Secret Keys to expire within a maximum lifetime.\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\nIf a key has an expiration date, every response includes it in the `X-GrowthBook-Key-Expires-At` header (ISO 8601), so scripts can warn before the key stops working. Requests made with an expired key fail with a `401` that says where to create a replacement.\n\n## Naming who asked\n\nRequests made with a Secret Key may add an `X-GrowthBook-Requested-By` header naming the organization member who asked for the change, as a user id or an email address. History, revision logs and webhooks show that member next to the key.\n\nEach key's settings under `Settings -> API Keys`:\n\n- **Header**: **Optional** (the default) uses the header when it's sent, **Required** rejects requests without it, and **Rejected** rejects requests that send it, each with a 400.\n- **Permissions**, when a member is named:\n  - **Assume member's role** (the default): the request acts as that member, with only what both the key and the member can do, so the header can narrow a key but never widen it. Drafts, owners, `mine` filters and reviews are the member's. The member's rights over their own drafts, comments and verdicts apply only where the key's own role allows the same action.\n  - **Use key's role**: the key acts as itself, with its own permissions, and the name is only recorded in history. Drafts, verdicts and ownership are the key's, as when no member is named.\n\nA key that names no one, or uses its own role, acts as itself: it can draft and review with its own permissions, and its verdicts are judged on its role. A key belongs to no team, so its approval never satisfies a rule that requires approval from a team. No one can rule on a draft they created, and a key acting as itself can't rule on a draft it created or edited in either mode. An approval a key gives while assuming a member counts only where both the key and the member could approve, and stops counting if the key is disabled, expires or is deleted. Because the header isn't verified, whoever holds the key can act as any member. A value that does not match a member of the organization is rejected with a 400. A create request that omits `owner` defaults it to the member whose role the key assumes. Scheduled and auto-publishes run later with the permissions of the request that armed them, and don't run if that member has left the organization, the key has expired, or the key no longer assumes members' roles. Personal Access Tokens and OAuth tokens already act as their user and reject the header.\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\" \\\n-H \"X-GrowthBook-Requested-By: alice@example.com\"\n```\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **422** - Unprocessable Entity - The request is valid, but a warning, validation rule, approval requirement, or another publishing gate blocked it. Do not assume that `ignoreWarnings` clears every 422 response.\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n\n### Publishing gates\n\nPublish responses include a `gates` array that explains every blocker:\n\n- `type`, `severity`, and `messages` identify the problem.\n- `override` names the request-body field that can bypass it. This is `ignoreWarnings` for warnings, `skipSchemaValidation` for schema and invariant failures, or `skipHooks` for Custom Hook rejections. A value of `null` means there is no request-body override.\n- `requiresPermission` identifies any additional permission needed to use the override.\n- `resolution` provides an API action, method, and path when the blocker must be resolved another way.\n\nFor example, an approval gate is cleared by approving the revision or by using a caller with **Bypass draft approvals** access. A Config lock is cleared through the unlock route in `resolution`.\n\nWhen a successful publish bypasses a gate, the response includes `bypassedGates`. Each entry reports the gate `type` and how it was bypassed in `via`, which is one of `ignoreWarnings`, `skipSchemaValidation`, `skipHooks`, `bypassApprovalPermission`, `restApiBypassesReviews`, or `revertsBypassApproval` (reverts only). This field is omitted when no gates were bypassed.\n"
+    "description": "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available. Feature-flag and metric v1 routes are deprecated: they are tagged **LEGACY** in the sidebar and collapsed by default. Use the matching v2 group when both exist.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization, or less if the token's permissions are limited. These can be created by going to `Personal Access Tokens` under your user menu. Admins with the `manageApiKeys` permission can disable a member's token under `Settings -> Manage PATs`, and require new tokens to expire within a maximum lifetime.\n- **Secret Keys**: These are sensitive and provide the level of access of the role they are given, which can be any built-in or custom role, with optional per-project role overrides and environment limits. Only Admins with the `manageApiKeys` permission can manage Secret Keys on behalf of an organization. These can be created by going to `Settings -> API Keys`, where Admins can also require new Secret Keys to expire within a maximum lifetime.\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\nIf a key has an expiration date, every response includes it in the `X-GrowthBook-Key-Expires-At` header (ISO 8601), so scripts can warn before the key stops working. Requests made with an expired key fail with a `401` that says where to create a replacement. See [Expiration](/integrations/ai-agents/api-keys#expiration) for choosing a key's expiration, the warnings before it lapses, and the organization policies.\n\n## Naming who asked\n\nRequests made with a Secret Key may add an `X-GrowthBook-Requested-By` header naming the organization member who asked for the change, as a user id or an email address. History, revision logs and webhooks show that member next to the key.\n\nEach key's settings under `Settings -> API Keys`:\n\n- **Header**: **Optional** (the default) uses the header when it's sent, **Required** rejects requests without it, and **Rejected** rejects requests that send it, each with a 400.\n- **Permissions**, when a member is named:\n  - **Assume member's role** (the default): the request acts as that member, with only what both the key and the member can do, so the header can narrow a key but never widen it. Drafts, owners, `mine` filters and reviews are the member's. The member's rights over their own drafts, comments and verdicts apply only where the key's own role allows the same action.\n  - **Use key's role**: the key acts as itself, with its own permissions, and the name is only recorded in history. Drafts, verdicts and ownership are the key's, as when no member is named.\n\nA key that names no one, or uses its own role, acts as itself: it can draft and review with its own permissions, and its verdicts are judged on its role. A key belongs to no team, so its approval never satisfies a rule that requires approval from a team. No one can rule on a draft they created, and a key acting as itself can't rule on a draft it created or edited in either mode. An approval a key gives while assuming a member counts only where both the key and the member could approve, and stops counting if the key is disabled, expires or is deleted. Because the header isn't verified, whoever holds the key can act as any member. A value that does not match a member of the organization is rejected with a 400. A create request that omits `owner` defaults it to the member whose role the key assumes. Scheduled and auto-publishes run later with the permissions of the request that armed them, and don't run if that member has left the organization, the key has expired, or the key no longer assumes members' roles. Personal Access Tokens and OAuth tokens already act as their user and reject the header.\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\" \\\n-H \"X-GrowthBook-Requested-By: alice@example.com\"\n```\n\n## Waiting for confirmation\n\nA key can require a person to confirm some writes before they run (see [API Keys for Agents](/integrations/ai-agents/api-keys#require-confirmation)). A held write doesn't run. It answers `202 Accepted` with the confirmation, a `Location` header to poll, and a `Retry-After` header with the seconds to wait between polls:\n\n```json\n{\n  \"confirmation\": {\n    \"id\": \"cnf_abc123\",\n    \"status\": \"pending\",\n    \"actions\": [\n      { \"action\": \"feature.publish\", \"environments\": [\"production\"] }\n    ],\n    \"summary\": \"Publish revision 3 of checkout-redesign\",\n    \"url\": \"https://app.growthbook.io/confirmations/cnf_abc123\",\n    \"expiresAt\": \"2026-10-15T18:00:00.000Z\",\n    \"response\": null,\n    \"note\": null\n  },\n  \"message\": \"A person must confirm this in GrowthBook. Give them the url, then poll the Location.\"\n}\n```\n\nGive the person the `url`, then poll [`GET /v1/confirmations/{id}`](/api/meta/operation/getConfirmation). Pass `wait` (in seconds, up to 30) to hold the poll open until the status changes:\n\n```bash\ncurl \"https://api.growthbook.io/api/v1/confirmations/cnf_abc123?wait=30\" \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n| `status`    | Meaning                                                                                                               |\n| ----------- | --------------------------------------------------------------------------------------------------------------------- |\n| `pending`   | Waiting for a person, until `expiresAt` (an hour after the request)                                                   |\n| `running`   | Confirmed, and running now                                                                                            |\n| `completed` | It ran. `response` holds the status and body the request returned, which may be an error                              |\n| `rejected`  | A person declined it, and nothing ran                                                                                 |\n| `expired`   | Nobody decided in time, or it acts on something that changed after it was held (with a `400` `response`). Nothing ran |\n\n`note` carries anything the person left for the agent when they decided. `actions` lists what the request was held for, each with the environments it touches.\n\n- Only the key that made the request, or another token of the same person, can read the confirmation.\n- Sending the same request again while it's pending returns the same confirmation.\n- A request that publishes, reverts or archives, or that changes a Feature Flag or an Experiment's status, schedule, targeting or traffic, isn't run if what it acts on changed after it was held. Other writes, such as editing settings or a draft, run as sent, so they can overwrite changes made while they waited.\n- A confirmed request runs once, with the key's permissions (or the member's role it assumes), not the confirmer's. Send it again to retry, which asks for a new confirmation.\n- Confirming isn't a review approval.\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **422** - Unprocessable Entity - The request is valid, but a warning, validation rule, approval requirement, or another publishing gate blocked it. Do not assume that `ignoreWarnings` clears every 422 response.\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n\n### Publishing gates\n\nPublish responses include a `gates` array that explains every blocker:\n\n- `type`, `severity`, and `messages` identify the problem.\n- `override` names the request-body field that can bypass it. This is `ignoreWarnings` for warnings, `skipSchemaValidation` for schema and invariant failures, or `skipHooks` for Custom Hook rejections. A value of `null` means there is no request-body override.\n- `requiresPermission` identifies any additional permission needed to use the override.\n- `resolution` provides an API action, method, and path when the blocker must be resolved another way.\n\nFor example, an approval gate is cleared by approving the revision or by using a caller with **Bypass draft approvals** access. A Config lock is cleared through the unlock route in `resolution`.\n\nWhen a successful publish bypasses a gate, the response includes `bypassedGates`. Each entry reports the gate `type` and how it was bypassed in `via`, which is one of `ignoreWarnings`, `skipSchemaValidation`, `skipHooks`, `bypassApprovalPermission`, `restApiBypassesReviews`, or `revertsBypassApproval` (reverts only). This field is omitted when no gates were bypassed.\n"
   },
   "servers": [
     {
@@ -356,6 +356,16 @@
       "name": "ConfigSchemaWarning_model",
       "x-displayName": "Config Schema Warning",
       "description": "<SchemaDefinition schemaRef=\"#/components/schemas/ConfigSchemaWarning\" />"
+    },
+    {
+      "name": "Confirmation_model",
+      "x-displayName": "Confirmation",
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/Confirmation\" />"
+    },
+    {
+      "name": "ConfirmationHeld_model",
+      "x-displayName": "Confirmation Held",
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/ConfirmationHeld\" />"
     },
     {
       "name": "Constant_model",
@@ -2572,6 +2582,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -4330,6 +4343,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -4373,6 +4389,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -4492,6 +4511,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -4576,6 +4598,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -4916,6 +4941,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -5306,6 +5334,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -5409,6 +5440,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -5520,6 +5554,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -5635,6 +5672,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -5730,6 +5770,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -5829,6 +5872,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -7160,6 +7206,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -8175,6 +8224,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -8271,6 +8323,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -8373,6 +8428,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -9177,6 +9235,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -9271,6 +9332,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -9342,6 +9406,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -9424,6 +9491,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -9584,6 +9654,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -9675,6 +9748,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -9739,6 +9815,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -9836,6 +9915,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -10876,6 +10958,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -11908,6 +11993,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -11950,6 +12038,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -12068,6 +12159,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -12151,6 +12245,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -12643,6 +12740,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -13270,6 +13370,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -13391,6 +13494,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -13501,6 +13607,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -13616,6 +13725,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -13711,6 +13823,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -13810,6 +13925,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -14672,6 +14790,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -15681,6 +15802,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -15772,6 +15896,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -15871,6 +15998,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -16844,6 +16974,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -16935,6 +17068,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -17022,6 +17158,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -17122,6 +17261,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -17203,6 +17345,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -17266,6 +17411,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -17329,6 +17477,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -17458,6 +17609,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -17523,6 +17677,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -17863,6 +18020,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -17953,6 +18113,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -18049,6 +18212,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -18111,6 +18277,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -18174,6 +18343,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -18269,6 +18441,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -18391,6 +18566,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -18516,6 +18694,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -18555,6 +18736,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -19470,6 +19654,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -20379,6 +20566,9 @@
               }
             }
           },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -20579,6 +20769,9 @@
               }
             }
           },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -20734,6 +20927,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -20829,6 +21025,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           },
           "409": {
             "description": "Conflict",
@@ -20957,6 +21156,9 @@
               }
             }
           },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -21055,6 +21257,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           },
           "409": {
             "description": "Conflict",
@@ -21306,6 +21511,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -21369,6 +21577,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -21475,6 +21686,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -21613,6 +21827,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -22761,6 +22978,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -22917,6 +23137,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -23002,6 +23225,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -23545,6 +23771,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -24002,6 +24231,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -24041,6 +24273,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -24368,6 +24603,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -24520,6 +24758,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -24561,6 +24802,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -24704,6 +24948,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -24830,6 +25077,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -24871,6 +25121,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -25053,6 +25306,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -25190,6 +25446,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -25231,6 +25490,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -25346,6 +25608,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -25418,6 +25683,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -25457,6 +25725,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -25624,6 +25895,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -25740,6 +26014,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -25779,6 +26056,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -25980,6 +26260,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -26159,6 +26442,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -26198,6 +26484,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -27167,6 +27456,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -27284,6 +27576,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -27394,6 +27689,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -27539,6 +27837,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -27795,6 +28096,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -27834,6 +28138,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -27900,6 +28207,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -27949,6 +28259,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -28233,6 +28546,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -28461,6 +28777,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -28552,6 +28871,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -28645,6 +28967,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -28739,6 +29064,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -28832,6 +29160,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -28925,6 +29256,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -28996,6 +29330,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -29080,6 +29417,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -29143,6 +29483,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -29206,6 +29549,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -29298,6 +29644,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -29361,6 +29710,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -29531,6 +29883,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -29610,6 +29965,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -29677,6 +30035,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -29766,6 +30127,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -29912,6 +30276,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -30276,6 +30643,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -30322,6 +30692,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -30402,6 +30775,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -30482,6 +30858,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -30679,6 +31058,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -30904,6 +31286,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -31002,6 +31387,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -31104,6 +31492,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -31183,6 +31574,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -31267,6 +31661,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -31330,6 +31727,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -31393,6 +31793,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -31493,6 +31896,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -31556,6 +31962,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -31714,6 +32123,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -31801,6 +32213,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -31868,6 +32283,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -31965,6 +32383,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -32219,6 +32640,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -33026,6 +33450,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -33072,6 +33499,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -33156,6 +33586,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -33236,6 +33669,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -33303,6 +33739,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -33352,6 +33791,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -33549,6 +33991,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -33812,6 +34257,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -33932,6 +34380,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -34051,6 +34502,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -34130,6 +34584,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -34249,6 +34706,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -34373,6 +34833,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -34446,6 +34909,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -34548,6 +35014,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -34627,6 +35096,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -34711,6 +35183,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -34774,6 +35249,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -34837,6 +35315,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -34900,6 +35381,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -35000,6 +35484,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -35170,6 +35657,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -35263,6 +35753,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -35330,6 +35823,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -35433,6 +35929,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -35602,6 +36101,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -35750,6 +36252,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -36015,6 +36520,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -36061,6 +36569,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -36193,6 +36704,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -36344,6 +36858,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -36406,6 +36923,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -36670,6 +37190,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -36880,6 +37403,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -36921,6 +37447,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -37055,6 +37584,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -37175,6 +37707,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -37219,6 +37754,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -37320,6 +37858,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -37413,6 +37954,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -37457,6 +38001,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -38457,6 +39004,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -39199,6 +39749,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -39240,6 +39793,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -40318,6 +40874,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -40414,6 +40973,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -40586,7 +41148,8 @@
     "/v1/members/{id}/role": {
       "post": {
         "operationId": "updateMemberRole",
-        "summary": "Update a member's global role (including any environment restrictions, if applicable). Can also update a member's project roles if your plan supports it.",
+        "summary": "Update a member's role",
+        "description": "Update a member's global role (including any environment restrictions, if applicable). Can also update a member's project roles if your plan supports it.",
         "tags": [
           "members"
         ],
@@ -40726,6 +41289,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -40767,6 +41333,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -40857,7 +41426,8 @@
     "/v1/settings/approvals": {
       "put": {
         "operationId": "putApprovalSettings",
-        "summary": "Replace the approval requirements for feature flags, configs and constants, for saved groups, and the Targeting Projects review mode. Each family is replaced wholesale when supplied; omit one to leave it unchanged.",
+        "summary": "Update approval settings",
+        "description": "Replace the approval requirements for feature flags, configs and constants, for saved groups, and the Targeting Projects review mode. Each family is replaced wholesale when supplied; omit one to leave it unchanged.",
         "tags": [
           "settings"
         ],
@@ -40934,6 +41504,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -40984,6 +41557,57 @@
           {
             "lang": "cURL",
             "source": "curl -X GET 'https://api.growthbook.io/api/v1/version' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+          }
+        ]
+      }
+    },
+    "/v1/confirmations/{id}": {
+      "get": {
+        "operationId": "getConfirmation",
+        "summary": "Get a confirmation",
+        "description": "Poll a held request until a person confirms or rejects it in GrowthBook. Pass `wait` (seconds, max 30) to hold the request open until the status changes.",
+        "tags": [
+          "meta"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/wait"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "confirmation": {
+                      "$ref": "#/components/schemas/Confirmation"
+                    }
+                  },
+                  "required": [
+                    "confirmation"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X GET 'https://api.growthbook.io/api/v1/confirmations/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
           }
         ]
       }
@@ -41884,6 +42508,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -41932,6 +42559,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -41980,6 +42610,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -42028,6 +42661,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -42093,6 +42729,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -42141,6 +42780,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -42210,6 +42852,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -42274,6 +42919,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -42322,6 +42970,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -42398,6 +43049,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -42492,6 +43146,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -42561,6 +43218,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -43217,6 +43877,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -43770,6 +44433,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -44424,6 +45090,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -44980,6 +45649,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -45101,6 +45773,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -45517,6 +46192,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -45686,6 +46364,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -46012,6 +46693,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -46142,6 +46826,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -46269,6 +46956,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -46318,6 +47008,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -46448,6 +47141,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -46593,6 +47289,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -57030,6 +57729,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -62307,6 +63009,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -67624,6 +68329,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -67944,6 +68652,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -68107,6 +68818,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -68218,6 +68932,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -68266,6 +68983,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -68317,6 +69037,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -68478,6 +69201,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -68618,6 +69344,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -68698,6 +69427,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -68779,6 +69511,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -68996,6 +69731,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -69084,6 +69822,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -69283,6 +70024,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -69375,6 +70119,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -69468,6 +70215,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -69559,6 +70309,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -69810,6 +70563,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -69858,6 +70614,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -70021,6 +70780,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -70127,6 +70889,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -70194,6 +70959,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -70286,6 +71054,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -70565,6 +71336,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -70842,6 +71616,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -71195,6 +71972,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -78897,6 +79677,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -79374,6 +80157,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -79846,6 +80632,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -79976,6 +80765,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -80741,6 +81533,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -80833,6 +81628,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -80925,6 +81723,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -81015,6 +81816,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -81432,6 +82236,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -81649,6 +82456,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -81785,6 +82595,9 @@
               }
             }
           },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -81863,6 +82676,9 @@
               }
             }
           },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
+          },
           "409": {
             "description": "Conflict",
             "content": {
@@ -81939,6 +82755,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           },
           "409": {
             "description": "Conflict",
@@ -82055,6 +82874,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -82259,6 +83081,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -82495,6 +83320,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -82794,6 +83622,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -83063,6 +83894,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -83108,6 +83942,9 @@
                 }
               }
             }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
           }
         },
         "x-codeSamples": [
@@ -83937,6 +84774,17 @@
           "type": "string"
         }
       },
+      "wait": {
+        "name": "wait",
+        "in": "query",
+        "description": "Seconds to wait for a decision before responding, up to 30",
+        "schema": {
+          "description": "Seconds to wait for a decision before responding, up to 30",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 30
+        }
+      },
       "tableId": {
         "name": "tableId",
         "in": "path",
@@ -84035,6 +84883,32 @@
             "analysis-period",
             "stopped"
           ]
+        }
+      }
+    },
+    "responses": {
+      "ConfirmationHeld": {
+        "description": "Held until a person confirms it in GrowthBook. Poll the Location until the confirmation completes.",
+        "headers": {
+          "Location": {
+            "description": "The confirmation to poll",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "Retry-After": {
+            "description": "Seconds to wait before polling",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ConfirmationHeld"
+            }
+          }
         }
       }
     },
@@ -97550,6 +98424,187 @@
         ],
         "additionalProperties": false
       },
+      "Confirmation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "running",
+              "completed",
+              "rejected",
+              "expired"
+            ]
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "feature.create",
+                    "feature.draft",
+                    "feature.review",
+                    "feature.publish",
+                    "feature.archive",
+                    "feature.delete",
+                    "feature.other",
+                    "experiment.create",
+                    "experiment.draft",
+                    "experiment.start",
+                    "experiment.stop",
+                    "experiment.targeting",
+                    "experiment.traffic",
+                    "experiment.phases",
+                    "experiment.visualEditor",
+                    "experiment.other",
+                    "savedGroup.create",
+                    "savedGroup.draft",
+                    "savedGroup.review",
+                    "savedGroup.publish",
+                    "savedGroup.archive",
+                    "savedGroup.delete",
+                    "savedGroup.other",
+                    "constant.create",
+                    "constant.draft",
+                    "constant.review",
+                    "constant.publish",
+                    "constant.archive",
+                    "constant.delete",
+                    "constant.other",
+                    "config.create",
+                    "config.draft",
+                    "config.review",
+                    "config.publish",
+                    "config.archive",
+                    "config.delete",
+                    "config.other",
+                    "rampSchedule.create",
+                    "rampSchedule.start",
+                    "rampSchedule.pause",
+                    "rampSchedule.progression",
+                    "rampSchedule.approve",
+                    "rampSchedule.edit",
+                    "rampSchedule.delete",
+                    "rampSchedule.other",
+                    "settings.approvals",
+                    "settings.other",
+                    "access.members",
+                    "access.teams",
+                    "customHook.create",
+                    "customHook.edit",
+                    "customHook.delete",
+                    "environment.create",
+                    "environment.edit",
+                    "environment.delete",
+                    "project.create",
+                    "project.edit",
+                    "project.delete",
+                    "attribute.create",
+                    "attribute.edit",
+                    "attribute.delete",
+                    "customField.create",
+                    "customField.edit",
+                    "customField.delete",
+                    "sdkConnection.create",
+                    "sdkConnection.edit",
+                    "sdkConnection.delete",
+                    "metric.create",
+                    "metric.edit",
+                    "metric.delete",
+                    "factTable.create",
+                    "factTable.edit",
+                    "factTable.delete",
+                    "segment.create",
+                    "segment.edit",
+                    "segment.delete",
+                    "dimension.create",
+                    "dimension.edit",
+                    "dimension.delete",
+                    "override.ignoreWarnings",
+                    "override.skipSchemaValidation",
+                    "override.skipHooks",
+                    "override.bypassApproval",
+                    "override.restBypassesReviews",
+                    "override.draftLimit",
+                    "override.skipChecklist",
+                    "override.bypassDuplicateKeyCheck",
+                    "other.write"
+                  ]
+                },
+                "environments": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "action",
+                "environments"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "summary": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string"
+          },
+          "response": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "number"
+                  },
+                  "body": {}
+                },
+                "required": [
+                  "status",
+                  "body"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "actions",
+          "summary",
+          "url",
+          "expiresAt",
+          "response",
+          "note"
+        ],
+        "additionalProperties": false
+      },
       "InformationSchemaTable": {
         "type": "object",
         "properties": {
@@ -109940,6 +110995,206 @@
         ],
         "additionalProperties": false
       },
+      "ConfirmationHeld": {
+        "type": "object",
+        "properties": {
+          "confirmation": {
+            "$ref": "#/components/schemas/Confirmation"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "confirmation",
+          "message"
+        ],
+        "additionalProperties": false,
+        "$defs": {
+          "Confirmation": {
+            "id": "Confirmation",
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "pending",
+                  "running",
+                  "completed",
+                  "rejected",
+                  "expired"
+                ]
+              },
+              "actions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "action": {
+                      "type": "string",
+                      "enum": [
+                        "feature.create",
+                        "feature.draft",
+                        "feature.review",
+                        "feature.publish",
+                        "feature.archive",
+                        "feature.delete",
+                        "feature.other",
+                        "experiment.create",
+                        "experiment.draft",
+                        "experiment.start",
+                        "experiment.stop",
+                        "experiment.targeting",
+                        "experiment.traffic",
+                        "experiment.phases",
+                        "experiment.visualEditor",
+                        "experiment.other",
+                        "savedGroup.create",
+                        "savedGroup.draft",
+                        "savedGroup.review",
+                        "savedGroup.publish",
+                        "savedGroup.archive",
+                        "savedGroup.delete",
+                        "savedGroup.other",
+                        "constant.create",
+                        "constant.draft",
+                        "constant.review",
+                        "constant.publish",
+                        "constant.archive",
+                        "constant.delete",
+                        "constant.other",
+                        "config.create",
+                        "config.draft",
+                        "config.review",
+                        "config.publish",
+                        "config.archive",
+                        "config.delete",
+                        "config.other",
+                        "rampSchedule.create",
+                        "rampSchedule.start",
+                        "rampSchedule.pause",
+                        "rampSchedule.progression",
+                        "rampSchedule.approve",
+                        "rampSchedule.edit",
+                        "rampSchedule.delete",
+                        "rampSchedule.other",
+                        "settings.approvals",
+                        "settings.other",
+                        "access.members",
+                        "access.teams",
+                        "customHook.create",
+                        "customHook.edit",
+                        "customHook.delete",
+                        "environment.create",
+                        "environment.edit",
+                        "environment.delete",
+                        "project.create",
+                        "project.edit",
+                        "project.delete",
+                        "attribute.create",
+                        "attribute.edit",
+                        "attribute.delete",
+                        "customField.create",
+                        "customField.edit",
+                        "customField.delete",
+                        "sdkConnection.create",
+                        "sdkConnection.edit",
+                        "sdkConnection.delete",
+                        "metric.create",
+                        "metric.edit",
+                        "metric.delete",
+                        "factTable.create",
+                        "factTable.edit",
+                        "factTable.delete",
+                        "segment.create",
+                        "segment.edit",
+                        "segment.delete",
+                        "dimension.create",
+                        "dimension.edit",
+                        "dimension.delete",
+                        "override.ignoreWarnings",
+                        "override.skipSchemaValidation",
+                        "override.skipHooks",
+                        "override.bypassApproval",
+                        "override.restBypassesReviews",
+                        "override.draftLimit",
+                        "override.skipChecklist",
+                        "override.bypassDuplicateKeyCheck",
+                        "other.write"
+                      ]
+                    },
+                    "environments": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "action",
+                    "environments"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "summary": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "expiresAt": {
+                "type": "string"
+              },
+              "response": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "number"
+                      },
+                      "body": {}
+                    },
+                    "required": [
+                      "status",
+                      "body"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "note": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "status",
+              "actions",
+              "summary",
+              "url",
+              "expiresAt",
+              "response",
+              "note"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
       "ExperimentSnapshot": {
         "type": "object",
         "properties": {
@@ -114617,6 +115872,8 @@
         "ConfigSchemaSource_model",
         "ConfigSchemaVerify_model",
         "ConfigSchemaWarning_model",
+        "Confirmation_model",
+        "ConfirmationHeld_model",
         "Constant_model",
         "ConstantReferences_model",
         "ConstantRevision_model",
