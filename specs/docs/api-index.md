@@ -189,7 +189,7 @@
 #### Experiments
 
 - [Get all experiments](https://docs.growthbook.io/api/experiments/operation/listExperiments.md)
-- [Create a single experiment](https://docs.growthbook.io/api/experiments/operation/postExperiment.md)
+- [Create a single experiment](https://docs.growthbook.io/api/experiments/operation/postExperiment.md): Creates a new experiment.
 - [Get latest results for many experiments](https://docs.growthbook.io/api/experiments/operation/listExperimentResults.md): Returns the latest non-dimension snapshot for each experiment matching the filters. Use this to scan results across a portfolio in one call.
 - [Get a single experiment](https://docs.growthbook.io/api/experiments/operation/getExperiment.md)
 - [Update a single experiment](https://docs.growthbook.io/api/experiments/operation/updateExperiment.md)
@@ -686,6 +686,7 @@
 - [Team](https://docs.growthbook.io/api/Team_model.md)
 - [Visual Change](https://docs.growthbook.io/api/VisualChange_model.md)
 - [Visual Changeset](https://docs.growthbook.io/api/VisualChangeset_model.md)
+- [Visual Editor Cb Experiment Stub](https://docs.growthbook.io/api/VisualEditorCbExperimentStub_model.md)
 
 ## OpenAPI Specs
 
