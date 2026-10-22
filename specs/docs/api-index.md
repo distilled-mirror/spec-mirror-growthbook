@@ -449,7 +449,7 @@
 - [Get a single Contextual Bandit snapshot](https://docs.growthbook.io/api/ContextualBandits/operation/getContextualBanditSnapshot.md)
 - [List Contextual Bandit weight-update events](https://docs.growthbook.io/api/ContextualBandits/operation/listContextualBanditEvents.md)
 - [Get a single Contextual Bandit weight-update event](https://docs.growthbook.io/api/ContextualBandits/operation/getContextualBanditEvent.md)
-- [Get latest Contextual Bandit results](https://docs.growthbook.io/api/ContextualBandits/operation/getContextualBanditResults.md): Returns the latest contextual-bandit stats engine output (per-context responses tagged with their leaf, the per-leaf targeting conditions, and per-leaf aggregated stats), the overall (marginal) variation weights across all contexts, the SRM of the most recent run, and the status of the most recent s…
+- [Get latest Contextual Bandit results](https://docs.growthbook.io/api/ContextualBandits/operation/getContextualBanditResults.md): Returns the latest contextual-bandit stats engine output (per-context responses tagged with their leaf, the per-leaf targeting conditions, and per-leaf aggregated stats), the overall (marginal) variation weights across all contexts, the health checks (traffic, SRM, multiple exposures) computed by th…
 - [Get features linked to a Contextual Bandit](https://docs.growthbook.io/api/ContextualBandits/operation/getContextualBanditLinkedFeatures.md): Returns the features that reference this contextual bandit via a `contextual-bandit-ref` rule, enriched with each feature's live/draft state, per-environment rule state, and variation values. Same payload the GrowthBook UI uses to render the Linked Features section.
 - [Link a feature to a Contextual Bandit](https://docs.growthbook.io/api/ContextualBandits/operation/addContextualBanditLinkedFeature.md): Adds a `contextual-bandit-ref` rule to the bottom of the feature's rule list and links the feature to this contextual bandit. The rule lands in a draft revision that auto-publishes when the contextual bandit starts, unless `autoPublish` is set. Targeting (condition, Saved Groups, prerequisites, cove…
 - [Replace a Contextual Bandit's rule on a linked feature](https://docs.growthbook.io/api/ContextualBandits/operation/updateContextualBanditLinkedFeature.md): Replaces every `contextual-bandit-ref` rule pointing at this contextual bandit on the feature, keeping each rule's id and position in the rule list. Every field is replaced, so omitted optional fields revert to their defaults. Returns a 400 when the feature has no such rule on the target revision, o…
@@ -463,6 +463,8 @@
 - [Trigger a Contextual Bandit snapshot refresh](https://docs.growthbook.io/api/ContextualBandits/operation/refreshContextualBandit.md)
 - [Add or remove Contextual Bandit variations](https://docs.growthbook.io/api/ContextualBandits/operation/updateContextualBanditVariations.md): Adds and/or removes variations on a Contextual Bandit. Send `addVariations` and `removeVariationIds` independently; both are optional. New arms must carry a `values` entry for each linked feature. Running CBs publish the linked-feature updates; draft CBs stage them until start. Under an approval flo…
 - [Cancel a running Contextual Bandit snapshot refresh](https://docs.growthbook.io/api/ContextualBandits/operation/cancelContextualBandit.md)
+- [List visual changesets for a Contextual Bandit](https://docs.growthbook.io/api/ContextualBandits/operation/listContextualBanditVisualChangesets.md)
+- [Create a visual changeset for a Contextual Bandit](https://docs.growthbook.io/api/ContextualBandits/operation/postContextualBanditVisualChangesets.md)
 
 #### Dashboards
 
@@ -481,6 +483,15 @@
 - [Delete a single contextualBanditQuery](https://docs.growthbook.io/api/ContextualBanditQueries/operation/deleteContextualBanditQuery.md)
 - [Get all contextualBanditQueries](https://docs.growthbook.io/api/ContextualBanditQueries/operation/listContextualBanditQueries.md)
 - [Create a single contextualBanditQuery](https://docs.growthbook.io/api/ContextualBanditQueries/operation/createContextualBanditQuery.md)
+
+#### Interleaving Experiments
+
+- [Get a single interleaving](https://docs.growthbook.io/api/Interleavings/operation/getInterleaving.md)
+- [Update a single interleaving](https://docs.growthbook.io/api/Interleavings/operation/updateInterleaving.md): Archive an interleaving experiment by setting `archived`. Use the start and stop endpoints to change its status.
+- [Get all interleavings](https://docs.growthbook.io/api/Interleavings/operation/listInterleavings.md)
+- [Create a single interleaving](https://docs.growthbook.io/api/Interleavings/operation/createInterleaving.md)
+- [Start an interleaving experiment](https://docs.growthbook.io/api/Interleavings/operation/startInterleaving.md): Starts serving the interleaving to SDKs in its enabled environments. A stopped interleaving can be started again; its start date is kept.
+- [Stop an interleaving experiment](https://docs.growthbook.io/api/Interleavings/operation/stopInterleaving.md): Removes the interleaving from SDK payloads, so `interleave()` falls back to `fallbackConfig`.
 
 #### Custom Fields
 
@@ -647,6 +658,7 @@
 - [Holdout](https://docs.growthbook.io/api/Holdout_model.md)
 - [Information Schema](https://docs.growthbook.io/api/InformationSchema_model.md)
 - [Information Schema Table](https://docs.growthbook.io/api/InformationSchemaTable_model.md)
+- [Interleaving](https://docs.growthbook.io/api/Interleaving_model.md)
 - [Learning](https://docs.growthbook.io/api/Learning_model.md)
 - [Lookback Override](https://docs.growthbook.io/api/LookbackOverride_model.md)
 - [Member](https://docs.growthbook.io/api/Member_model.md)
