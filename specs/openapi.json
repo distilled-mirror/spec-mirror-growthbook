@@ -85253,7 +85253,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "description": "Create a population",
+                "description": "Create a Population",
                 "type": "object",
                 "properties": {
                   "name": {
@@ -85278,7 +85278,7 @@
                     "type": "string"
                   },
                   "userIdTypes": {
-                    "description": "Identifier types the population can be joined on. Every step's fact table must support all of them",
+                    "description": "Identifier types the Population can be joined on. Every step's fact table must support all of them",
                     "minItems": 1,
                     "type": "array",
                     "items": {
@@ -85535,7 +85535,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "description": "Update a population",
+                "description": "Update a Population",
                 "type": "object",
                 "properties": {
                   "name": {
@@ -85552,7 +85552,7 @@
                     }
                   },
                   "userIdTypes": {
-                    "description": "Identifier types the population can be joined on. Every step's fact table must support all of them",
+                    "description": "Identifier types the Population can be joined on. Every step's fact table must support all of them",
                     "minItems": 1,
                     "type": "array",
                     "items": {
