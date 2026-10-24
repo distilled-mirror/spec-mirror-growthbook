@@ -28,7 +28,7 @@ We support both the HTTP Basic and Bearer authentication schemes for convenience
 You first need to generate a new API Key in GrowthBook. Different keys have different permissions:
 
 * **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization, or less if the token's permissions are limited. These can be created by going to `Personal Access Tokens` under your user menu. Members with the API Keys **Manage members' tokens** permission can disable a member's token under `Settings -> Manage PATs`, and admins can require new tokens to expire within a maximum lifetime.
-* **Secret Keys**: These are sensitive and provide the level of access of the role they are given, which can be any built-in or custom role, with optional per-project role overrides and environment limits. Managing Secret Keys on behalf of an organization takes the [API Keys permissions](/account/user-permissions.md). These can be created by going to `Settings -> API Keys`, where Admins can also require new Secret Keys to expire within a maximum lifetime.
+* **Secret Keys**: These are sensitive and provide the level of access of the role they are given, which can be any built-in or custom role, with optional per-project role overrides and environment limits. Managing Secret Keys on behalf of an organization takes the [API Keys permissions](https://docs.growthbook.io/account/user-permissions.md). These can be created by going to `Settings -> API Keys`, where Admins can also require new Secret Keys to expire within a maximum lifetime.
 
 If using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)
 
@@ -44,7 +44,7 @@ curl https://api.growthbook.io/api/v1/features \
 -H "Authorization: Bearer secret_abc123DEF456"
 ```
 
-If a key has an expiration date, every response includes it in the `X-GrowthBook-Key-Expires-At` header (ISO 8601), so scripts can warn before the key stops working. Requests made with an expired key fail with a `401` that says where to create a replacement. See [Expiration](/integrations/ai-agents/api-keys.md#expiration) for choosing a key's expiration, the warnings before it lapses, and the organization policies.
+If a key has an expiration date, every response includes it in the `X-GrowthBook-Key-Expires-At` header (ISO 8601), so scripts can warn before the key stops working. Requests made with an expired key fail with a `401` that says where to create a replacement. See [Expiration](https://docs.growthbook.io/integrations/ai-agents/api-keys.md#expiration) for choosing a key's expiration, the warnings before it lapses, and the organization policies.
 
 ## Naming who asked
 
@@ -76,7 +76,7 @@ People review what the API creates in the GrowthBook UI.
 
 ## Waiting for confirmation
 
-A key can require a person to confirm some writes before they run (see [API Keys for Agents](/integrations/ai-agents/api-keys.md#require-confirmation)). A held write doesn't run. It answers `202 Accepted` with the confirmation, a `Location` header to poll, and a `Retry-After` header with the seconds to wait between polls:
+A key can require a person to confirm some writes before they run (see [API Keys for Agents](https://docs.growthbook.io/integrations/ai-agents/api-keys.md#require-confirmation)). A held write doesn't run. It answers `202 Accepted` with the confirmation, a `Location` header to poll, and a `Retry-After` header with the seconds to wait between polls:
 
 ```json theme={null}
 {
@@ -96,7 +96,7 @@ A key can require a person to confirm some writes before they run (see [API Keys
 }
 ```
 
-Give the person the `url`, then poll [`GET /v1/confirmations/{id}`](/api/meta/operation/getConfirmation). Pass `wait` (in seconds, up to 30) to hold the poll open until the status changes:
+Give the person the `url`, then poll [`GET /v1/confirmations/{id}`](https://docs.growthbook.io/api/meta/operation/getConfirmation). Pass `wait` (in seconds, up to 30) to hold the poll open until the status changes:
 
 ```bash theme={null}
 curl "https://api.growthbook.io/api/v1/confirmations/cnf_abc123?wait=30" \
