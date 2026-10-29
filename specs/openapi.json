@@ -71786,7 +71786,7 @@
                     }
                   },
                   "key": {
-                    "description": "The key your code passes to `interleave()` as `ranker`. Can't be changed later. Several experiments may share a key so you can iterate without changing code, but only one of them can be running in a given environment, and each needs its own `trackingKey`.",
+                    "description": "The key your code passes to `interleave()` as `key`. Can't be changed later. Several experiments may share a key so you can iterate without changing code, but only one of them can be running in a given environment, and each needs its own `trackingKey`.",
                     "type": "string",
                     "pattern": "^[a-zA-Z0-9_.:\\|\\-]+$"
                   },
@@ -86345,58 +86345,12 @@
                           }
                         },
                         "aggregateFilter": {
-                          "description": "Conditions on each unit's total within the window, such as \">=3\" or \">=3,<10\". Requires aggregateFilterColumn",
+                          "description": "Conditions on each unit's total within the queried date range, such as \">=3\" or \">=3,<10\". Requires aggregateFilterColumn",
                           "type": "string"
                         },
                         "aggregateFilterColumn": {
                           "description": "Numeric column to total, or \"$$count\" to count rows. Requires aggregateFilter",
                           "type": "string"
-                        },
-                        "windowSettings": {
-                          "description": "Defaults to no window. Conversion windows are only allowed on steps after the first",
-                          "type": "object",
-                          "properties": {
-                            "type": {
-                              "type": "string",
-                              "enum": [
-                                "conversion",
-                                "lookback",
-                                ""
-                              ]
-                            },
-                            "delayValue": {
-                              "type": "number"
-                            },
-                            "delayUnit": {
-                              "type": "string",
-                              "enum": [
-                                "weeks",
-                                "days",
-                                "hours",
-                                "minutes"
-                              ]
-                            },
-                            "windowValue": {
-                              "type": "number"
-                            },
-                            "windowUnit": {
-                              "type": "string",
-                              "enum": [
-                                "weeks",
-                                "days",
-                                "hours",
-                                "minutes"
-                              ]
-                            }
-                          },
-                          "required": [
-                            "type",
-                            "delayValue",
-                            "delayUnit",
-                            "windowValue",
-                            "windowUnit"
-                          ],
-                          "additionalProperties": false
                         }
                       },
                       "required": [
@@ -86619,58 +86573,12 @@
                           }
                         },
                         "aggregateFilter": {
-                          "description": "Conditions on each unit's total within the window, such as \">=3\" or \">=3,<10\". Requires aggregateFilterColumn",
+                          "description": "Conditions on each unit's total within the queried date range, such as \">=3\" or \">=3,<10\". Requires aggregateFilterColumn",
                           "type": "string"
                         },
                         "aggregateFilterColumn": {
                           "description": "Numeric column to total, or \"$$count\" to count rows. Requires aggregateFilter",
                           "type": "string"
-                        },
-                        "windowSettings": {
-                          "description": "Defaults to no window. Conversion windows are only allowed on steps after the first",
-                          "type": "object",
-                          "properties": {
-                            "type": {
-                              "type": "string",
-                              "enum": [
-                                "conversion",
-                                "lookback",
-                                ""
-                              ]
-                            },
-                            "delayValue": {
-                              "type": "number"
-                            },
-                            "delayUnit": {
-                              "type": "string",
-                              "enum": [
-                                "weeks",
-                                "days",
-                                "hours",
-                                "minutes"
-                              ]
-                            },
-                            "windowValue": {
-                              "type": "number"
-                            },
-                            "windowUnit": {
-                              "type": "string",
-                              "enum": [
-                                "weeks",
-                                "days",
-                                "hours",
-                                "minutes"
-                              ]
-                            }
-                          },
-                          "required": [
-                            "type",
-                            "delayValue",
-                            "delayUnit",
-                            "windowValue",
-                            "windowUnit"
-                          ],
-                          "additionalProperties": false
                         }
                       },
                       "required": [
@@ -109606,7 +109514,7 @@
             "format": "date-time"
           },
           "key": {
-            "description": "The key your code passes to `interleave()` as `ranker`",
+            "description": "The key your code passes to `interleave()` as `key`",
             "type": "string"
           },
           "trackingKey": {
@@ -114691,63 +114599,17 @@
                   }
                 },
                 "aggregateFilter": {
-                  "description": "Conditions on each unit's total within the window, such as \">=3\" or \">=3,<10\". Requires aggregateFilterColumn",
+                  "description": "Conditions on each unit's total within the queried date range, such as \">=3\" or \">=3,<10\". Requires aggregateFilterColumn",
                   "type": "string"
                 },
                 "aggregateFilterColumn": {
                   "description": "Numeric column to total, or \"$$count\" to count rows. Requires aggregateFilter",
                   "type": "string"
-                },
-                "windowSettings": {
-                  "type": "object",
-                  "properties": {
-                    "type": {
-                      "type": "string",
-                      "enum": [
-                        "conversion",
-                        "lookback",
-                        ""
-                      ]
-                    },
-                    "delayValue": {
-                      "type": "number"
-                    },
-                    "delayUnit": {
-                      "type": "string",
-                      "enum": [
-                        "weeks",
-                        "days",
-                        "hours",
-                        "minutes"
-                      ]
-                    },
-                    "windowValue": {
-                      "type": "number"
-                    },
-                    "windowUnit": {
-                      "type": "string",
-                      "enum": [
-                        "weeks",
-                        "days",
-                        "hours",
-                        "minutes"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "type",
-                    "delayValue",
-                    "delayUnit",
-                    "windowValue",
-                    "windowUnit"
-                  ],
-                  "additionalProperties": false
                 }
               },
               "required": [
                 "source",
-                "rowFilters",
-                "windowSettings"
+                "rowFilters"
               ],
               "additionalProperties": false
             }
