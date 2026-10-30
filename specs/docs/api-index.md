@@ -2,7 +2,7 @@
 
 ## API
 
-- [API / Endpoints (436 pages)](https://docs.growthbook.io/_llms/api/endpoints.txt): Documentation for API / Endpoints.
+- [API / Endpoints (440 pages)](https://docs.growthbook.io/_llms/api/endpoints.txt): Documentation for API / Endpoints.
 
 ### Introduction
 
