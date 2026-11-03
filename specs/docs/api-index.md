@@ -2,7 +2,7 @@
 
 ## API
 
-- [API / Endpoints (440 pages)](https://docs.growthbook.io/_llms/api/endpoints.txt): Documentation for API / Endpoints.
+- [API / Endpoints (451 pages)](https://docs.growthbook.io/_llms/api/endpoints.txt): Documentation for API / Endpoints.
 
 ### Introduction
 
@@ -83,6 +83,9 @@
 - [Information Schema](https://docs.growthbook.io/api/InformationSchema_model.md)
 - [Information Schema Table](https://docs.growthbook.io/api/InformationSchemaTable_model.md)
 - [Interleaving](https://docs.growthbook.io/api/Interleaving_model.md)
+- [Interleaving Exposure Query](https://docs.growthbook.io/api/InterleavingExposureQuery_model.md)
+- [Interleaving Snapshot](https://docs.growthbook.io/api/InterleavingSnapshot_model.md)
+- [Interleaving Snapshot Status](https://docs.growthbook.io/api/InterleavingSnapshotStatus_model.md)
 - [Learning](https://docs.growthbook.io/api/Learning_model.md)
 - [Lookback Override](https://docs.growthbook.io/api/LookbackOverride_model.md)
 - [Member](https://docs.growthbook.io/api/Member_model.md)

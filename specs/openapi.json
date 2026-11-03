@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "version": "5.1.0",
+    "version": "5.2.0",
     "title": "GrowthBook REST API",
     "description": "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available. Feature-flag and metric v1 routes are deprecated: they are tagged **LEGACY** in the sidebar and collapsed by default. Use the matching v2 group when both exist.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization, or less if the token's permissions are limited. These can be created by going to `Personal Access Tokens` under your user menu. Members with the API Keys **Manage members' tokens** permission can disable a member's token under `Settings -> Manage PATs`, and admins can require new tokens to expire within a maximum lifetime.\n- **Secret Keys**: These are sensitive and provide the level of access of the role they are given, which can be any built-in or custom role, with optional per-project role overrides and environment limits. Managing Secret Keys on behalf of an organization takes the [API Keys permissions](/account/user-permissions). These can be created by going to `Settings -> API Keys`, where Admins can also require new Secret Keys to expire within a maximum lifetime.\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\nIf a key has an expiration date, every response includes it in the `X-GrowthBook-Key-Expires-At` header (ISO 8601), so scripts can warn before the key stops working. Requests made with an expired key fail with a `401` that says where to create a replacement. See [Expiration](/integrations/ai-agents/api-keys#expiration) for choosing a key's expiration, the warnings before it lapses, and the organization policies.\n\n## Naming who asked\n\nRequests made with a Secret Key may add an `X-GrowthBook-Requested-By` header naming the organization member who asked for the change, as a user id or an email address. History, revision logs and webhooks show that member next to the key.\n\nEach key acts as **System** (the default) or **User**, set under `Settings -> API Keys`:\n\n- **System**: the header is optional. The key acts as itself, with its own permissions, and the named member is only recorded in history.\n- **User**: a request without the header is rejected with a 400. The request acts as the named member, with only what both the key and the member can do, so the header can narrow a key but never widen it. Drafts, owners, `mine` filters and reviews are the member's. The member's rights over their own drafts, comments and verdicts apply only where the key's own role allows the same action.\n\nA System key, or any key that names no one, acts as itself: it can draft and review with its own permissions, and its verdicts are judged on its role. A key belongs to no team, so its approval never satisfies a rule that requires approval from a team. No one can rule on a draft they created, and a key acting as itself can't rule on a draft it created or edited. An approval a User key gives counts only where both the key and the member could approve, and stops counting if the key is disabled, expires or is deleted. Because the header isn't verified, whoever holds the key can act as any member. A value that does not match a member of the organization is rejected with a 400. A create request that omits `owner` defaults it to the member a User key names. Scheduled and auto-publishes run later with the permissions of the request that armed them, and don't run if that member has left the organization, the key has expired, or the key no longer acts as User. Personal Access Tokens and OAuth tokens already act as their user and reject the header.\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\" \\\n-H \"X-GrowthBook-Requested-By: alice@example.com\"\n```\n\n## Naming and human review\n\nPeople review what the API creates in the GrowthBook UI.\n\n- Keep keys and names short (2-5 words). Follow your organization's Feature Flag key format (`featureRegexValidator` and `featureKeyExample` in `GET /v1/settings`), or use kebab-case if it has none. Feature Flag keys can't be changed after creation, and an experiment's tracking key shouldn't change after launch.\n- Put context (why, plan, tickets, links) in `description`, not in names or keys.\n- Group with `tags`, not name prefixes. Projects (`project` or `projects`) control access and where a resource can be used, so set them deliberately instead of using them as labels.\n- To create a Feature Flag disabled with `POST /v2/features`, list every environment in `environments` with `enabled: false` (on `POST /v1/features`, each entry also needs `rules: []`). An environment you leave out uses its default state, which may be enabled.\n- Leave publishing and production changes to a person unless asked.\n- If a request is blocked (an approval requirement, a warning, a Custom Hook, schema validation or a permission error), stop and ask a person. Don't retry with an override field, a different key or another workaround unless a person asked you to. If a write answers `202` with a `confirmation`, give a person its `url` and wait (see [Waiting for confirmation](#waiting-for-confirmation)).\n\n## Waiting for confirmation\n\nA key can require a person to confirm some writes before they run (see [API Keys for Agents](/integrations/ai-agents/api-keys#require-confirmation)). A held write doesn't run. It answers `202 Accepted` with the confirmation, a `Location` header to poll, and a `Retry-After` header with the seconds to wait between polls:\n\n```json\n{\n  \"confirmation\": {\n    \"id\": \"cnf_abc123\",\n    \"status\": \"pending\",\n    \"actions\": [\n      { \"action\": \"feature.publish\", \"environments\": [\"production\"] }\n    ],\n    \"summary\": \"Publish revision 3 of checkout-redesign\",\n    \"url\": \"https://app.growthbook.io/confirmations/cnf_abc123\",\n    \"expiresAt\": \"2026-10-15T18:00:00.000Z\",\n    \"response\": null,\n    \"note\": null\n  },\n  \"message\": \"A person must confirm this in GrowthBook. Give them the url, then poll the Location.\"\n}\n```\n\nGive the person the `url`, then poll [`GET /v1/confirmations/{id}`](/api/meta/operation/getConfirmation). Pass `wait` (in seconds, up to 30) to hold the poll open until the status changes:\n\n```bash\ncurl \"https://api.growthbook.io/api/v1/confirmations/cnf_abc123?wait=30\" \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n| `status`    | Meaning                                                                                                               |\n| ----------- | --------------------------------------------------------------------------------------------------------------------- |\n| `pending`   | Waiting for a person, until `expiresAt` (an hour after the request)                                                   |\n| `running`   | Confirmed, and running now                                                                                            |\n| `completed` | It ran. `response` holds the status and body the request returned, which may be an error                              |\n| `rejected`  | A person declined it, and nothing ran                                                                                 |\n| `expired`   | Nobody decided in time, or it acts on something that changed after it was held (with a `400` `response`). Nothing ran |\n\n`note` carries anything the person left for the agent when they decided. `actions` lists what the request was held for, each with the environments it touches.\n\n- Only the key that made the request, or another token of the same person, can read the confirmation.\n- Sending the same request again while it's pending returns the same confirmation.\n- A request that publishes, reverts or archives, or that changes a Feature Flag or an Experiment's status, schedule, targeting or traffic, isn't run if what it acts on changed after it was held. Other writes, such as editing settings or a draft, run as sent, so they can overwrite changes made while they waited.\n- A confirmed request runs once, with the key's permissions (or the member's role it assumes), not the confirmer's. Send it again to retry, which asks for a new confirmation.\n- Confirming isn't a review approval.\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **409** - Conflict - The resource changed since it was read, or its state blocks the request, such as an experiment start's checklist. `code` names which.\n- **422** - Unprocessable Entity - The request is valid, but a warning, validation rule, approval requirement, or another publishing gate blocked it. Do not assume that `ignoreWarnings` clears every 422 response.\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute, or the limit your self-hosted server sets. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n\n### Publishing gates\n\nAutomated callers, including AI agents, should report a blocked response to a person instead of retrying with an override. Use an override only when a person has explicitly asked for it.\n\nPublish and experiment start responses include a `gates` array that explains every blocker:\n\n- `type`, `severity`, and `messages` identify the problem.\n- `override` names the request-body field that can bypass it. This is `ignoreWarnings` for warnings, `skipSchemaValidation` for schema and invariant failures, `skipHooks` for Custom Hook rejections, or `skipChecklist` for an experiment start's launch checklist items. A value of `null` means there is no request-body override.\n- `requiresPermission` identifies any additional permission needed to use the override.\n- `resolution` provides an API action, method, and path when the blocker must be resolved another way.\n\nFor example, an approval gate is cleared by approving the revision or by using a caller with **Bypass draft approvals** access. A Config lock is cleared through the unlock route in `resolution`.\n\nWhen a successful publish bypasses a gate, the response includes `bypassedGates`. Each entry reports the gate `type` and how it was bypassed in `via`, which is one of `ignoreWarnings`, `skipSchemaValidation`, `skipHooks`, `skipChecklist`, `bypassApprovalPermission`, `restApiBypassesReviews`, or `revertsBypassApproval` (reverts only). This field is omitted when no gates were bypassed.\n\n### Request flags\n\nEvery refusal a request can get past with a flag:\n\n| Flag                      | Where        | Gets past                                                                                                    |\n| ------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------ |\n| `ignoreWarnings`          | Body         | Warnings (`422`)                                                                                             |\n| `skipSchemaValidation`    | Body         | Schema and invariant failures, with **Bypass draft approvals** access                                        |\n| `skipHooks`               | Body         | Custom Hook rejections                                                                                       |\n| `skipChecklist`           | Body         | An experiment start's incomplete launch checklist items (`409` `checklist_incomplete`), but not its blockers |\n| `allowUnscopedRules`      | Body         | A rule for All Environments and All Projects where the organization requires a scope (`422` `unscoped_rule`) |\n| `overrideDraftLimit=true` | Query string | Creating a draft past the draft limit                                                                        |\n"
   },
@@ -215,6 +215,11 @@
     {
       "name": "ContextualBanditQueries",
       "x-displayName": "Contextual Bandit Queries",
+      "description": ""
+    },
+    {
+      "name": "InterleavingExposureQueries",
+      "x-displayName": "Interleaving Exposure Queries",
       "description": ""
     },
     {
@@ -636,6 +641,21 @@
       "name": "Interleaving_model",
       "x-displayName": "Interleaving",
       "description": "<SchemaDefinition schemaRef=\"#/components/schemas/Interleaving\" />"
+    },
+    {
+      "name": "InterleavingExposureQuery_model",
+      "x-displayName": "Interleaving Exposure Query",
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/InterleavingExposureQuery\" />"
+    },
+    {
+      "name": "InterleavingSnapshot_model",
+      "x-displayName": "Interleaving Snapshot",
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/InterleavingSnapshot\" />"
+    },
+    {
+      "name": "InterleavingSnapshotStatus_model",
+      "x-displayName": "Interleaving Snapshot Status",
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/InterleavingSnapshotStatus\" />"
     },
     {
       "name": "Learning_model",
@@ -71790,6 +71810,318 @@
         ]
       }
     },
+    "/v1/interleaving-exposure-queries/{id}": {
+      "get": {
+        "operationId": "getInterleavingExposureQuery",
+        "summary": "Get a single interleavingExposureQuery",
+        "tags": [
+          "InterleavingExposureQueries"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "interleavingExposureQuery": {
+                      "$ref": "#/components/schemas/InterleavingExposureQuery"
+                    }
+                  },
+                  "required": [
+                    "interleavingExposureQuery"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X GET 'https://api.growthbook.io/api/v1/interleaving-exposure-queries/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "deleteInterleavingExposureQuery",
+        "summary": "Delete a single interleavingExposureQuery",
+        "tags": [
+          "InterleavingExposureQueries"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resource deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "deletedId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "deletedId"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X DELETE 'https://api.growthbook.io/api/v1/interleaving-exposure-queries/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+          }
+        ]
+      },
+      "put": {
+        "operationId": "updateInterleavingExposureQuery",
+        "summary": "Update a single interleavingExposureQuery",
+        "tags": [
+          "InterleavingExposureQueries"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "owner": {
+                    "description": "The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization.",
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "userIdTypes": {
+                    "minItems": 1,
+                    "maxItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "query": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Resource updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "interleavingExposureQuery": {
+                      "$ref": "#/components/schemas/InterleavingExposureQuery"
+                    }
+                  },
+                  "required": [
+                    "interleavingExposureQuery"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X PUT 'https://api.growthbook.io/api/v1/interleaving-exposure-queries/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+          }
+        ]
+      }
+    },
+    "/v1/interleaving-exposure-queries": {
+      "post": {
+        "operationId": "createInterleavingExposureQuery",
+        "summary": "Create a single interleavingExposureQuery",
+        "tags": [
+          "InterleavingExposureQueries"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "owner": {
+                    "description": "The userId or email address of the owner. If an email address is provided, it will be used to look up the userId of the matching organization member. If an ID is provided, it will be validated as existing in the organization. When omitted, it defaults to the requesting member: a personal access token's owner, or the member an organization API key assumes. An organization API key acting as itself leaves it empty.",
+                    "type": "string"
+                  },
+                  "datasourceId": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "userIdTypes": {
+                    "minItems": 1,
+                    "maxItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "query": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "datasourceId",
+                  "name",
+                  "userIdTypes",
+                  "query"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Resource created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "interleavingExposureQuery": {
+                      "$ref": "#/components/schemas/InterleavingExposureQuery"
+                    }
+                  },
+                  "required": [
+                    "interleavingExposureQuery"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X POST 'https://api.growthbook.io/api/v1/interleaving-exposure-queries' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+          }
+        ]
+      },
+      "get": {
+        "operationId": "listInterleavingExposureQueries",
+        "summary": "Get all interleavingExposureQueries",
+        "tags": [
+          "InterleavingExposureQueries"
+        ],
+        "parameters": [
+          {
+            "name": "datasourceId",
+            "in": "query",
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "interleavingExposureQueries": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/InterleavingExposureQuery"
+                      }
+                    }
+                  },
+                  "required": [
+                    "interleavingExposureQueries"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X GET 'https://api.growthbook.io/api/v1/interleaving-exposure-queries' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+          }
+        ]
+      }
+    },
     "/v1/interleavings/{id}": {
       "get": {
         "operationId": "getInterleaving",
@@ -71882,10 +72214,11 @@
                     }
                   },
                   "archived": {
-                    "description": "Stop a running interleaving experiment before archiving it.",
+                    "description": "Archiving removes a running interleaving experiment from the SDK payload, so its rankers stop serving immediately.",
                     "type": "boolean"
                   },
                   "trackingKey": {
+                    "description": "The `experiment_id` recorded in exposures. Must be unique within the Data Source. Changing it on a running experiment means earlier exposures are no longer counted.",
                     "type": "string"
                   },
                   "hashAttribute": {
@@ -71895,10 +72228,11 @@
                     "type": "string"
                   },
                   "variations": {
-                    "description": "Replaces both rankers. Each keeps its id by position, so the first entry updates the first ranker.",
-                    "type": "array",
-                    "prefixItems": [
-                      {
+                    "description": "Replaces both rankers. Each keeps its id.",
+                    "type": "object",
+                    "properties": {
+                      "control": {
+                        "description": "The default ranker. Users who are not exposed to interleaved rankings get its list.",
                         "type": "object",
                         "properties": {
                           "key": {
@@ -71924,7 +72258,8 @@
                         ],
                         "additionalProperties": false
                       },
-                      {
+                      "treatment": {
+                        "description": "The ranker being tested against control.",
                         "type": "object",
                         "properties": {
                           "key": {
@@ -71950,7 +72285,12 @@
                         ],
                         "additionalProperties": false
                       }
-                    ]
+                    },
+                    "required": [
+                      "control",
+                      "treatment"
+                    ],
+                    "additionalProperties": false
                   },
                   "jsonSchema": {
                     "anyOf": [
@@ -72093,10 +72433,10 @@
                       }
                     ]
                   },
-                  "datasource": {
+                  "datasourceId": {
                     "type": "string"
                   },
-                  "interleavingQueryId": {
+                  "interleavingExposureQueryId": {
                     "type": "string"
                   },
                   "userIdType": {
@@ -72133,13 +72473,12 @@
                                 "properties": {
                                   "type": {
                                     "type": "string",
-                                    "const": "ownership"
+                                    "const": "preference"
                                   },
                                   "attribution": {
                                     "type": "string",
                                     "enum": [
-                                      "exposureCount",
-                                      "engagementSignal"
+                                      "exposureCount"
                                     ]
                                   }
                                 },
@@ -72268,6 +72607,55 @@
             "source": "curl -X PUT 'https://api.growthbook.io/api/v1/interleavings/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
           }
         ]
+      },
+      "delete": {
+        "operationId": "deleteInterleaving",
+        "summary": "Delete a single interleaving",
+        "description": "Permanently deletes an interleaving experiment and its results snapshots. Archive instead to keep the results.",
+        "tags": [
+          "Interleavings"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resource deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "deletedId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "deletedId"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "202": {
+            "$ref": "#/components/responses/ConfirmationHeld"
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X DELETE 'https://api.growthbook.io/api/v1/interleavings/{id}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+          }
+        ]
       }
     },
     "/v1/interleavings": {
@@ -72305,22 +72693,23 @@
                     }
                   },
                   "key": {
-                    "description": "The key your code passes to `interleave()` as `key`. Can't be changed later. Several experiments may share a key so you can iterate without changing code, but only one of them can be running in a given environment, and each needs its own `trackingKey`.",
+                    "description": "The key your code passes to `interleave()` as `key`. Can't be changed later. Several experiments may share a key so you can iterate without changing code, but only one of them can be running in a given environment.",
                     "type": "string",
                     "pattern": "^[a-zA-Z0-9_.:\\|\\-]+$"
                   },
                   "trackingKey": {
-                    "description": "The `experiment_id` recorded in exposures. Defaults to `key`.",
+                    "description": "The `experiment_id` recorded in exposures. Leave this unset: it is generated from `key`, with a `_v1` style suffix when another experiment in this Data Source already uses it. Tracking keys must be unique within a Data Source, so supplying one that is taken is rejected.",
                     "type": "string"
                   },
                   "hashAttribute": {
                     "type": "string"
                   },
                   "variations": {
-                    "description": "Exactly two rankers. Users who are not exposed to interleaved rankings get the first ranker's list.",
-                    "type": "array",
-                    "prefixItems": [
-                      {
+                    "description": "Exactly two rankers, by role.",
+                    "type": "object",
+                    "properties": {
+                      "control": {
+                        "description": "The default ranker. Users who are not exposed to interleaved rankings get its list.",
                         "type": "object",
                         "properties": {
                           "key": {
@@ -72346,7 +72735,8 @@
                         ],
                         "additionalProperties": false
                       },
-                      {
+                      "treatment": {
+                        "description": "The ranker being tested against control.",
                         "type": "object",
                         "properties": {
                           "key": {
@@ -72372,7 +72762,12 @@
                         ],
                         "additionalProperties": false
                       }
-                    ]
+                    },
+                    "required": [
+                      "control",
+                      "treatment"
+                    ],
+                    "additionalProperties": false
                   },
                   "jsonSchema": {
                     "description": "Validation schema to stage on the draft. The server sets `date`, so don't send it.",
@@ -72508,10 +72903,10 @@
                     ],
                     "additionalProperties": false
                   },
-                  "datasource": {
+                  "datasourceId": {
                     "type": "string"
                   },
-                  "interleavingQueryId": {
+                  "interleavingExposureQueryId": {
                     "type": "string"
                   },
                   "userIdType": {
@@ -72548,13 +72943,12 @@
                                 "properties": {
                                   "type": {
                                     "type": "string",
-                                    "const": "ownership"
+                                    "const": "preference"
                                   },
                                   "attribution": {
                                     "type": "string",
                                     "enum": [
-                                      "exposureCount",
-                                      "engagementSignal"
+                                      "exposureCount"
                                     ]
                                   }
                                 },
@@ -72652,8 +73046,8 @@
                   "name",
                   "key",
                   "variations",
-                  "datasource",
-                  "interleavingQueryId",
+                  "datasourceId",
+                  "interleavingExposureQueryId",
                   "userIdType"
                 ],
                 "additionalProperties": false
@@ -72864,6 +73258,297 @@
           {
             "lang": "cURL",
             "source": "curl -X POST 'https://api.growthbook.io/api/v1/interleavings/{id}/stop' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+          }
+        ]
+      }
+    },
+    "/v1/interleavings/{id}/refresh": {
+      "post": {
+        "operationId": "refreshInterleaving",
+        "summary": "Refresh interleaving experiment results",
+        "description": "Creates a results snapshot and starts its metric queries against the Data Source. The experiment must have been started and have at least one metric. Queries run asynchronously; poll the snapshot until its `status` is `success` or `error`.",
+        "tags": [
+          "Interleavings"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The interleaving experiment id",
+            "schema": {
+              "description": "The interleaving experiment id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resource created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "snapshot": {
+                      "$ref": "#/components/schemas/InterleavingSnapshot"
+                    }
+                  },
+                  "required": [
+                    "snapshot"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X POST 'https://api.growthbook.io/api/v1/interleavings/{id}/refresh' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+          }
+        ]
+      }
+    },
+    "/v1/interleavings/{id}/results": {
+      "get": {
+        "operationId": "getInterleavingResults",
+        "summary": "Get the latest interleaving experiment results",
+        "description": "Returns the most recent successful `snapshot` and the status-only `latest` run. Poll `latest` while a refresh is in progress; `snapshot` remains null until a run succeeds.",
+        "tags": [
+          "Interleavings"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The interleaving experiment id",
+            "schema": {
+              "description": "The interleaving experiment id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "snapshot": {
+                      "description": "The most recent snapshot that succeeded, so results stay readable while a newer run is in flight. null until the first run succeeds.",
+                      "anyOf": [
+                        {
+                          "title": "Interleaving Snapshot",
+                          "$ref": "#/components/schemas/InterleavingSnapshot"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "latest": {
+                      "description": "Status of the most recent snapshot in any state. Poll this to follow a run; it matches `snapshot` once that run succeeds. null until the first refresh.",
+                      "anyOf": [
+                        {
+                          "title": "Interleaving Snapshot Status",
+                          "$ref": "#/components/schemas/InterleavingSnapshotStatus"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "snapshot",
+                    "latest"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X GET 'https://api.growthbook.io/api/v1/interleavings/{id}/results' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+          }
+        ]
+      }
+    },
+    "/v1/interleavings/{id}/status": {
+      "get": {
+        "operationId": "getInterleavingStatus",
+        "summary": "Get interleaving experiment run status",
+        "description": "Just the status of the most recent results run (id, status, queries, timestamps). A lightweight alternative to the full results endpoint, intended for polling while a run is in progress.",
+        "tags": [
+          "Interleavings"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The interleaving experiment id",
+            "schema": {
+              "description": "The interleaving experiment id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "latest": {
+                      "description": "null until the first refresh",
+                      "anyOf": [
+                        {
+                          "title": "Interleaving Snapshot Status",
+                          "$ref": "#/components/schemas/InterleavingSnapshotStatus"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "latest"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X GET 'https://api.growthbook.io/api/v1/interleavings/{id}/status' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+          }
+        ]
+      }
+    },
+    "/v1/interleavings/{id}/snapshots": {
+      "get": {
+        "operationId": "listInterleavingSnapshots",
+        "summary": "List interleaving experiment results snapshots",
+        "description": "Newest snapshot first, regardless of status.",
+        "tags": [
+          "Interleavings"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The interleaving experiment id",
+            "schema": {
+              "description": "The interleaving experiment id",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "",
+            "schema": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "snapshots": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/InterleavingSnapshot"
+                      }
+                    }
+                  },
+                  "required": [
+                    "snapshots"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X GET 'https://api.growthbook.io/api/v1/interleavings/{id}/snapshots' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+          }
+        ]
+      }
+    },
+    "/v1/interleavings/{id}/snapshots/{snapshotId}": {
+      "get": {
+        "operationId": "getInterleavingSnapshot",
+        "summary": "Get an interleaving experiment results snapshot",
+        "tags": [
+          "Interleavings"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The interleaving experiment id",
+            "schema": {
+              "description": "The interleaving experiment id",
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/snapshotId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "snapshot": {
+                      "$ref": "#/components/schemas/InterleavingSnapshot"
+                    }
+                  },
+                  "required": [
+                    "snapshot"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X GET 'https://api.growthbook.io/api/v1/interleavings/{id}/snapshots/{snapshotId}' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
           }
         ]
       }
@@ -110016,6 +110701,64 @@
         ],
         "additionalProperties": false
       },
+      "InterleavingExposureQuery": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "dateCreated": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "dateUpdated": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "owner": {
+            "description": "The userId of the owner (or raw owner name/email for legacy records)",
+            "type": "string"
+          },
+          "ownerEmail": {
+            "description": "The email address of the owner, when the owner can be resolved to a known user.",
+            "type": "string"
+          },
+          "datasourceId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string"
+          },
+          "userIdTypes": {
+            "minItems": 1,
+            "maxItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "query": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id",
+          "dateCreated",
+          "dateUpdated",
+          "owner",
+          "datasourceId",
+          "name",
+          "userIdTypes",
+          "query"
+        ],
+        "additionalProperties": false
+      },
       "Interleaving": {
         "type": "object",
         "properties": {
@@ -110087,35 +110830,73 @@
             "type": "string"
           },
           "variations": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "string"
+            "description": "Exactly two rankers, by role.",
+            "type": "object",
+            "properties": {
+              "control": {
+                "description": "The default ranker.",
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "key": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "config": {
+                    "description": "The ranker's config, as a JSON string",
+                    "type": "string"
+                  }
                 },
-                "key": {
-                  "type": "string"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "config": {
-                  "description": "The ranker's config, as a JSON string",
-                  "type": "string"
-                }
+                "required": [
+                  "id",
+                  "key",
+                  "name",
+                  "config"
+                ],
+                "additionalProperties": false
               },
-              "required": [
-                "id",
-                "key",
-                "name",
-                "config"
-              ],
-              "additionalProperties": false
-            }
+              "treatment": {
+                "description": "The ranker being tested against control.",
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "key": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "config": {
+                    "description": "The ranker's config, as a JSON string",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "key",
+                  "name",
+                  "config"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "control",
+              "treatment"
+            ],
+            "additionalProperties": false
           },
           "jsonSchema": {
             "anyOf": [
@@ -110263,10 +111044,10 @@
               }
             ]
           },
-          "datasource": {
+          "datasourceId": {
             "type": "string"
           },
-          "interleavingQueryId": {
+          "interleavingExposureQueryId": {
             "type": "string"
           },
           "userIdType": {
@@ -110303,13 +111084,12 @@
                         "properties": {
                           "type": {
                             "type": "string",
-                            "const": "ownership"
+                            "const": "preference"
                           },
                           "attribution": {
                             "type": "string",
                             "enum": [
-                              "exposureCount",
-                              "engagementSignal"
+                              "exposureCount"
                             ]
                           }
                         },
@@ -110418,11 +111198,463 @@
           "seed",
           "variations",
           "jsonSchema",
-          "datasource",
-          "interleavingQueryId",
+          "datasourceId",
+          "interleavingExposureQueryId",
           "userIdType",
           "metrics",
           "environmentSettings"
+        ],
+        "additionalProperties": false
+      },
+      "InterleavingSnapshot": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "interleavingId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "running",
+              "success",
+              "error"
+            ]
+          },
+          "error": {
+            "type": "string"
+          },
+          "dateCreated": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "runStarted": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "settings": {
+            "type": "object",
+            "properties": {
+              "trackingKey": {
+                "type": "string"
+              },
+              "datasourceId": {
+                "type": "string"
+              },
+              "interleavingExposureQueryId": {
+                "type": "string"
+              },
+              "userIdType": {
+                "type": "string"
+              },
+              "variations": {
+                "type": "object",
+                "properties": {
+                  "control": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "key": {
+                        "type": "string",
+                        "pattern": "\\S"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "key",
+                      "name"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "treatment": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "key": {
+                        "type": "string",
+                        "pattern": "\\S"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "key",
+                      "name"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "control",
+                  "treatment"
+                ],
+                "additionalProperties": false
+              },
+              "metrics": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "analyses": {
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "const": "paired"
+                              }
+                            },
+                            "required": [
+                              "type"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "const": "preference"
+                              },
+                              "attribution": {
+                                "type": "string",
+                                "enum": [
+                                  "exposureCount"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "attribution"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "analyses"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "pValueThreshold": {
+                "type": "number"
+              },
+              "startDate": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "endDate": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "trackingKey",
+              "datasourceId",
+              "interleavingExposureQueryId",
+              "userIdType",
+              "variations",
+              "metrics",
+              "pValueThreshold",
+              "startDate",
+              "endDate"
+            ],
+            "additionalProperties": false
+          },
+          "results": {
+            "description": "Present once status is success",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "metricId": {
+                  "type": "string"
+                },
+                "analysis": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "paired"
+                        }
+                      },
+                      "required": [
+                        "type"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "const": "preference"
+                        },
+                        "attribution": {
+                          "type": "string",
+                          "enum": [
+                            "exposureCount"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "attribution"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ]
+                },
+                "users": {
+                  "type": "number"
+                },
+                "denominator": {
+                  "type": "number"
+                },
+                "control": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "number"
+                    },
+                    "cr": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "value",
+                    "cr"
+                  ],
+                  "additionalProperties": false
+                },
+                "treatment": {
+                  "type": "object",
+                  "properties": {
+                    "value": {
+                      "type": "number"
+                    },
+                    "cr": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "value",
+                    "cr"
+                  ],
+                  "additionalProperties": false
+                },
+                "test": {
+                  "type": "object",
+                  "properties": {
+                    "method": {
+                      "description": "Which test produced this result. paired_delta_t: paired delta-method t-test on per-user credited rates (paired analysis). exact_binomial_sign: exact binomial sign test over non-tied users with a Clopper-Pearson interval (preference analysis).",
+                      "type": "string",
+                      "enum": [
+                        "paired_delta_t",
+                        "exact_binomial_sign"
+                      ]
+                    },
+                    "expected": {
+                      "type": "number"
+                    },
+                    "ci": {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        {
+                          "anyOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "pValue": {
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "errorMessage": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "pValueErrorMessage": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "NUMERICAL_PVALUE_NOT_CONVERGED",
+                            "ALPHA_GREATER_THAN_0.5_FOR_SEQUENTIAL_ONE_SIDED_TEST"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "method",
+                    "expected",
+                    "ci",
+                    "pValue",
+                    "errorMessage",
+                    "pValueErrorMessage"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "metricId",
+                "analysis",
+                "users",
+                "denominator",
+                "control",
+                "treatment",
+                "test"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "usersExposed": {
+            "description": "Distinct units in the exposure query. Absent on snapshots run before this was recorded.",
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "interleavingId",
+          "status",
+          "dateCreated",
+          "runStarted",
+          "settings"
+        ],
+        "additionalProperties": false
+      },
+      "InterleavingSnapshotStatus": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "running",
+              "success",
+              "error"
+            ]
+          },
+          "error": {
+            "type": "string"
+          },
+          "dateCreated": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "runStarted": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "queries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "query": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "queued",
+                    "running",
+                    "failed",
+                    "partially-succeeded",
+                    "succeeded"
+                  ]
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "query",
+                "status",
+                "name"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "dateCreated",
+          "runStarted",
+          "queries"
         ],
         "additionalProperties": false
       },
@@ -120110,6 +121342,7 @@
         "ContextualBandits",
         "Dashboards",
         "ContextualBanditQueries",
+        "InterleavingExposureQueries",
         "Interleavings",
         "CustomFields",
         "MetricGroups",
@@ -120199,6 +121432,9 @@
         "InformationSchema_model",
         "InformationSchemaTable_model",
         "Interleaving_model",
+        "InterleavingExposureQuery_model",
+        "InterleavingSnapshot_model",
+        "InterleavingSnapshotStatus_model",
         "Learning_model",
         "LookbackOverride_model",
         "Member_model",
