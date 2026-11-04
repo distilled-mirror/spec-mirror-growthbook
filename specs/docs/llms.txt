@@ -1,6 +1,6 @@
 # GrowthBook Documentation
 
-- [Docs (198 pages)](https://docs.growthbook.io/_llms/docs.txt): Documentation for Docs.
+- [Docs (202 pages)](https://docs.growthbook.io/_llms/docs.txt): Documentation for Docs.
 
 ## SDKs
 
@@ -54,6 +54,6 @@
 
 ## Indexes
 
-- [Docs (198 pages)](https://docs.growthbook.io/_llms/docs.txt): Documentation for Docs.
+- [Docs (202 pages)](https://docs.growthbook.io/_llms/docs.txt): Documentation for Docs.
 - [API (569 pages)](https://docs.growthbook.io/_llms/api.txt): Documentation for API.
 - [API / Endpoints (451 pages)](https://docs.growthbook.io/_llms/api/endpoints.txt): Documentation for API / Endpoints.
