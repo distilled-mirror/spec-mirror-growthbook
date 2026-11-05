@@ -19189,6 +19189,14 @@
                     "description": "Deprecated: use `assignmentQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `assignmentQuery.identifierType` instead. Can only be set if a templateId is not provided.",
                     "type": "string"
                   },
+                  "isClusterExperiment": {
+                    "description": "Run as a cluster-randomized experiment: randomize on the assignment query's identifier type (the cluster, e.g. region_id) while analyzing a nested sub-unit (clusterSubUnitIdentifier, e.g. user_id). The assignment query must declare both identifier types.",
+                    "type": "boolean"
+                  },
+                  "clusterSubUnitIdentifier": {
+                    "description": "The nested sub-unit identifier type analyzed within each cluster (e.g. user_id). Required when isClusterExperiment is true; must be declared by the assignment query and differ from its cluster identifier type.",
+                    "type": "string"
+                  },
                   "trackingKey": {
                     "description": "Key sent with exposure events. Keep it short, in kebab-case (usually the Feature Flag key). If your organization requires a tracking key format, a key that doesn't match is rejected with `invalid_tracking_key`. Changing it after launch splits exposures across two keys.",
                     "type": "string"
@@ -20100,6 +20108,14 @@
                   "assignmentQueryId": {
                     "deprecated": true,
                     "description": "Deprecated: use `assignmentQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `assignmentQuery.identifierType` instead.",
+                    "type": "string"
+                  },
+                  "isClusterExperiment": {
+                    "description": "Run as a cluster-randomized experiment: randomize on the assignment query's identifier type (the cluster, e.g. region_id) while analyzing a nested sub-unit (clusterSubUnitIdentifier, e.g. user_id). The assignment query must declare both identifier types.",
+                    "type": "boolean"
+                  },
+                  "clusterSubUnitIdentifier": {
+                    "description": "The nested sub-unit identifier type analyzed within each cluster (e.g. user_id). Required when isClusterExperiment is true; must be declared by the assignment query and differ from its cluster identifier type.",
                     "type": "string"
                   },
                   "trackingKey": {
@@ -52266,6 +52282,10 @@
                                             ],
                                             "additionalProperties": false
                                           }
+                                        },
+                                        "population": {
+                                          "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A population applied to every metric in the request. Only proportion metrics on the population's Fact Table are supported; the request is rejected if any metric is incompatible.",
+                                          "$ref": "#/components/schemas/ExplorationPopulation"
                                         }
                                       },
                                       "required": [
@@ -57276,6 +57296,10 @@
                                             ],
                                             "additionalProperties": false
                                           }
+                                        },
+                                        "population": {
+                                          "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A population applied to every metric in the request. Only proportion metrics on the population's Fact Table are supported; the request is rejected if any metric is incompatible.",
+                                          "$ref": "#/components/schemas/ExplorationPopulation"
                                         }
                                       },
                                       "required": [
@@ -62556,6 +62580,10 @@
                                         ],
                                         "additionalProperties": false
                                       }
+                                    },
+                                    "population": {
+                                      "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A population applied to every metric in the request. Only proportion metrics on the population's Fact Table are supported; the request is rejected if any metric is incompatible.",
+                                      "$ref": "#/components/schemas/ExplorationPopulation"
                                     }
                                   },
                                   "required": [
@@ -67871,6 +67899,10 @@
                                         ],
                                         "additionalProperties": false
                                       }
+                                    },
+                                    "population": {
+                                      "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A population applied to every metric in the request. Only proportion metrics on the population's Fact Table are supported; the request is rejected if any metric is incompatible.",
+                                      "$ref": "#/components/schemas/ExplorationPopulation"
                                     }
                                   },
                                   "required": [
@@ -75171,6 +75203,12 @@
                     "description": "Deprecated: use `exposureQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `exposureQuery.identifierType` instead.",
                     "type": "string"
                   },
+                  "isClusterExperiment": {
+                    "type": "boolean"
+                  },
+                  "clusterSubUnitIdentifier": {
+                    "type": "string"
+                  },
                   "hashAttribute": {
                     "type": "string"
                   },
@@ -75447,6 +75485,12 @@
                   "exposureQueryId": {
                     "deprecated": true,
                     "description": "Deprecated: use `exposureQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `exposureQuery.identifierType` instead.",
+                    "type": "string"
+                  },
+                  "isClusterExperiment": {
+                    "type": "boolean"
+                  },
+                  "clusterSubUnitIdentifier": {
                     "type": "string"
                   },
                   "hashAttribute": {
@@ -75790,6 +75834,12 @@
                             "exposureQueryId": {
                               "deprecated": true,
                               "description": "Deprecated: use `exposureQuery`. Rejected when selecting a different assignment query that declares several identifier types; set `exposureQuery.identifierType` instead.",
+                              "type": "string"
+                            },
+                            "isClusterExperiment": {
+                              "type": "boolean"
+                            },
+                            "clusterSubUnitIdentifier": {
                               "type": "string"
                             },
                             "hashAttribute": {
@@ -76400,6 +76450,10 @@
                           ],
                           "additionalProperties": false
                         }
+                      },
+                      "population": {
+                        "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A population applied to every metric in the request. Only proportion metrics on the population's Fact Table are supported; the request is rejected if any metric is incompatible.",
+                        "$ref": "#/components/schemas/ExplorationPopulation"
                       }
                     },
                     "required": [
@@ -76530,6 +76584,10 @@
                                           ],
                                           "additionalProperties": false
                                         }
+                                      },
+                                      "populationCount": {
+                                        "description": "**Beta** — this field is new and may change in backwards-incompatible ways. Number of units in the dataset's population for this row. Only present when the request has a population; each value's numerator and denominator keep their usual meaning, limited to population members.",
+                                        "type": "number"
                                       },
                                       "steps": {
                                         "type": "array",
@@ -77051,6 +77109,10 @@
                                         ],
                                         "additionalProperties": false
                                       }
+                                    },
+                                    "population": {
+                                      "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A population applied to every metric in the request. Only proportion metrics on the population's Fact Table are supported; the request is rejected if any metric is incompatible.",
+                                      "$ref": "#/components/schemas/ExplorationPopulation"
                                     }
                                   },
                                   "required": [
@@ -77677,6 +77739,10 @@
                                           ],
                                           "additionalProperties": false
                                         }
+                                      },
+                                      "populationCount": {
+                                        "description": "**Beta** — this field is new and may change in backwards-incompatible ways. Number of units in the dataset's population for this row. Only present when the request has a population; each value's numerator and denominator keep their usual meaning, limited to population members.",
+                                        "type": "number"
                                       },
                                       "steps": {
                                         "type": "array",
@@ -78858,6 +78924,10 @@
                                           ],
                                           "additionalProperties": false
                                         }
+                                      },
+                                      "populationCount": {
+                                        "description": "**Beta** — this field is new and may change in backwards-incompatible ways. Number of units in the dataset's population for this row. Only present when the request has a population; each value's numerator and denominator keep their usual meaning, limited to population members.",
+                                        "type": "number"
                                       },
                                       "steps": {
                                         "type": "array",
@@ -80067,6 +80137,10 @@
                                           "additionalProperties": false
                                         }
                                       },
+                                      "populationCount": {
+                                        "description": "**Beta** — this field is new and may change in backwards-incompatible ways. Number of units in the dataset's population for this row. Only present when the request has a population; each value's numerator and denominator keep their usual meaning, limited to population members.",
+                                        "type": "number"
+                                      },
                                       "steps": {
                                         "type": "array",
                                         "items": {
@@ -81270,6 +81344,10 @@
                                           ],
                                           "additionalProperties": false
                                         }
+                                      },
+                                      "populationCount": {
+                                        "description": "**Beta** — this field is new and may change in backwards-incompatible ways. Number of units in the dataset's population for this row. Only present when the request has a population; each value's numerator and denominator keep their usual meaning, limited to population members.",
+                                        "type": "number"
                                       },
                                       "steps": {
                                         "type": "array",
@@ -82495,6 +82573,10 @@
                                           ],
                                           "additionalProperties": false
                                         }
+                                      },
+                                      "populationCount": {
+                                        "description": "**Beta** — this field is new and may change in backwards-incompatible ways. Number of units in the dataset's population for this row. Only present when the request has a population; each value's numerator and denominator keep their usual meaning, limited to population members.",
+                                        "type": "number"
                                       },
                                       "steps": {
                                         "type": "array",
@@ -95327,6 +95409,14 @@
             "deprecated": true,
             "type": "string"
           },
+          "isClusterExperiment": {
+            "description": "Whether this is a cluster-randomized experiment (randomized on the assignment query's identifier type, analyzed on clusterSubUnitIdentifier).",
+            "type": "boolean"
+          },
+          "clusterSubUnitIdentifier": {
+            "description": "For cluster experiments, the nested sub-unit identifier type analyzed within each cluster (e.g. user_id).",
+            "type": "string"
+          },
           "experimentId": {
             "type": "string"
           },
@@ -107722,6 +107812,10 @@
                                 ],
                                 "additionalProperties": false
                               }
+                            },
+                            "population": {
+                              "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A population applied to every metric in the request. Only proportion metrics on the population's Fact Table are supported; the request is rejected if any metric is incompatible.",
+                              "$ref": "#/components/schemas/ExplorationPopulation"
                             }
                           },
                           "required": [
@@ -110253,6 +110347,99 @@
         ],
         "additionalProperties": false
       },
+      "ExplorationPopulation": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "factTable"
+                  },
+                  "factTableId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "type",
+                  "factTableId"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "rowFilters": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "operator": {
+                  "type": "string",
+                  "enum": [
+                    "=",
+                    "!=",
+                    "<",
+                    "<=",
+                    ">",
+                    ">=",
+                    "between",
+                    "not_between",
+                    "in",
+                    "not_in",
+                    "contains",
+                    "not_contains",
+                    "matches_pattern",
+                    "not_matches_pattern",
+                    "starts_with",
+                    "ends_with",
+                    "is_null",
+                    "not_null",
+                    "is_true",
+                    "is_false",
+                    "sql_expr",
+                    "saved_filter"
+                  ]
+                },
+                "column": {
+                  "type": "string"
+                },
+                "values": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "operator"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "aggregateFilter": {
+            "description": "Conditions on each unit's total within the queried date range, such as \">=3\" or \">=3,<10\". Requires aggregateFilterColumn",
+            "type": "string"
+          },
+          "aggregateFilterColumn": {
+            "description": "Numeric column to total, or \"$$count\" to count rows. Requires aggregateFilter",
+            "type": "string"
+          },
+          "unit": {
+            "description": "Identifier type that defines population membership. Every metric's unit must match it.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "rowFilters",
+          "unit"
+        ],
+        "additionalProperties": false
+      },
       "ContextualBandit": {
         "type": "object",
         "properties": {
@@ -112114,6 +112301,12 @@
             "deprecated": true,
             "type": "string"
           },
+          "isClusterExperiment": {
+            "type": "boolean"
+          },
+          "clusterSubUnitIdentifier": {
+            "type": "string"
+          },
           "hashAttribute": {
             "type": "string"
           },
@@ -112369,6 +112562,10 @@
                         ],
                         "additionalProperties": false
                       }
+                    },
+                    "populationCount": {
+                      "description": "**Beta** — this field is new and may change in backwards-incompatible ways. Number of units in the dataset's population for this row. Only present when the request has a population; each value's numerator and denominator keep their usual meaning, limited to population members.",
+                      "type": "number"
                     },
                     "steps": {
                       "type": "array",
@@ -112892,6 +113089,10 @@
                           ],
                           "additionalProperties": false
                         }
+                      },
+                      "population": {
+                        "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A population applied to every metric in the request. Only proportion metrics on the population's Fact Table are supported; the request is rejected if any metric is incompatible.",
+                        "$ref": "#/components/schemas/ExplorationPopulation"
                       }
                     },
                     "required": [
