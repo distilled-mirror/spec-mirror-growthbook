@@ -8,7 +8,7 @@
 
 - [SDK Overview](https://docs.growthbook.io/lib.md): Choose a GrowthBook SDK for JavaScript, React, Python, Node.js, mobile, or the edge to evaluate flags and run experiments.
 - [SDK Quickstart](https://docs.growthbook.io/lib/quickstart.md): Get GrowthBook feature flags and experiments running in your app in a few lines of code, then pick a language-specific SDK.
-- [OpenFeature Providers](https://docs.growthbook.io/lib/openfeature.md): Use GrowthBook as an OpenFeature provider in JavaScript, Python, Go, .NET, and Java so you can evaluate flags through the OpenFeature API.
+- [OpenFeature Providers](https://docs.growthbook.io/lib/openfeature.md): Use GrowthBook as an OpenFeature provider in JavaScript, Python, Go, .NET, Java, Swift, and Kotlin so you can evaluate flags through the OpenFeature API.
 - [Build Your Own SDK](https://docs.growthbook.io/lib/build-your-own.md): Spec for library authors building a GrowthBook SDK in an unsupported language, including required tests and hashing rules.
 
 #### Client

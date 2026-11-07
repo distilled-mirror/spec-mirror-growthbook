@@ -26588,6 +26588,10 @@
                   "parent": {
                     "description": "An environment that the new environment should inherit feature rules from. Requires an enterprise license",
                     "type": "string"
+                  },
+                  "isProduction": {
+                    "description": "Whether this is a production environment",
+                    "type": "boolean"
                   }
                 },
                 "required": [
@@ -26667,6 +26671,10 @@
                     "items": {
                       "type": "string"
                     }
+                  },
+                  "isProduction": {
+                    "description": "Whether this is a production environment",
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false
@@ -72250,7 +72258,7 @@
                     "type": "boolean"
                   },
                   "trackingKey": {
-                    "description": "The `experiment_id` recorded in exposures. Must be unique within the Data Source. Changing it on a running experiment means earlier exposures are no longer counted.",
+                    "description": "The `experiment_id` recorded in exposures. Must be unique across the organization. Changing it on a running experiment means earlier exposures are no longer counted.",
                     "type": "string"
                   },
                   "hashAttribute": {
@@ -72730,7 +72738,7 @@
                     "pattern": "^[a-zA-Z0-9_.:\\|\\-]+$"
                   },
                   "trackingKey": {
-                    "description": "The `experiment_id` recorded in exposures. Leave this unset: it is generated from `key`, with a `_v1` style suffix when another experiment in this Data Source already uses it. Tracking keys must be unique within a Data Source, so supplying one that is taken is rejected.",
+                    "description": "The `experiment_id` recorded in exposures. Leave this unset: it is generated from `key`, with a `_v1` style suffix when another experiment already uses it. Tracking keys must be unique across the organization, so supplying one that is taken is rejected.",
                     "type": "string"
                   },
                   "hashAttribute": {
@@ -73077,10 +73085,7 @@
                 "required": [
                   "name",
                   "key",
-                  "variations",
-                  "datasourceId",
-                  "interleavingExposureQueryId",
-                  "userIdType"
+                  "variations"
                 ],
                 "additionalProperties": false
               }
@@ -97302,6 +97307,9 @@
           },
           "parent": {
             "type": "string"
+          },
+          "isProduction": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -97309,7 +97317,8 @@
           "description",
           "toggleOnList",
           "defaultState",
-          "projects"
+          "projects",
+          "isProduction"
         ],
         "additionalProperties": false
       },
@@ -111368,6 +111377,13 @@
               ],
               "additionalProperties": false
             }
+          },
+          "autoSnapshots": {
+            "type": "boolean"
+          },
+          "nextSnapshotAttempt": {
+            "type": "string",
+            "format": "date-time"
           }
         },
         "required": [
