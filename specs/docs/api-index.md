@@ -2,7 +2,7 @@
 
 ## API
 
-- [API / Endpoints (451 pages)](https://docs.growthbook.io/_llms/api/endpoints.txt): Documentation for API / Endpoints.
+- [API / Endpoints (451 pages)](https://docs.growthbook.io/_llms/api/endpoints.txt): Projects, Environments, Feature Flags, Feature Revisions, Feature Flags (legacy), Feature Revisions (legacy), Ramp Schedules, Data Sources, Fact Tables, Fact Metrics, Metrics (legacy), Experiments, Namespaces, Experiment Snapshots, Dimensions, Segments, Experiment Reports, SDK Connections, Visual Changesets, Saved Groups, Saved Group Revisions, Constants, Constant Revisions, Configs, Config Revisions, Releases, Custom Hooks, Organizations, Members, Code References, Archetypes, Queries, Settings, Attributes, Usage, Meta, Contextual Bandits, Dashboards, Contextual Bandit Queries, Interleaving Exposure Queries, Interleaving Experiments, Custom Fields, Metric Groups, Teams, Experiment Templates, Analytics Explorations, Ramp Schedule Templates, Learnings, Holdouts, Auto Runs, Populations.
 
 ### Introduction
 
