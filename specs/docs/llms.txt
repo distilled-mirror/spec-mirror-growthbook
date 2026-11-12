@@ -1,6 +1,6 @@
 # GrowthBook Documentation
 
-- [Docs (202 pages)](https://docs.growthbook.io/_llms/docs.txt):  .
+- [Docs (203 pages)](https://docs.growthbook.io/_llms/docs.txt):  .
 
 ## SDKs
 
@@ -44,7 +44,7 @@
 - [Lambda@Edge Edge App & SDK](https://docs.growthbook.io/lib/edge/lambda.md): Evaluate GrowthBook feature flags and AI Visual Editor experiments at the edge with Lambda@Edge to cut flicker before HTML ships.
 - [GrowthBook Edge App for other providers](https://docs.growthbook.io/lib/edge/other.md): Use the GrowthBook Edge App pattern on other CDN or edge providers to evaluate flags and rewrite HTML before it reaches the browser.
 
-- [API (569 pages)](https://docs.growthbook.io/_llms/api.txt): Introduction, Endpoints, Models.
+- [API (593 pages)](https://docs.growthbook.io/_llms/api.txt): Introduction, Endpoints, Models.
 
 ## OpenAPI Specs
 
@@ -54,6 +54,6 @@
 
 ## Indexes
 
-- [Docs (202 pages)](https://docs.growthbook.io/_llms/docs.txt):  .
-- [API (569 pages)](https://docs.growthbook.io/_llms/api.txt): Introduction, Endpoints, Models.
-- [API / Endpoints (451 pages)](https://docs.growthbook.io/_llms/api/endpoints.txt): Projects, Environments, Feature Flags, Feature Revisions, Feature Flags (legacy), Feature Revisions (legacy), Ramp Schedules, Data Sources, Fact Tables, Fact Metrics, Metrics (legacy), Experiments, Namespaces, Experiment Snapshots, Dimensions, Segments, Experiment Reports, SDK Connections, Visual Changesets, Saved Groups, Saved Group Revisions, Constants, Constant Revisions, Configs, Config Revisions, Releases, Custom Hooks, Organizations, Members, Code References, Archetypes, Queries, Settings, Attributes, Usage, Meta, Contextual Bandits, Dashboards, Contextual Bandit Queries, Interleaving Exposure Queries, Interleaving Experiments, Custom Fields, Metric Groups, Teams, Experiment Templates, Analytics Explorations, Ramp Schedule Templates, Learnings, Holdouts, Auto Runs, Populations.
+- [Docs (203 pages)](https://docs.growthbook.io/_llms/docs.txt):  .
+- [API (593 pages)](https://docs.growthbook.io/_llms/api.txt): Introduction, Endpoints, Models.
+- [API / Endpoints (469 pages)](https://docs.growthbook.io/_llms/api/endpoints.txt): Projects, Environments, Feature Flags, Feature Revisions, Feature Flags (legacy), Feature Revisions (legacy), Ramp Schedules, Data Sources, Fact Tables, Fact Metrics, Metrics (legacy), Experiments, Namespaces, Experiment Snapshots, Dimensions, Segments, Experiment Reports, SDK Connections, Visual Changesets, Saved Groups, Saved Group Revisions, Constants, Constant Revisions, Configs, Config Revisions, Releases, Custom Hooks, Organizations, Members, Event Webhooks, Audit Logs, Code References, Archetypes, Queries, Settings, Attributes, Usage, Meta, Contextual Bandits, Dashboards, Contextual Bandit Queries, Interleaving Exposure Queries, Interleaving Experiments, Custom Fields, Metric Groups, Teams, Experiment Templates, Analytics Explorations, Ramp Schedule Templates, Learnings, Holdouts, Auto Runs, Populations, Webhook Secrets, SDK Webhooks.

@@ -2,7 +2,7 @@
 
 ## API
 
-- [API / Endpoints (451 pages)](https://docs.growthbook.io/_llms/api/endpoints.txt): Projects, Environments, Feature Flags, Feature Revisions, Feature Flags (legacy), Feature Revisions (legacy), Ramp Schedules, Data Sources, Fact Tables, Fact Metrics, Metrics (legacy), Experiments, Namespaces, Experiment Snapshots, Dimensions, Segments, Experiment Reports, SDK Connections, Visual Changesets, Saved Groups, Saved Group Revisions, Constants, Constant Revisions, Configs, Config Revisions, Releases, Custom Hooks, Organizations, Members, Code References, Archetypes, Queries, Settings, Attributes, Usage, Meta, Contextual Bandits, Dashboards, Contextual Bandit Queries, Interleaving Exposure Queries, Interleaving Experiments, Custom Fields, Metric Groups, Teams, Experiment Templates, Analytics Explorations, Ramp Schedule Templates, Learnings, Holdouts, Auto Runs, Populations.
+- [API / Endpoints (469 pages)](https://docs.growthbook.io/_llms/api/endpoints.txt): Projects, Environments, Feature Flags, Feature Revisions, Feature Flags (legacy), Feature Revisions (legacy), Ramp Schedules, Data Sources, Fact Tables, Fact Metrics, Metrics (legacy), Experiments, Namespaces, Experiment Snapshots, Dimensions, Segments, Experiment Reports, SDK Connections, Visual Changesets, Saved Groups, Saved Group Revisions, Constants, Constant Revisions, Configs, Config Revisions, Releases, Custom Hooks, Organizations, Members, Event Webhooks, Audit Logs, Code References, Archetypes, Queries, Settings, Attributes, Usage, Meta, Contextual Bandits, Dashboards, Contextual Bandit Queries, Interleaving Exposure Queries, Interleaving Experiments, Custom Fields, Metric Groups, Teams, Experiment Templates, Analytics Explorations, Ramp Schedule Templates, Learnings, Holdouts, Auto Runs, Populations, Webhook Secrets, SDK Webhooks.
 
 ### Introduction
 
@@ -14,6 +14,7 @@
 - [Analytics Exploration](https://docs.growthbook.io/api/AnalyticsExploration_model.md)
 - [Archetype](https://docs.growthbook.io/api/Archetype_model.md)
 - [Attribute](https://docs.growthbook.io/api/Attribute_model.md)
+- [Audit](https://docs.growthbook.io/api/Audit_model.md)
 - [Auto Run](https://docs.growthbook.io/api/AutoRun_model.md)
 - [Code Ref](https://docs.growthbook.io/api/CodeRef_model.md)
 - [Config](https://docs.growthbook.io/api/Config_model.md)
@@ -44,7 +45,10 @@
 - [Data Source](https://docs.growthbook.io/api/DataSource_model.md)
 - [Dimension](https://docs.growthbook.io/api/Dimension_model.md)
 - [Environment](https://docs.growthbook.io/api/Environment_model.md)
+- [Event](https://docs.growthbook.io/api/Event_model.md)
 - [Event User](https://docs.growthbook.io/api/EventUser_model.md)
+- [Event Webhook](https://docs.growthbook.io/api/EventWebhook_model.md)
+- [Event Webhook Log](https://docs.growthbook.io/api/EventWebhookLog_model.md)
 - [Experiment](https://docs.growthbook.io/api/Experiment_model.md)
 - [Experiment Rule](https://docs.growthbook.io/api/Experiment Rule_model.md)
 - [Experiment Analysis Settings](https://docs.growthbook.io/api/ExperimentAnalysisSettings_model.md)
@@ -119,6 +123,7 @@
 - [Schedule Rule](https://docs.growthbook.io/api/ScheduleRule_model.md)
 - [Scheduled Stop Plan](https://docs.growthbook.io/api/ScheduledStopPlan_model.md)
 - [Sdk Connection](https://docs.growthbook.io/api/SdkConnection_model.md)
+- [Sdk Webhook](https://docs.growthbook.io/api/SdkWebhook_model.md)
 - [Segment](https://docs.growthbook.io/api/Segment_model.md)
 - [Settings](https://docs.growthbook.io/api/Settings_model.md)
 - [Targeting Rule](https://docs.growthbook.io/api/Targeting Rule_model.md)
@@ -127,6 +132,7 @@
 - [Visual Change](https://docs.growthbook.io/api/VisualChange_model.md)
 - [Visual Changeset](https://docs.growthbook.io/api/VisualChangeset_model.md)
 - [Visual Editor Cb Experiment Stub](https://docs.growthbook.io/api/VisualEditorCbExperimentStub_model.md)
+- [Webhook Secret](https://docs.growthbook.io/api/WebhookSecret_model.md)
 
 ## OpenAPI Specs
 
