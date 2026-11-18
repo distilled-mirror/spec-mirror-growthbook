@@ -3,7 +3,7 @@
   "info": {
     "version": "5.2.0",
     "title": "GrowthBook REST API",
-    "description": "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available. Feature-flag and metric v1 routes are deprecated: they are tagged **LEGACY** in the sidebar and collapsed by default. Use the matching v2 group when both exist.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization, or less if the token's permissions are limited. These can be created by going to `Personal Access Tokens` under your user menu. Members with the API Keys **Manage members' tokens** permission can disable a member's token under `Settings -> Manage PATs`, and admins can require new tokens to expire within a maximum lifetime.\n- **Secret Keys**: These are sensitive and provide the level of access of the role they are given, which can be any built-in or custom role, with optional per-project role overrides and environment limits. Managing Secret Keys on behalf of an organization takes the [API Keys permissions](/account/user-permissions). These can be created by going to `Settings -> API Keys`, where Admins can also require new Secret Keys to expire within a maximum lifetime.\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\nIf a key has an expiration date, every response includes it in the `X-GrowthBook-Key-Expires-At` header (ISO 8601), so scripts can warn before the key stops working. Requests made with an expired key fail with a `401` that says where to create a replacement. See [Expiration](/integrations/ai-agents/api-keys#expiration) for choosing a key's expiration, the warnings before it lapses, and the organization policies.\n\n## Naming who asked\n\nRequests made with a Secret Key may add an `X-GrowthBook-Requested-By` header naming the organization member who asked for the change, as a user id or an email address. History, revision logs and webhooks show that member next to the key.\n\nEach key acts as **System** (the default) or **User**, set under `Settings -> API Keys`:\n\n- **System**: the header is optional. The key acts as itself, with its own permissions, and the named member is only recorded in history.\n- **User**: a request without the header is rejected with a 400. The request acts as the named member, with only what both the key and the member can do, so the header can narrow a key but never widen it. Drafts, owners, `mine` filters and reviews are the member's. The member's rights over their own drafts, comments and verdicts apply only where the key's own role allows the same action.\n\nA System key, or any key that names no one, acts as itself: it can draft and review with its own permissions, and its verdicts are judged on its role. A key belongs to no team, so its approval never satisfies a rule that requires approval from a team. No one can rule on a draft they created, and a key acting as itself can't rule on a draft it created or edited. An approval a User key gives counts only where both the key and the member could approve, and stops counting if the key is disabled, expires or is deleted. Because the header isn't verified, whoever holds the key can act as any member. A value that does not match a member of the organization is rejected with a 400. A create request that omits `owner` defaults it to the member a User key names. Scheduled and auto-publishes run later with the permissions of the request that armed them, and don't run if that member has left the organization, the key has expired, or the key no longer acts as User. Personal Access Tokens and OAuth tokens already act as their user and reject the header.\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\" \\\n-H \"X-GrowthBook-Requested-By: alice@example.com\"\n```\n\n## Naming and human review\n\nPeople review what the API creates in the GrowthBook UI.\n\n- Keep keys and names short (2-5 words). Follow your organization's Feature Flag key format (`featureRegexValidator` and `featureKeyExample` in `GET /v1/settings`), or use kebab-case if it has none. Feature Flag keys can't be changed after creation, and an experiment's tracking key shouldn't change after launch.\n- Put context (why, plan, tickets, links) in `description`, not in names or keys.\n- Group with `tags`, not name prefixes. Projects (`project` or `projects`) control access and where a resource can be used, so set them deliberately instead of using them as labels.\n- To create a Feature Flag disabled with `POST /v2/features`, list every environment in `environments` with `enabled: false` (on `POST /v1/features`, each entry also needs `rules: []`). An environment you leave out uses its default state, which may be enabled.\n- Leave publishing and production changes to a person unless asked.\n- If a request is blocked (an approval requirement, a warning, a Custom Hook, schema validation or a permission error), stop and ask a person. Don't retry with an override field, a different key or another workaround unless a person asked you to. If a write answers `202` with a `confirmation`, give a person its `url` and wait (see [Waiting for confirmation](#waiting-for-confirmation)).\n\n## Waiting for confirmation\n\nA key can require a person to confirm some writes before they run (see [API Keys for Agents](/integrations/ai-agents/api-keys#require-confirmation)). A held write doesn't run. It answers `202 Accepted` with the confirmation, a `Location` header to poll, and a `Retry-After` header with the seconds to wait between polls:\n\n```json\n{\n  \"confirmation\": {\n    \"id\": \"cnf_abc123\",\n    \"status\": \"pending\",\n    \"actions\": [\n      { \"action\": \"feature.publish\", \"environments\": [\"production\"] }\n    ],\n    \"summary\": \"Publish revision 3 of checkout-redesign\",\n    \"url\": \"https://app.growthbook.io/confirmations/cnf_abc123\",\n    \"expiresAt\": \"2026-10-15T18:00:00.000Z\",\n    \"response\": null,\n    \"note\": null\n  },\n  \"message\": \"A person must confirm this in GrowthBook. Give them the url, then poll the Location.\"\n}\n```\n\nGive the person the `url`, then poll [`GET /v1/confirmations/{id}`](/api/meta/operation/getConfirmation). Pass `wait` (in seconds, up to 30) to hold the poll open until the status changes:\n\n```bash\ncurl \"https://api.growthbook.io/api/v1/confirmations/cnf_abc123?wait=30\" \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n| `status`    | Meaning                                                                                                               |\n| ----------- | --------------------------------------------------------------------------------------------------------------------- |\n| `pending`   | Waiting for a person, until `expiresAt` (an hour after the request)                                                   |\n| `running`   | Confirmed, and running now                                                                                            |\n| `completed` | It ran. `response` holds the status and body the request returned, which may be an error                              |\n| `rejected`  | A person declined it, and nothing ran                                                                                 |\n| `expired`   | Nobody decided in time, or it acts on something that changed after it was held (with a `400` `response`). Nothing ran |\n\n`note` carries anything the person left for the agent when they decided. `actions` lists what the request was held for, each with the environments it touches.\n\n- Only the key that made the request, or another token of the same person, can read the confirmation.\n- Sending the same request again while it's pending returns the same confirmation.\n- A request that publishes, reverts or archives, or that changes a Feature Flag or an Experiment's status, schedule, targeting or traffic, isn't run if what it acts on changed after it was held. Other writes, such as editing settings or a draft, run as sent, so they can overwrite changes made while they waited.\n- A confirmed request runs once, with the key's permissions (or the member's role it assumes), not the confirmer's. Send it again to retry, which asks for a new confirmation.\n- Confirming isn't a review approval.\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **409** - Conflict - The resource changed since it was read, or its state blocks the request, such as an experiment start's checklist. `code` names which.\n- **422** - Unprocessable Entity - The request is valid, but a warning, validation rule, approval requirement, or another publishing gate blocked it. Do not assume that `ignoreWarnings` clears every 422 response.\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute, or the limit your self-hosted server sets. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n\n### Publishing gates\n\nAutomated callers, including AI agents, should report a blocked response to a person instead of retrying with an override. Use an override only when a person has explicitly asked for it.\n\nPublish and experiment start responses include a `gates` array that explains every blocker:\n\n- `type`, `severity`, and `messages` identify the problem.\n- `override` names the request-body field that can bypass it. This is `ignoreWarnings` for warnings, `skipSchemaValidation` for schema and invariant failures, `skipHooks` for Custom Hook rejections, or `skipChecklist` for an experiment start's launch checklist items. A value of `null` means there is no request-body override.\n- `requiresPermission` identifies any additional permission needed to use the override.\n- `resolution` provides an API action, method, and path when the blocker must be resolved another way.\n\nFor example, an approval gate is cleared by approving the revision or by using a caller with **Bypass draft approvals** access. A Config lock is cleared through the unlock route in `resolution`.\n\nWhen a successful publish bypasses a gate, the response includes `bypassedGates`. Each entry reports the gate `type` and how it was bypassed in `via`, which is one of `ignoreWarnings`, `skipSchemaValidation`, `skipHooks`, `skipChecklist`, `bypassApprovalPermission`, `restApiBypassesReviews`, or `revertsBypassApproval` (reverts only). This field is omitted when no gates were bypassed.\n\n### Request flags\n\nEvery refusal a request can get past with a flag:\n\n| Flag                      | Where        | Gets past                                                                                                    |\n| ------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------ |\n| `ignoreWarnings`          | Body         | Warnings (`422`)                                                                                             |\n| `skipSchemaValidation`    | Body         | Schema and invariant failures, with **Bypass draft approvals** access                                        |\n| `skipHooks`               | Body         | Custom Hook rejections                                                                                       |\n| `skipChecklist`           | Body         | An experiment start's incomplete launch checklist items (`409` `checklist_incomplete`), but not its blockers |\n| `allowUnscopedRules`      | Body         | A rule for All Environments and All Projects where the organization requires a scope (`422` `unscoped_rule`) |\n| `overrideDraftLimit=true` | Query string | Creating a draft past the draft limit                                                                        |\n"
+    "description": "GrowthBook offers a full REST API for interacting with the application.\n\nRequest data can use either JSON or Form data encoding (with proper `Content-Type` headers). All response bodies are JSON-encoded.\n\nThe API base URL for GrowthBook Cloud is `https://api.growthbook.io/api`. For self-hosted deployments, it is the same as your API_HOST environment variable (defaults to `http://localhost:3100/api`). The rest of these docs will assume you are using GrowthBook Cloud.\n\n## Versioning\n\nEndpoints are versioned by path prefix:\n\n- `/v1/...` — stable, widely-supported endpoints\n- `/v2/...` — updated endpoints with improved shapes (e.g. unified per-rule environment scope for feature flags)\n\nNew integrations should prefer v2 where available. Feature-flag and metric v1 routes are deprecated: they are tagged **LEGACY** in the sidebar and collapsed by default. Use the matching v2 group when both exist.\n\n## Authentication\n\nWe support both the HTTP Basic and Bearer authentication schemes for convenience.\n\nYou first need to generate a new API Key in GrowthBook. Different keys have different permissions:\n\n- **Personal Access Tokens**: These are sensitive and provide the same level of access as the user has to an organization, or less if the token's permissions are limited. These can be created by going to `Personal Access Tokens` under your user menu. Members with the API Keys **Manage members' tokens** permission can disable a member's token under `Settings -> Manage PATs`, and admins can require new tokens to expire within a maximum lifetime.\n- **Secret Keys**: These are sensitive and provide the level of access of the role they are given, which can be any built-in or custom role, with optional per-project role overrides and environment limits. Managing Secret Keys on behalf of an organization takes the [API Keys permissions](/account/user-permissions). These can be created by going to `Settings -> API Keys`, where Admins can also require new Secret Keys to expire within a maximum lifetime.\n\nIf using HTTP Basic auth, pass the Secret Key as the username and leave the password blank (when using curl, add `:` at the end of the secret to indicate an empty password)\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n  -u secret_abc123DEF456:\n```\n\nIf using Bearer auth, pass the Secret Key as the token:\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\nIf a key has an expiration date, every response includes it in the `X-GrowthBook-Key-Expires-At` header (ISO 8601), so scripts can warn before the key stops working. Requests made with an expired key fail with a `401` that says where to create a replacement. See [Expiration](/integrations/ai-agents/api-keys#expiration) for choosing a key's expiration, the warnings before it lapses, and the organization policies.\n\n## Naming who asked\n\nRequests made with a Secret Key may add an `X-GrowthBook-Requested-By` header naming the organization member who asked for the change, as a user id or an email address. History, revision logs and webhooks show that member next to the key.\n\nEach key acts as **System** (the default) or **User**, set under `Settings -> API Keys`:\n\n- **System**: the header is optional. The key acts as itself, with its own permissions, and the named member is only recorded in history.\n- **User**: a request without the header is rejected with a 400. The request acts as the named member, with only what both the key and the member can do, so the header can narrow a key but never widen it. Drafts, owners, `mine` filters and reviews are the member's. The member's rights over their own drafts, comments and verdicts apply only where the key's own role allows the same action.\n\nA System key, or any key that names no one, acts as itself: it can draft and review with its own permissions, and its verdicts are judged on its role. A key belongs to no team, so its approval never satisfies a rule that requires approval from a team. No one can rule on a draft they created, and a key acting as itself can't rule on a draft it created or edited. An approval a User key gives counts only where both the key and the member could approve, and stops counting if the key is disabled, expires or is deleted. Because the header isn't verified, whoever holds the key can act as any member. A value that does not match a member of the organization is rejected with a 400. A create request that omits `owner` defaults it to the member a User key names. Scheduled and auto-publishes run later with the permissions of the request that armed them, and don't run if that member has left the organization, the key has expired, or the key no longer acts as User. Personal Access Tokens and OAuth tokens already act as their user and reject the header.\n\n```bash\ncurl https://api.growthbook.io/api/v1/features \\\n-H \"Authorization: Bearer secret_abc123DEF456\" \\\n-H \"X-GrowthBook-Requested-By: alice@example.com\"\n```\n\n## Naming and human review\n\nPeople review what the API creates in the GrowthBook UI.\n\n- Keep keys and names short (2-5 words). Follow your organization's Feature Flag key format (`featureRegexValidator` and `featureKeyExample` in `GET /v1/settings`), or use kebab-case if it has none. Feature Flag keys can't be changed after creation, and an experiment's tracking key shouldn't change after launch.\n- Put context (why, plan, tickets, links) in `description`, not in names or keys.\n- Group with `tags`, not name prefixes. Projects (`project` or `projects`) control access and where a resource can be used, so set them deliberately instead of using them as labels.\n- To create a Feature Flag disabled with `POST /v2/features`, list every environment in `environments` with `enabled: false` (on `POST /v1/features`, each entry also needs `rules: []`). An environment you leave out uses its default state, which may be enabled.\n- Leave publishing and production changes to a person unless asked.\n- If a request is blocked (an approval requirement, a warning, a Custom Hook, schema validation or a permission error), stop and ask a person. Don't retry with an override field, a different key or another workaround unless a person asked you to. If a write answers `202` with a `confirmation`, give a person its `url` and wait (see [Waiting for confirmation](#waiting-for-confirmation)).\n\n## Waiting for confirmation\n\nA key can require a person to confirm some writes before they run (see [API Keys for Agents](/integrations/ai-agents/api-keys#require-confirmation)). A held write doesn't run. It answers `202 Accepted` with the confirmation, a `Location` header to poll, and a `Retry-After` header with the seconds to wait between polls:\n\n```json\n{\n  \"confirmation\": {\n    \"id\": \"cnf_abc123\",\n    \"status\": \"pending\",\n    \"actions\": [\n      { \"action\": \"feature.publish\", \"environments\": [\"production\"] }\n    ],\n    \"summary\": \"Publish revision 3 of checkout-redesign\",\n    \"url\": \"https://app.growthbook.io/confirmations/cnf_abc123\",\n    \"expiresAt\": \"2026-10-15T18:00:00.000Z\",\n    \"response\": null,\n    \"note\": null\n  },\n  \"message\": \"A person must confirm this in GrowthBook. Give them the url, then poll the Location.\"\n}\n```\n\nGive the person the `url`, then poll [`GET /v1/confirmations/{id}`](/api/meta/operation/getConfirmation). Pass `wait` (in seconds, up to 30) to hold the poll open until the status changes:\n\n```bash\ncurl \"https://api.growthbook.io/api/v1/confirmations/cnf_abc123?wait=30\" \\\n-H \"Authorization: Bearer secret_abc123DEF456\"\n```\n\n| `status`    | Meaning                                                                                                               |\n| ----------- | --------------------------------------------------------------------------------------------------------------------- |\n| `pending`   | Waiting for a person, until `expiresAt` (an hour after the request)                                                   |\n| `running`   | Confirmed, and running now                                                                                            |\n| `completed` | It ran. `response` holds the status and body the request returned, which may be an error                              |\n| `rejected`  | A person declined it, and nothing ran                                                                                 |\n| `expired`   | Nobody decided in time, or it acts on something that changed after it was held (with a `400` `response`). Nothing ran |\n\n`note` carries anything the person left for the agent when they decided. `actions` lists what the request was held for, each with the environments it touches.\n\n- Only the key that made the request, or another token of the same person, can read the confirmation.\n- Sending the same request again while it's pending returns the same confirmation.\n- A request that publishes, reverts or archives, or that changes a Feature Flag or an Experiment's status, schedule, targeting or traffic, isn't run if what it acts on changed after it was held. Other writes, such as editing settings or a draft, run as sent, so they can overwrite changes made while they waited.\n- A confirmed request runs once, with the key's permissions (or the member's role it assumes), not the confirmer's. Send it again to retry, which asks for a new confirmation.\n- Confirming isn't a review approval.\n\n## Errors\n\nThe API may return the following error status codes:\n\n- **400** - Bad Request - Often due to a missing required parameter\n- **401** - Unauthorized - No valid API key provided\n- **402** - Request Failed - The parameters are valid, but the request failed\n- **403** - Forbidden - Provided API key does not have the required access\n- **404** - Not Found - Unknown API route or requested resource\n- **409** - Conflict - The resource changed since it was read, or its state blocks the request, such as an experiment start's checklist. `code` names which.\n- **422** - Unprocessable Entity - The request is valid, but a warning, validation rule, approval requirement, or another publishing gate blocked it. Do not assume that `ignoreWarnings` clears every 422 response.\n- **429** - Too Many Requests - You exceeded the rate limit of 60 requests per minute, or the limit your self-hosted server sets. Try again later.\n- **5XX** - Server Error - Something went wrong on GrowthBook's end (these are rare)\n\nThe response body will be a JSON object with the following properties:\n\n- **message** - Information about the error\n\n### Publishing gates\n\nAutomated callers, including AI agents, should report a blocked response to a person instead of retrying with an override. Use an override only when a person has explicitly asked for it.\n\nPublish and experiment start responses include a `gates` array that explains every blocker:\n\n- `type`, `severity`, and `messages` identify the problem.\n- `override` names the request-body field that can bypass it. This is `ignoreWarnings` for warnings, `skipSchemaValidation` for schema and invariant failures, `skipHooks` for Custom Hook rejections, or `skipChecklist` for an experiment start's launch checklist items. A value of `null` means there is no request-body override.\n- `requiresPermission` identifies any additional permission needed to use the override.\n- `resolution` provides an API action, method, and path when the blocker must be resolved another way.\n\nFor example, an approval gate is cleared by approving the revision or by using a caller with **Bypass draft approvals** access. A Config lock is cleared through the unlock route in `resolution`.\n\nWhen a successful publish bypasses a gate, the response includes `bypassedGates`. Each entry reports the gate `type` and how it was bypassed in `via`, which is one of `ignoreWarnings`, `skipSchemaValidation`, `skipHooks`, `skipChecklist`, `bypassApprovalPermission`, `restApiBypassesReviews`, or `revertsBypassApproval` (reverts only). This field is omitted when no gates were bypassed.\n\n### Request flags\n\nEvery refusal a request can get past with a flag:\n\n| Flag                      | Where        | Gets past                                                                                                                   |\n| ------------------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------- |\n| `ignoreWarnings`          | Body         | Warnings (`422`)                                                                                                            |\n| `skipSchemaValidation`    | Body         | Schema and invariant failures, with **Bypass draft approvals** access                                                       |\n| `skipHooks`               | Body         | Custom Hook rejections                                                                                                      |\n| `skipChecklist`           | Body         | An experiment start's incomplete launch checklist items (`409` `checklist_incomplete`), but not its blockers                |\n| `allowUnscopedRules`      | Body         | A rule for All Environments and All Projects where the organization requires a scope (`422` `unscoped_rule`)                |\n| `overrideDraftLimit=true` | Query string | Creating a draft past the draft limit                                                                                       |\n| `bypassApproval`          | Body         | A direct write to a resource that requires approval, with **Bypass draft approvals** access or the REST API approval bypass |\n"
   },
   "servers": [
     {
@@ -866,6 +866,11 @@
       "name": "SdkConnection_model",
       "x-displayName": "Sdk Connection",
       "description": "<SchemaDefinition schemaRef=\"#/components/schemas/SdkConnection\" />"
+    },
+    {
+      "name": "SdkConnectionApprovalRule_model",
+      "x-displayName": "Sdk Connection Approval Rule",
+      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/SdkConnectionApprovalRule\" />"
     },
     {
       "name": "SdkWebhook_model",
@@ -26638,6 +26643,35 @@
           },
           {
             "$ref": "#/components/parameters/multiOrg"
+          },
+          {
+            "name": "archived",
+            "in": "query",
+            "description": "Whether to include archived SDK Connections. Defaults to `false` (non-archived only). Pass `true` to include archived SDK Connections alongside non-archived ones.",
+            "schema": {
+              "description": "Whether to include archived SDK Connections. Defaults to `false` (non-archived only). Pass `true` to include archived SDK Connections alongside non-archived ones.",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "true"
+                },
+                {
+                  "type": "string",
+                  "const": "false"
+                },
+                {
+                  "type": "string",
+                  "const": "0"
+                },
+                {
+                  "type": "string",
+                  "const": "1"
+                },
+                {
+                  "type": "boolean"
+                }
+              ]
+            }
           }
         ],
         "responses": {
@@ -26748,6 +26782,10 @@
                     "type": "boolean"
                   },
                   "includeExperimentScheduleInMetadata": {
+                    "type": "boolean"
+                  },
+                  "tracesEnabled": {
+                    "description": "Send SDK evaluation traces to GrowthBook. Only available to organizations with tracing enabled.",
                     "type": "boolean"
                   },
                   "proxyEnabled": {
@@ -26864,6 +26902,7 @@
       "put": {
         "operationId": "putSdkConnection",
         "summary": "Update a single sdk connection",
+        "description": "Applies the change immediately and records it as a published revision, so it appears in the connection's history. When the organization requires approvals for this connection's Projects and environment, open a draft from the SDK Connection page instead, or pass `bypassApproval`. Set `archived` to archive or restore the connection.",
         "tags": [
           "sdk-connections"
         ],
@@ -26938,6 +26977,10 @@
                   "includeExperimentScheduleInMetadata": {
                     "type": "boolean"
                   },
+                  "tracesEnabled": {
+                    "description": "Send SDK evaluation traces to GrowthBook. Only available to organizations with tracing enabled.",
+                    "type": "boolean"
+                  },
                   "proxyEnabled": {
                     "type": "boolean"
                   },
@@ -26965,6 +27008,14 @@
                   "includeReferencedPrerequisites": {
                     "description": "Carry prerequisite Feature Flags into this payload even when they target other Projects. Defaults to true for new connections.",
                     "type": "boolean"
+                  },
+                  "archived": {
+                    "description": "Archive (true) or restore (false) the connection. Archiving takes the same authority as deleting it; restoring takes publish authority.",
+                    "type": "boolean"
+                  },
+                  "bypassApproval": {
+                    "description": "Set to true to write directly to the live SDK Connection without approval. The caller must have Bypass draft approvals access in the SDK Connection's Projects, unless the organization enables the REST API approval bypass. This field has no effect when approval is not required.",
+                    "type": "boolean"
                   }
                 },
                 "additionalProperties": false
@@ -26982,6 +27033,13 @@
                   "properties": {
                     "sdkConnection": {
                       "$ref": "#/components/schemas/SdkConnection"
+                    },
+                    "bypassedGates": {
+                      "description": "Gates that would have blocked this publish but were bypassed by the caller's authority. Present only when at least one gate was bypassed.",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/bypassedGates"
+                      }
                     }
                   },
                   "required": [
@@ -27006,6 +27064,7 @@
       "delete": {
         "operationId": "deleteSdkConnection",
         "summary": "Deletes a single SDK connection",
+        "description": "When the organization requires approvals for this connection's Projects and environment, archive it first (`PUT /sdk-connections/{id}` with `archived: true`), then delete it. To delete a live connection in one step, pass `bypassApproval`.",
         "tags": [
           "sdk-connections"
         ],
@@ -27014,6 +27073,23 @@
             "$ref": "#/components/parameters/id"
           }
         ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "bypassApproval": {
+                    "description": "Set to true to write directly to the live SDK Connection without approval. The caller must have Bypass draft approvals access in the SDK Connection's Projects, unless the organization enables the REST API approval bypass. This field has no effect when approval is not required.",
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Resource deleted",
@@ -27024,6 +27100,13 @@
                   "properties": {
                     "deletedId": {
                       "type": "string"
+                    },
+                    "bypassedGates": {
+                      "description": "Gates that would have blocked this publish but were bypassed by the caller's authority. Present only when at least one gate was bypassed.",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/bypassedGates"
+                      }
                     }
                   },
                   "required": [
@@ -43205,7 +43288,7 @@
       "put": {
         "operationId": "putApprovalSettings",
         "summary": "Update approval settings",
-        "description": "Replace the approval requirements for feature flags, configs and constants, for saved groups, and the Targeting Projects review mode. Each family is replaced wholesale when supplied; omit one to leave it unchanged.",
+        "description": "Replace the approval requirements for feature flags, configs and constants, for saved groups, for SDK connections, and the Targeting Projects review mode. Each family is replaced wholesale when supplied; omit one to leave it unchanged.",
         "tags": [
           "settings"
         ],
@@ -43230,11 +43313,14 @@
                         "items": {
                           "$ref": "#/components/schemas/SavedGroupApprovalRule"
                         }
+                      },
+                      "sdkConnections": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/SdkConnectionApprovalRule"
+                        }
                       }
                     },
-                    "required": [
-                      "savedGroups"
-                    ],
                     "additionalProperties": false
                   },
                   "targetingReviewMode": {
@@ -43335,6 +43421,78 @@
           {
             "lang": "cURL",
             "source": "curl -X GET 'https://api.growthbook.io/api/v1/version' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
+          }
+        ]
+      }
+    },
+    "/v1/confirmations": {
+      "get": {
+        "operationId": "listConfirmations",
+        "summary": "List confirmations",
+        "description": "Lists the held requests made by this API key, or by any token of the same person, newest first. Returns pending ones unless `status` is set.",
+        "tags": [
+          "meta"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Only return confirmations with this status",
+            "schema": {
+              "description": "Only return confirmations with this status",
+              "default": "pending",
+              "type": "string",
+              "enum": [
+                "pending",
+                "running",
+                "completed",
+                "rejected",
+                "expired"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "confirmations": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/Confirmation"
+                          }
+                        }
+                      },
+                      "required": [
+                        "confirmations"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "$ref": "#/components/schemas/PaginationFields"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-codeSamples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X GET 'https://api.growthbook.io/api/v1/confirmations' \\\n  -H 'Authorization: Bearer YOUR_API_KEY'"
           }
         ]
       }
@@ -84973,7 +85131,7 @@
       "post": {
         "operationId": "postSdkConnectionWebhook",
         "summary": "Add a webhook to an SDK Connection",
-        "description": "Called whenever the connection's payload changes. `httpMethod` defaults to POST. More than one webhook per organization requires a paid plan.",
+        "description": "Called whenever the connection's payload changes. `httpMethod` defaults to POST. More than one webhook per organization requires a paid plan. When the organization requires approvals for the connection, change its webhooks in a draft from the SDK Connection page instead, or pass `bypassApproval`.",
         "tags": [
           "SdkWebhooks"
         ],
@@ -85043,6 +85201,10 @@
                       }
                     ],
                     "description": "Request timeout in seconds, up to the server maximum (120 unless configured). Null uses the default."
+                  },
+                  "bypassApproval": {
+                    "description": "Set to true to write directly to the live SDK Connection without approval. The caller must have Bypass draft approvals access in the SDK Connection's Projects, unless the organization enables the REST API approval bypass. This field has no effect when approval is not required.",
+                    "type": "boolean"
                   }
                 },
                 "required": [
@@ -85064,6 +85226,13 @@
                   "properties": {
                     "sdkWebhook": {
                       "$ref": "#/components/schemas/SdkWebhook"
+                    },
+                    "bypassedGates": {
+                      "description": "Gates that would have blocked this publish but were bypassed by the caller's authority. Present only when at least one gate was bypassed.",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/bypassedGates"
+                      }
                     }
                   },
                   "required": [
@@ -85090,7 +85259,7 @@
       "put": {
         "operationId": "putSdkWebhook",
         "summary": "Update an SDK webhook",
-        "description": "The webhook fires once after an update. Webhooks managed by the Vercel integration can't be changed.",
+        "description": "The webhook fires once after an update. Webhooks managed by the Vercel integration can't be changed. When the organization requires approvals for a connection the webhook fires for, change it in a draft from the SDK Connection page instead, or pass `bypassApproval`.",
         "tags": [
           "SdkWebhooks"
         ],
@@ -85162,6 +85331,10 @@
                     ],
                     "description": "Request timeout in seconds, up to the server maximum (120 unless configured). Null uses the default."
                   },
+                  "bypassApproval": {
+                    "description": "Set to true to write directly to the live SDK Connection without approval. The caller must have Bypass draft approvals access in the SDK Connection's Projects, unless the organization enables the REST API approval bypass. This field has no effect when approval is not required.",
+                    "type": "boolean"
+                  },
                   "sdkConnections": {
                     "minItems": 1,
                     "type": "array",
@@ -85186,6 +85359,13 @@
                   "properties": {
                     "sdkWebhook": {
                       "$ref": "#/components/schemas/SdkWebhook"
+                    },
+                    "bypassedGates": {
+                      "description": "Gates that would have blocked this publish but were bypassed by the caller's authority. Present only when at least one gate was bypassed.",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/bypassedGates"
+                      }
                     }
                   },
                   "required": [
@@ -85210,7 +85390,7 @@
       "delete": {
         "operationId": "deleteSdkWebhook",
         "summary": "Delete an SDK webhook",
-        "description": "Webhooks managed by the Vercel integration can't be deleted here.",
+        "description": "Webhooks managed by the Vercel integration can't be deleted here. When the organization requires approvals for a connection the webhook fires for, remove it in a draft from the SDK Connection page instead, or pass `bypassApproval`.",
         "tags": [
           "SdkWebhooks"
         ],
@@ -85225,6 +85405,23 @@
             }
           }
         ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "bypassApproval": {
+                    "description": "Set to true to write directly to the live SDK Connection without approval. The caller must have Bypass draft approvals access in the SDK Connection's Projects, unless the organization enables the REST API approval bypass. This field has no effect when approval is not required.",
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Resource deleted",
@@ -85235,6 +85432,13 @@
                   "properties": {
                     "deletedId": {
                       "type": "string"
+                    },
+                    "bypassedGates": {
+                      "description": "Gates that would have blocked this publish but were bypassed by the caller's authority. Present only when at least one gate was bypassed.",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/bypassedGates"
+                      }
                     }
                   },
                   "required": [
@@ -95101,6 +95305,10 @@
           "includeExperimentScheduleInMetadata": {
             "type": "boolean"
           },
+          "tracesEnabled": {
+            "description": "Send SDK evaluation traces to GrowthBook. Only available to organizations with tracing enabled.",
+            "type": "boolean"
+          },
           "key": {
             "type": "string"
           },
@@ -95136,6 +95344,10 @@
             ]
           },
           "includeReferencedPrerequisites": {
+            "type": "boolean"
+          },
+          "archived": {
+            "description": "An archived connection serves no payload. When the organization requires approvals for the connection, it must be archived before it can be deleted.",
             "type": "boolean"
           }
         },
@@ -100942,10 +101154,17 @@
                 "items": {
                   "$ref": "#/components/schemas/SavedGroupApprovalRule"
                 }
+              },
+              "sdkConnections": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/SdkConnectionApprovalRule"
+                }
               }
             },
             "required": [
-              "savedGroups"
+              "savedGroups",
+              "sdkConnections"
             ],
             "additionalProperties": false
           },
@@ -101130,6 +101349,49 @@
             "type": "boolean"
           },
           "requiredApproverTeams": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "required"
+        ],
+        "additionalProperties": false
+      },
+      "SdkConnectionApprovalRule": {
+        "type": "object",
+        "properties": {
+          "required": {
+            "type": "boolean"
+          },
+          "projects": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "resetReviewOnChange": {
+            "type": "boolean"
+          },
+          "requireMetadataReview": {
+            "type": "boolean"
+          },
+          "blockSelfApproval": {
+            "type": "boolean"
+          },
+          "autopublishOnApproval": {
+            "type": "boolean"
+          },
+          "requiredApproverTeams": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "environments": {
+            "description": "Environment IDs this rule applies to. Omitted or empty means every environment. Unlike the other fields, a Project rule does not inherit this from the all-Projects rule.",
             "type": "array",
             "items": {
               "type": "string"
@@ -117320,10 +117582,17 @@
             "items": {
               "$ref": "#/components/schemas/SavedGroupApprovalRule"
             }
+          },
+          "sdkConnections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SdkConnectionApprovalRule"
+            }
           }
         },
         "required": [
-          "savedGroups"
+          "savedGroups",
+          "sdkConnections"
         ],
         "additionalProperties": false
       },
@@ -117915,6 +118184,7 @@
         "ScheduleRule_model",
         "ScheduledStopPlan_model",
         "SdkConnection_model",
+        "SdkConnectionApprovalRule_model",
         "SdkWebhook_model",
         "Segment_model",
         "Settings_model",

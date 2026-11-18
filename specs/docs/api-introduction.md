@@ -164,3 +164,4 @@ Every refusal a request can get past with a flag:
 | `skipChecklist` | Body | An experiment start's incomplete launch checklist items (`409` `checklist_incomplete`), but not its blockers |
 | `allowUnscopedRules` | Body | A rule for All Environments and All Projects where the organization requires a scope (`422` `unscoped_rule`) |
 | `overrideDraftLimit=true` | Query string | Creating a draft past the draft limit |
+| `bypassApproval` | Body | A direct write to a resource that requires approval, with **Bypass draft approvals** access or the REST API approval bypass |
