@@ -2,7 +2,7 @@
 
 ## API
 
-- [API / Endpoints (477 pages)](https://docs.growthbook.io/_llms/api/endpoints.txt): Projects, Environments, Feature Flags, Feature Revisions, Feature Flags (legacy), Feature Revisions (legacy), Ramp Schedules, Data Sources, Fact Tables, Fact Metrics, Metrics (legacy), Experiments, Namespaces, Experiment Snapshots, Dimensions, Segments, Experiment Reports, SDK Connections, Visual Changesets, Saved Groups, Saved Group Revisions, Constants, Constant Revisions, Configs, Config Revisions, Releases, Custom Hooks, Organizations, Members, Event Webhooks, Audit Logs, Code References, Archetypes, Queries, Settings, Attributes, Usage, Meta, Contextual Bandits, information-schema-tables, Dashboards, Contextual Bandit Queries, Interleaving Exposure Queries, Interleaving Experiments, Custom Fields, Metric Groups, Teams, Experiment Templates, Analytics Explorations, Ramp Schedule Templates, Learnings, Holdouts, Auto Runs, Populations, Webhook Secrets, SDK Webhooks.
+- [API / Endpoints (498 pages)](https://docs.growthbook.io/_llms/api/endpoints.txt): Projects, Environments, Feature Flags, Feature Revisions, Feature Flags (legacy), Feature Revisions (legacy), Ramp Schedules, Data Sources, Fact Tables, Fact Metrics, Metrics (legacy), Experiments, Namespaces, Experiment Snapshots, Dimensions, Segments, Experiment Reports, SDK Connections, SDK Connection Revisions, Visual Changesets, Saved Groups, Saved Group Revisions, Constants, Constant Revisions, Configs, Config Revisions, Releases, Custom Hooks, Organizations, Members, Event Webhooks, Audit Logs, Code References, Archetypes, Queries, Settings, Attributes, Usage, Meta, Contextual Bandits, information-schema-tables, Dashboards, Contextual Bandit Queries, Interleaving Exposure Queries, Interleaving Experiments, Custom Fields, Metric Groups, Teams, Experiment Templates, Analytics Explorations, Ramp Schedule Templates, Learnings, Holdouts, Auto Runs, Populations, Webhook Secrets, SDK Webhooks.
 
 ### Introduction
 
@@ -124,6 +124,12 @@
 - [Scheduled Stop Plan](https://docs.growthbook.io/api/ScheduledStopPlan_model.md)
 - [Sdk Connection](https://docs.growthbook.io/api/SdkConnection_model.md)
 - [Sdk Connection Approval Rule](https://docs.growthbook.io/api/SdkConnectionApprovalRule_model.md)
+- [Sdk Connection Revision](https://docs.growthbook.io/api/SdkConnectionRevision_model.md)
+- [Sdk Connection Revision Activity Log Entry](https://docs.growthbook.io/api/SdkConnectionRevisionActivityLogEntry_model.md)
+- [Sdk Connection Revision Ref](https://docs.growthbook.io/api/SdkConnectionRevisionRef_model.md)
+- [Sdk Connection Revision Review](https://docs.growthbook.io/api/SdkConnectionRevisionReview_model.md)
+- [Sdk Connection Revision Settings](https://docs.growthbook.io/api/SdkConnectionRevisionSettings_model.md)
+- [Sdk Connection Revision Webhook](https://docs.growthbook.io/api/SdkConnectionRevisionWebhook_model.md)
 - [Sdk Webhook](https://docs.growthbook.io/api/SdkWebhook_model.md)
 - [Segment](https://docs.growthbook.io/api/Segment_model.md)
 - [Settings](https://docs.growthbook.io/api/Settings_model.md)
