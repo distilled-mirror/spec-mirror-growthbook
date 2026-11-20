@@ -2,7 +2,7 @@
 
 ## API
 
-- [API / Endpoints (498 pages)](https://docs.growthbook.io/_llms/api/endpoints.txt): Projects, Environments, Feature Flags, Feature Revisions, Feature Flags (legacy), Feature Revisions (legacy), Ramp Schedules, Data Sources, Fact Tables, Fact Metrics, Metrics (legacy), Experiments, Namespaces, Experiment Snapshots, Dimensions, Segments, Experiment Reports, SDK Connections, SDK Connection Revisions, Visual Changesets, Saved Groups, Saved Group Revisions, Constants, Constant Revisions, Configs, Config Revisions, Releases, Custom Hooks, Organizations, Members, Event Webhooks, Audit Logs, Code References, Archetypes, Queries, Settings, Attributes, Usage, Meta, Contextual Bandits, information-schema-tables, Dashboards, Contextual Bandit Queries, Interleaving Exposure Queries, Interleaving Experiments, Custom Fields, Metric Groups, Teams, Experiment Templates, Analytics Explorations, Ramp Schedule Templates, Learnings, Holdouts, Auto Runs, Populations, Webhook Secrets, SDK Webhooks.
+- [API / Endpoints (499 pages)](https://docs.growthbook.io/_llms/api/endpoints.txt): Projects, Environments, Feature Flags, Feature Revisions, Feature Flags (legacy), Feature Revisions (legacy), Ramp Schedules, Data Sources, Fact Tables, Fact Metrics, Metrics (legacy), Experiments, Namespaces, Experiment Snapshots, Dimensions, Segments, Experiment Reports, SDK Connections, SDK Connection Revisions, Visual Changesets, Saved Groups, Saved Group Revisions, Constants, Constant Revisions, Configs, Config Revisions, Releases, Custom Hooks, Organizations, Members, Event Webhooks, Audit Logs, Code References, Archetypes, Queries, Settings, Attributes, Usage, Meta, Contextual Bandits, information-schema-tables, Dashboards, Contextual Bandit Queries, Interleaving Exposure Queries, Interleaving Experiments, Custom Fields, Metric Groups, Teams, Experiment Templates, Analytics Explorations, Ramp Schedule Templates, Learnings, Holdouts, Auto Runs, Populations, Webhook Secrets, SDK Webhooks.
 
 ### Introduction
 
@@ -10,12 +10,16 @@
 
 ### Models
 
+- [Adobe Experience Platform Query Service Connection](https://docs.growthbook.io/api/AdobeExperiencePlatformQueryServiceConnection_model.md)
 - [Aggregated Fact Table](https://docs.growthbook.io/api/AggregatedFactTable_model.md)
 - [Analytics Exploration](https://docs.growthbook.io/api/AnalyticsExploration_model.md)
 - [Archetype](https://docs.growthbook.io/api/Archetype_model.md)
+- [Athena Connection](https://docs.growthbook.io/api/AthenaConnection_model.md)
 - [Attribute](https://docs.growthbook.io/api/Attribute_model.md)
 - [Audit](https://docs.growthbook.io/api/Audit_model.md)
 - [Auto Run](https://docs.growthbook.io/api/AutoRun_model.md)
+- [Big Query Connection](https://docs.growthbook.io/api/BigQueryConnection_model.md)
+- [Click House Connection](https://docs.growthbook.io/api/ClickHouseConnection_model.md)
 - [Code Ref](https://docs.growthbook.io/api/CodeRef_model.md)
 - [Config](https://docs.growthbook.io/api/Config_model.md)
 - [Config Key Usage](https://docs.growthbook.io/api/ConfigKeyUsage_model.md)
@@ -43,6 +47,7 @@
 - [Custom Hook](https://docs.growthbook.io/api/CustomHook_model.md)
 - [Dashboard](https://docs.growthbook.io/api/Dashboard_model.md)
 - [Data Source](https://docs.growthbook.io/api/DataSource_model.md)
+- [Databricks Connection](https://docs.growthbook.io/api/DatabricksConnection_model.md)
 - [Dimension](https://docs.growthbook.io/api/Dimension_model.md)
 - [Environment](https://docs.growthbook.io/api/Environment_model.md)
 - [Event](https://docs.growthbook.io/api/Event_model.md)
@@ -97,15 +102,21 @@
 - [Metric Analysis](https://docs.growthbook.io/api/MetricAnalysis_model.md)
 - [Metric Group](https://docs.growthbook.io/api/MetricGroup_model.md)
 - [Metric Usage](https://docs.growthbook.io/api/MetricUsage_model.md)
+- [Mixpanel Connection](https://docs.growthbook.io/api/MixpanelConnection_model.md)
+- [Mssql Connection](https://docs.growthbook.io/api/MssqlConnection_model.md)
+- [Mysql Connection](https://docs.growthbook.io/api/MysqlConnection_model.md)
 - [Namespace](https://docs.growthbook.io/api/Namespace_model.md)
 - [Namespace Experiment Member](https://docs.growthbook.io/api/NamespaceExperimentMember_model.md)
 - [Organization](https://docs.growthbook.io/api/Organization_model.md)
 - [Pagination Fields](https://docs.growthbook.io/api/PaginationFields_model.md)
 - [Population](https://docs.growthbook.io/api/Population_model.md)
+- [Postgres Connection](https://docs.growthbook.io/api/PostgresConnection_model.md)
+- [Presto Connection](https://docs.growthbook.io/api/PrestoConnection_model.md)
 - [Project](https://docs.growthbook.io/api/Project_model.md)
 - [Query](https://docs.growthbook.io/api/Query_model.md)
 - [Ramp Schedule](https://docs.growthbook.io/api/RampSchedule_model.md)
 - [Ramp Schedule Template](https://docs.growthbook.io/api/RampScheduleTemplate_model.md)
+- [Redshift Connection](https://docs.growthbook.io/api/RedshiftConnection_model.md)
 - [Report](https://docs.growthbook.io/api/Report_model.md)
 - [Require Review Rule](https://docs.growthbook.io/api/RequireReviewRule_model.md)
 - [Require Review Rule Input](https://docs.growthbook.io/api/RequireReviewRuleInput_model.md)
@@ -133,9 +144,11 @@
 - [Sdk Webhook](https://docs.growthbook.io/api/SdkWebhook_model.md)
 - [Segment](https://docs.growthbook.io/api/Segment_model.md)
 - [Settings](https://docs.growthbook.io/api/Settings_model.md)
+- [Snowflake Connection](https://docs.growthbook.io/api/SnowflakeConnection_model.md)
 - [Targeting Rule](https://docs.growthbook.io/api/Targeting Rule_model.md)
 - [Targeting Review Rule](https://docs.growthbook.io/api/TargetingReviewRule_model.md)
 - [Team](https://docs.growthbook.io/api/Team_model.md)
+- [Vertica Connection](https://docs.growthbook.io/api/VerticaConnection_model.md)
 - [Visual Change](https://docs.growthbook.io/api/VisualChange_model.md)
 - [Visual Changeset](https://docs.growthbook.io/api/VisualChangeset_model.md)
 - [Visual Editor Cb Experiment Stub](https://docs.growthbook.io/api/VisualEditorCbExperimentStub_model.md)
