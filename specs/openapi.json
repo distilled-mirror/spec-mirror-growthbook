@@ -37750,6 +37750,10 @@
                     "description": "When the config has no schema yet, infer one from the supplied `value` and stage it on the same draft.",
                     "type": "boolean"
                   },
+                  "inferUndeclaredFields": {
+                    "description": "Add an optional schema field, inferred from its value, for each top-level key in `value` that the Config's effective schema doesn't declare, staged on the same draft. Existing fields are never changed, and keys holding a `@const:`/`@config:` reference are skipped. Each added field is listed in `warnings` with code `inferred-field`. When `inferSchemaIfMissing` infers a whole schema, that takes precedence.",
+                    "type": "boolean"
+                  },
                   "ignoreWarnings": {
                     "description": "Set to true to acknowledge the warnings listed in a blocked response and continue. This covers experiment guards, locked dependents, and references affected by an archive. When the organization treats schema failures as warnings, it also covers schema and invariant warnings. It never bypasses a rejected Custom Hook. On revision publish endpoints, it can also force-publish an out-of-date draft when the caller has Bypass draft approvals access. Only set this when a person has explicitly asked you to. If a check blocks you, stop and ask a person instead of working around it.",
                     "type": "boolean"
@@ -38075,6 +38079,14 @@
                   "infer": {
                     "description": "Derive the schema from the draft's value instead.",
                     "type": "boolean"
+                  },
+                  "value": {
+                    "description": "This config's own value, staged together with the schema and validated against it. Use it to retype or remove a field the value sets, which a schema write or a value write can't do on its own.",
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string"
+                    },
+                    "additionalProperties": {}
                   },
                   "additionalProperties": {
                     "description": "Whether the resulting object schema permits extra keys (family extensibility).",
@@ -52915,7 +52927,7 @@
                                           }
                                         },
                                         "population": {
-                                          "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A saved Population applied to every metric in the request. Only proportion metrics on the Population's Fact Table are supported; the request is rejected if any metric is incompatible.",
+                                          "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A saved Population applied to every metric in the request. Only proportion and mean metrics on the Population's Fact Table are supported, and mean metrics can't use percentile capping; the request is rejected if any metric is incompatible.",
                                           "$ref": "#/components/schemas/ExplorationPopulation"
                                         }
                                       },
@@ -57653,7 +57665,7 @@
                                           }
                                         },
                                         "population": {
-                                          "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A saved Population applied to every metric in the request. Only proportion metrics on the Population's Fact Table are supported; the request is rejected if any metric is incompatible.",
+                                          "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A saved Population applied to every metric in the request. Only proportion and mean metrics on the Population's Fact Table are supported, and mean metrics can't use percentile capping; the request is rejected if any metric is incompatible.",
                                           "$ref": "#/components/schemas/ExplorationPopulation"
                                         }
                                       },
@@ -62637,7 +62649,7 @@
                                       }
                                     },
                                     "population": {
-                                      "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A saved Population applied to every metric in the request. Only proportion metrics on the Population's Fact Table are supported; the request is rejected if any metric is incompatible.",
+                                      "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A saved Population applied to every metric in the request. Only proportion and mean metrics on the Population's Fact Table are supported, and mean metrics can't use percentile capping; the request is rejected if any metric is incompatible.",
                                       "$ref": "#/components/schemas/ExplorationPopulation"
                                     }
                                   },
@@ -67656,7 +67668,7 @@
                                       }
                                     },
                                     "population": {
-                                      "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A saved Population applied to every metric in the request. Only proportion metrics on the Population's Fact Table are supported; the request is rejected if any metric is incompatible.",
+                                      "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A saved Population applied to every metric in the request. Only proportion and mean metrics on the Population's Fact Table are supported, and mean metrics can't use percentile capping; the request is rejected if any metric is incompatible.",
                                       "$ref": "#/components/schemas/ExplorationPopulation"
                                     }
                                   },
@@ -76036,7 +76048,7 @@
                         }
                       },
                       "population": {
-                        "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A saved Population applied to every metric in the request. Only proportion metrics on the Population's Fact Table are supported; the request is rejected if any metric is incompatible.",
+                        "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A saved Population applied to every metric in the request. Only proportion and mean metrics on the Population's Fact Table are supported, and mean metrics can't use percentile capping; the request is rejected if any metric is incompatible.",
                         "$ref": "#/components/schemas/ExplorationPopulation"
                       }
                     },
@@ -76659,7 +76671,7 @@
                                       }
                                     },
                                     "population": {
-                                      "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A saved Population applied to every metric in the request. Only proportion metrics on the Population's Fact Table are supported; the request is rejected if any metric is incompatible.",
+                                      "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A saved Population applied to every metric in the request. Only proportion and mean metrics on the Population's Fact Table are supported, and mean metrics can't use percentile capping; the request is rejected if any metric is incompatible.",
                                       "$ref": "#/components/schemas/ExplorationPopulation"
                                     }
                                   },
@@ -101025,7 +101037,8 @@
               "unresolved-type",
               "unsupported-member",
               "redundant-declaration",
-              "undeclared-rule-field"
+              "undeclared-rule-field",
+              "inferred-field"
             ]
           },
           "message": {
@@ -101780,7 +101793,7 @@
                   "items": {
                     "type": "string"
                   },
-                  "description": "Own value keys the effective schema no longer declares (e.g. an ancestor removed the field). They still resolve and are served, but nothing validates them and validation rules read them as null; a non-extensible family rejects them on the next changing publish."
+                  "description": "Own value keys the schema doesn't declare, for example because an ancestor removed the field. They're still served, but nothing checks them, and validation rules see them as null. When the base Config doesn't allow extra fields, publishing this Config fails until they're removed or added to a schema."
                 }
               },
               "required": [
@@ -109724,7 +109737,7 @@
                               }
                             },
                             "population": {
-                              "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A saved Population applied to every metric in the request. Only proportion metrics on the Population's Fact Table are supported; the request is rejected if any metric is incompatible.",
+                              "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A saved Population applied to every metric in the request. Only proportion and mean metrics on the Population's Fact Table are supported, and mean metrics can't use percentile capping; the request is rejected if any metric is incompatible.",
                               "$ref": "#/components/schemas/ExplorationPopulation"
                             }
                           },
@@ -114732,7 +114745,7 @@
                         }
                       },
                       "population": {
-                        "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A saved Population applied to every metric in the request. Only proportion metrics on the Population's Fact Table are supported; the request is rejected if any metric is incompatible.",
+                        "description": "**Beta** — this field is new and may change in backwards-incompatible ways. A saved Population applied to every metric in the request. Only proportion and mean metrics on the Population's Fact Table are supported, and mean metrics can't use percentile capping; the request is rejected if any metric is incompatible.",
                         "$ref": "#/components/schemas/ExplorationPopulation"
                       }
                     },
